@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=()">
+    <title>QR Scanner - Production Line Tracker</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .scanner-section {
+            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        #qr-reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .scanner-status {
+            text-align: center;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .scanner-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .scanner-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .scanner-status.info {
+            background: #4a4a4a;
+            color: white;
+            border: 1px solid #5a5a5a;
+        }
+
+        .scanner-status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #e55a2b 0%, #ff6b35 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+            box-shadow: 0 4px 15px rgba(74, 74, 74, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+
+        .result-content {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #4a4a4a;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #00ff00;
+        }
+
+        .manual-input {
+            margin: 20px 0;
+        }
+
+        .manual-input input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: white;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .manual-input input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            #qr-reader {
+                max-width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📷 QR/Barcode Scanner</h1>
+            <p>Production Line Tracker - AQUATEAK 2026</p>
+        </div>
+
+        <div class="scanner-section">
+            <div id="scannerStatus" class="scanner-status info">
+                🔄 Siap untuk scanning...
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="startCameraScan()">📸 Start Camera</button>
+                <button class="btn" onclick="stopCameraScan()">⏹️ Stop Camera</button>
+                <button class="btn btn-primary" onclick="switchCamera()">🔄 Switch Camera</button>
+            </div>
+
+            <div id="qr-reader"></div>
+
+            <div class="manual-input">
+                <h3>📝 Manual Input (Alternatif)</h3>
+                <input type="text" id="manualInput" placeholder="Masukkan QR/Barcode secara manual..." 
+                       onkeypress="if(event.key === 'Enter') processManualInput()">
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="processManualInput()">🔍 Process Manual</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultSection" class="result-section">
+            <h3>✅ Scan Result</h3>
+            <div id="resultContent" class="result-content"></div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="sendToAppsScript()">📤 Kirim ke Apps Script</button>
+                <button class="btn" onclick="resetScanner()">🔄 Scan Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let html5QrCode = null;
+        let cameras = [];
+        let currentCameraId = null;
+        let lastScanResult = null;
+
+        // Get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Update scanner status
+        function updateScannerStatus(message, type = 'info') {
+            const statusElement = document.getElementById('scannerStatus');
+            statusElement.textContent = message;
+            statusElement.className = 'scanner-status ' + type;
+        }
+
+        // Start camera scanner
+        function startCameraScan() {
+            console.log('=== STARTING CAMERA SCANNER ===');
+            updateScannerStatus('🔄 Memulai scanner...', 'info');
+            
+            // Check camera support
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateScannerStatus('❌ Browser tidak mendukung kamera. Gunakan Chrome/Firefox terbaru.', 'error');
+                return;
+            }
+            
+            // Clear previous scanner
+            if (html5QrCode) {
+                html5QrCode.clear();
+            }
+            
+            // Initialize scanner
+            html5QrCode = new Html5Qrcode("qr-reader");
+            
+            // Get available cameras
+            Html5Qrcode.getCameras().then(devices => {
+                console.log('Available cameras:', devices);
+                cameras = devices;
+                
+                if (devices && devices.length > 0) {
+                    // Use back camera by default
+                    const backCamera = devices.find(device => 
+                        device.label.toLowerCase().includes('back') || 
+                        device.label.toLowerCase().includes('environment') ||
+                        device.label.toLowerCase().includes('rear')
+                    ) || devices[0];
+                    
+                    currentCameraId = backCamera.id;
+                    console.log('Using camera:', backCamera.label || 'Camera ' + (devices.indexOf(backCamera) + 1));
+                    
+                    // Start scanning
+                    html5QrCode.start(
+                        backCamera,
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 },
+                            aspectRatio: 1.0
+                        },
+                        (decodedText, decodedResult) => {
+                            console.log('QR Code detected:', decodedText);
+                            onScanSuccess(decodedText);
+                        },
+                        (errorMessage) => {
+                            // Don't log every error to reduce console spam
+                            if (!errorMessage.includes('No QR code found') && 
+                                !errorMessage.includes('No barcode') &&
+                                !errorMessage.includes('NotFoundException')) {
+                                console.log('Scan error:', errorMessage);
+                            }
+                        }
+                    ).then(() => {
+                        console.log('Scanner started successfully');
+                        updateScannerStatus('✅ Scanner aktif. Arahkan ke QR Code atau Barcode.', 'success');
+                    }).catch((error) => {
+                        console.error('Scanner start error:', error);
+                        let errorMsg = '❌ Gagal memulai scanner: ' + error.message;
+                        updateScannerStatus(errorMsg, 'error');
+                    });
+                } else {
+                    updateScannerStatus('❌ Tidak ada kamera ditemukan. Gunakan Manual Input.', 'error');
+                }
+            }).catch((error) => {
+                console.error('Camera enumeration error:', error);
+                updateScannerStatus('❌ Error mengakses kamera: ' + error.message, 'error');
+            });
+        }
+
+        // Stop camera scanner
+        function stopCameraScan() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    console.log('Scanner stopped');
+                    updateScannerStatus('⏹️ Scanner dihentikan', 'info');
+                }).catch((error) => {
+                    console.error('Error stopping scanner:', error);
+                });
+            }
+        }
+
+        // Switch camera
+        function switchCamera() {
+            if (cameras.length <= 1) {
+                updateScannerStatus('⚠️ Hanya ada satu kamera tersedia', 'warning');
+                return;
+            }
+            
+            const currentIndex = cameras.findIndex(cam => cam.id === currentCameraId);
+            const nextIndex = (currentIndex + 1) % cameras.length;
+            const nextCamera = cameras[nextIndex];
+            
+            stopCameraScan();
+            
+            setTimeout(() => {
+                currentCameraId = nextCamera.id;
+                html5QrCode = new Html5Qrcode("qr-reader");
+                
+                html5QrCode.start(
+                    nextCamera,
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    },
+                    (decodedText, decodedResult) => {
+                        onScanSuccess(decodedText);
+                    },
+                    (errorMessage) => {
+                        // Handle scan errors silently
+                    }
+                ).then(() => {
+                    updateScannerStatus('✅ Camera diganti ke: ' + (nextCamera.label || 'Camera ' + (nextIndex + 1)), 'success');
+                }).catch((error) => {
+                    updateScannerStatus('❌ Gagal ganti kamera: ' + error.message, 'error');
+                });
+            }, 500);
+        }
+
+        // Handle successful scan
+        function onScanSuccess(decodedText) {
+            console.log('Scan successful:', decodedText);
+            lastScanResult = decodedText;
+            
+            // Stop scanner
+            stopCameraScan();
+            
+            // Show result
+            document.getElementById('resultContent').textContent = decodedText;
+            document.getElementById('resultSection').style.display = 'block';
+            updateScannerStatus('✅ Scan berhasil! Periksa hasil di bawah.', 'success');
+            
+            // Scroll to result
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Process manual input
+        function processManualInput() {
+            const manualValue = document.getElementById('manualInput').value.trim();
+            if (manualValue) {
+                onScanSuccess(manualValue);
+                document.getElementById('manualInput').value = '';
+            } else {
+                updateScannerStatus('⚠️ Masukkan QR/Barcode terlebih dahulu', 'warning');
+            }
+        }
+
+        // Send result back to Apps Script
+        function sendToAppsScript() {
+            if (!lastScanResult) {
+                updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
+                return;
+            }
+            
+            // Get the return URL from URL parameter or use default
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
+            const processId = getUrlParameter('processId') || 'default';
+            
+            if (returnUrl) {
+                // Try to send via postMessage first (if opener is available)
+                try {
+                    if (window.opener && !window.opener.closed) {
+                        window.opener.postMessage({
+                            type: 'QR_SCAN_RESULT',
+                            qrResult: lastScanResult,
+                            processId: processId,
+                            timestamp: new Date().toISOString(),
+                            source: 'external_scanner'
+                        }, '*');
+                        
+                        console.log('Sent result via postMessage');
+                        updateScannerStatus('✅ Hasil dikirim ke Apps Script', 'success');
+                        
+                        // Close after a short delay
+                        setTimeout(() => {
+                            window.close();
+                        }, 1500);
+                        return;
+                    }
+                } catch (error) {
+                    console.log('postMessage failed, using URL redirect:', error);
+                }
+                
+                // Fallback: Construct return URL with scan result
+                const returnParams = new URLSearchParams({
+                    qrResult: lastScanResult,
+                    processId: processId,
+                    timestamp: new Date().toISOString(),
+                    source: 'external_scanner'
+                });
+                
+                const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
+                
+                console.log('Returning to Apps Script via URL:', finalUrl);
+                updateScannerStatus('📤 Mengirim hasil ke Apps Script...', 'info');
+                
+                // Redirect back to Apps Script
+                setTimeout(() => {
+                    window.location.href = finalUrl;
+                }, 1000);
+            } else {
+                updateScannerStatus('⚠️ URL return tidak ditemukan. Tidak bisa mengirim ke Apps Script.', 'warning');
+            }
+        }
+
+        // Reset scanner
+        function resetScanner() {
+            lastScanResult = null;
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('resultContent').textContent = '';
+            updateScannerStatus('🔄 Siap untuk scanning...', 'info');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('QR Scanner External Page Loaded');
+            
+            // Check if we have return URL
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
+            if (returnUrl) {
+                updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Apps Script setelah scan.', 'success');
+            } else {
+                updateScannerStatus('⚠️ Mode standalone. Hasil scan tidak akan dikirim ke Apps Script.', 'warning');
+            }
+            
+            // Auto-focus manual input
+            document.getElementById('manualInput').focus();
+        });
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && html5QrCode) {
+                stopCameraScan();
+            }
+        });
+    </script>
+</body>
+</html>
