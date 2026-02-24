@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=()">
     <title>QR Scanner - Production Line Tracker</title>
@@ -210,6 +210,7 @@
                 <button class="btn btn-primary" onclick="switchCamera()">🔄 Switch Camera</button>
                 <button class="btn btn-warning" onclick="debugCamera()">🔍 Debug Camera</button>
                 <button class="btn btn-info" onclick="testBasicCameraAccess()">🧪 Test Basic Access</button>
+                <button class="btn btn-danger" onclick="forceRestartCamera()">🔄 Force Restart</button>
             </div>
 
             <div id="qr-reader"></div>
@@ -280,20 +281,29 @@
                 cameras = devices;
                 
                 if (devices && devices.length > 0) {
-                    // Use first available camera (more reliable)
-                    const selectedCamera = devices[0];
+                    // Use the USB camera that was detected
+                    const selectedCamera = devices.find(device => 
+                        device.label && device.label.includes('USB2.0 HD UVC WebCam')
+                    ) || devices[0];
+                    
                     currentCameraId = selectedCamera.id;
                     
                     console.log('Using camera:', selectedCamera.label || 'Camera ' + (devices.indexOf(selectedCamera) + 1));
                     updateScannerStatus('📷 Menggunakan kamera: ' + (selectedCamera.label || 'Kamera utama'), 'info');
                     
-                    // Start scanning with more permissive config
+                    // Start scanning with very permissive config
                     html5QrCode.start(
                         selectedCamera,
                         {
-                            fps: 5, // Lower FPS for better compatibility
-                            qrbox: { width: 200, height: 200 }, // Smaller box
-                            aspectRatio: 1.0
+                            fps: 2, // Very low FPS for stability
+                            qrbox: { width: 150, height: 150 }, // Smaller scanning area
+                            aspectRatio: 1.0,
+                            // Add more permissive settings
+                            videoConstraints: {
+                                width: { min: 320, ideal: 640, max: 1280 },
+                                height: { min: 240, ideal: 480, max: 720 },
+                                facingMode: "environment"
+                            }
                         },
                         (decodedText, decodedResult) => {
                             console.log('QR Code detected:', decodedText);
@@ -309,7 +319,24 @@
                         }
                     ).then(() => {
                         console.log('Scanner started successfully');
-                        updateScannerStatus('✅ Scanner aktif. Arahkan ke QR Code atau Barcode.', 'success');
+                        updateScannerStatus('✅ Scanner aktif. Menunggu video muncul...', 'info');
+                        
+                        // Check video status multiple times
+                        let checkCount = 0;
+                        const maxChecks = 10;
+                        const checkInterval = setInterval(() => {
+                            checkCount++;
+                            console.log('Checking video status, attempt:', checkCount);
+                            
+                            if (checkVideoStatus()) {
+                                clearInterval(checkInterval);
+                                updateScannerStatus('✅ Kamera aktif dan siap scan! Arahkan ke QR Code.', 'success');
+                            } else if (checkCount >= maxChecks) {
+                                clearInterval(checkInterval);
+                                updateScannerStatus('⚠️ Kamera aktif tapi video tidak muncul. Coba "Force Restart".', 'warning');
+                            }
+                        }, 1000);
+                        
                     }).catch((error) => {
                         console.error('Scanner start error:', error);
                         handleCameraError(error);
@@ -471,6 +498,99 @@
                 console.error('Basic camera access failed:', error);
                 handleCameraError(error);
             });
+        }
+
+        // Force restart camera
+        function forceRestartCamera() {
+            console.log('=== FORCE RESTART CAMERA ===');
+            updateScannerStatus('🔄 Force restart kamera...', 'info');
+            
+            // Stop any existing scanner
+            if (html5QrCode) {
+                try {
+                    html5QrCode.stop().then(() => {
+                        console.log('Scanner stopped for restart');
+                        html5QrCode.clear();
+                        console.log('Scanner cleared for restart');
+                        
+                        // Clear the QR reader div completely
+                        const qrReaderDiv = document.getElementById('qr-reader');
+                        if (qrReaderDiv) {
+                            qrReaderDiv.innerHTML = '';
+                            console.log('QR reader div cleared');
+                        }
+                        
+                        // Wait a moment before restarting
+                        setTimeout(() => {
+                            console.log('Restarting camera after clear...');
+                            startCameraScan();
+                        }, 1000);
+                        
+                    }).catch((error) => {
+                        console.error('Error stopping scanner for restart:', error);
+                        // Even if stop fails, try to restart
+                        html5QrCode.clear();
+                        const qrReaderDiv = document.getElementById('qr-reader');
+                        if (qrReaderDiv) {
+                            qrReaderDiv.innerHTML = '';
+                        }
+                        setTimeout(() => {
+                            startCameraScan();
+                        }, 1000);
+                    });
+                } catch (error) {
+                    console.error('Error during force restart:', error);
+                    // Manual cleanup
+                    html5QrCode = null;
+                    const qrReaderDiv = document.getElementById('qr-reader');
+                    if (qrReaderDiv) {
+                        qrReaderDiv.innerHTML = '';
+                    }
+                    setTimeout(() => {
+                        startCameraScan();
+                    }, 2000);
+                }
+            } else {
+                // Just start fresh if no existing scanner
+                const qrReaderDiv = document.getElementById('qr-reader');
+                if (qrReaderDiv) {
+                    qrReaderDiv.innerHTML = '';
+                }
+                setTimeout(() => {
+                    startCameraScan();
+                }, 500);
+            }
+        }
+
+        // Check video element status
+        function checkVideoStatus() {
+            const qrReaderDiv = document.getElementById('qr-reader');
+            if (!qrReaderDiv) {
+                console.log('QR reader div not found');
+                return false;
+            }
+            
+            const videoElement = qrReaderDiv.querySelector('video');
+            if (!videoElement) {
+                console.log('Video element not found in QR reader');
+                return false;
+            }
+            
+            console.log('Video element found:', videoElement);
+            console.log('Video src:', videoElement.src);
+            console.log('Video readyState:', videoElement.readyState);
+            console.log('Video videoWidth:', videoElement.videoWidth);
+            console.log('Video videoHeight:', videoElement.videoHeight);
+            console.log('Video paused:', videoElement.paused);
+            console.log('Video ended:', videoElement.ended);
+            
+            if (videoElement.readyState >= 2) { // HAVE_CURRENT_DATA
+                console.log('Video is ready and playing');
+                return true;
+            } else {
+                console.log('Video is not ready yet');
+                return false;
+            }
         }
 
         // Show manual input fallback
