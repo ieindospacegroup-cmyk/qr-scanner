@@ -208,6 +208,8 @@
                 <button class="btn btn-primary" onclick="startCameraScan()">📸 Start Camera</button>
                 <button class="btn" onclick="stopCameraScan()">⏹️ Stop Camera</button>
                 <button class="btn btn-primary" onclick="switchCamera()">🔄 Switch Camera</button>
+                <button class="btn btn-warning" onclick="debugCamera()">🔍 Debug Camera</button>
+                <button class="btn btn-info" onclick="testBasicCameraAccess()">🧪 Test Basic Access</button>
             </div>
 
             <div id="qr-reader"></div>
@@ -272,28 +274,25 @@
             // Initialize scanner
             html5QrCode = new Html5Qrcode("qr-reader");
             
-            // Get available cameras
+            // Get available cameras with better error handling
             Html5Qrcode.getCameras().then(devices => {
                 console.log('Available cameras:', devices);
                 cameras = devices;
                 
                 if (devices && devices.length > 0) {
-                    // Use back camera by default
-                    const backCamera = devices.find(device => 
-                        device.label.toLowerCase().includes('back') || 
-                        device.label.toLowerCase().includes('environment') ||
-                        device.label.toLowerCase().includes('rear')
-                    ) || devices[0];
+                    // Use first available camera (more reliable)
+                    const selectedCamera = devices[0];
+                    currentCameraId = selectedCamera.id;
                     
-                    currentCameraId = backCamera.id;
-                    console.log('Using camera:', backCamera.label || 'Camera ' + (devices.indexOf(backCamera) + 1));
+                    console.log('Using camera:', selectedCamera.label || 'Camera ' + (devices.indexOf(selectedCamera) + 1));
+                    updateScannerStatus('📷 Menggunakan kamera: ' + (selectedCamera.label || 'Kamera utama'), 'info');
                     
-                    // Start scanning
+                    // Start scanning with more permissive config
                     html5QrCode.start(
-                        backCamera,
+                        selectedCamera,
                         {
-                            fps: 10,
-                            qrbox: { width: 250, height: 250 },
+                            fps: 5, // Lower FPS for better compatibility
+                            qrbox: { width: 200, height: 200 }, // Smaller box
                             aspectRatio: 1.0
                         },
                         (decodedText, decodedResult) => {
@@ -313,16 +312,173 @@
                         updateScannerStatus('✅ Scanner aktif. Arahkan ke QR Code atau Barcode.', 'success');
                     }).catch((error) => {
                         console.error('Scanner start error:', error);
-                        let errorMsg = '❌ Gagal memulai scanner: ' + error.message;
-                        updateScannerStatus(errorMsg, 'error');
+                        handleCameraError(error);
                     });
                 } else {
                     updateScannerStatus('❌ Tidak ada kamera ditemukan. Gunakan Manual Input.', 'error');
+                    showManualInputFallback();
                 }
             }).catch((error) => {
                 console.error('Camera enumeration error:', error);
-                updateScannerStatus('❌ Error mengakses kamera: ' + error.message, 'error');
+                handleCameraError(error);
             });
+        }
+
+        // Handle camera errors with better messages
+        function handleCameraError(error) {
+            let errorMsg = '❌ Gagal mengakses kamera';
+            
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                errorMsg = '❌ Izin kamera ditolak. Solusi:\n1. Klik ikon gembok/🔒 di address bar\n2. Pilih "Allow" atau "Izinkan"\n3. Refresh halaman (F5)\n4. Coba lagi';
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError' || error.message.includes('Requested device not found')) {
+                errorMsg = '❌ Tidak ada kamera ditemukan. Solusi:\n1. Pastikan kamera terhubung\n2. Coba gunakan HP/lain device\n3. Gunakan Manual Input\n4. Periksa driver kamera';
+            } else if (error.name === 'NotSupportedError') {
+                errorMsg = '❌ Browser tidak mendukung kamera. Gunakan Chrome, Firefox, atau Edge terbaru.';
+            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                errorMsg = '❌ Kamera sedang digunakan aplikasi lain. Tutup:\n1. Video call (Zoom, Meet, Teams)\n2. Aplikasi kamera lain\n3. Tab browser lain yang pakai kamera';
+            } else if (error.name === 'OverconstrainedError') {
+                errorMsg = '❌ Kamera tidak memenuhi requirements. Coba:\n1. Gunakan kamera lain\n2. Restart browser\n3. Gunakan Manual Input';
+            } else if (error.message.includes('Permission denied')) {
+                errorMsg = '❌ Izin kamera ditolak. Klik ikon gembok 🔒 di address bar dan izinkan kamera.';
+            } else {
+                errorMsg = '❌ Error kamera: ' + error.message + '\n\nSolusi: Gunakan Manual Input sebagai alternatif.';
+            }
+            
+            updateScannerStatus(errorMsg, 'error');
+            showManualInputFallback();
+        }
+
+        // Debug camera function
+        function debugCamera() {
+            console.log('=== CAMERA DEBUG INFO ===');
+            updateScannerStatus('🔍 Mengecek informasi kamera...', 'info');
+            
+            let debugInfo = '📋 Camera Debug Information:\n\n';
+            
+            // Browser info
+            debugInfo += '🌐 Browser:\n';
+            debugInfo += '- Name: ' + navigator.userAgent + '\n';
+            debugInfo += '- Platform: ' + navigator.platform + '\n';
+            debugInfo += '- Language: ' + navigator.language + '\n\n';
+            
+            // Media devices support
+            debugInfo += '📱 Media Devices Support:\n';
+            debugInfo += '- mediaDevices: ' + (navigator.mediaDevices ? '✅ Available' : '❌ Not Available') + '\n';
+            debugInfo += '- getUserMedia: ' + (navigator.mediaDevices && navigator.mediaDevices.getUserMedia ? '✅ Available' : '❌ Not Available') + '\n';
+            debugInfo += '- enumerateDevices: ' + (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices ? '✅ Available' : '❌ Not Available') + '\n\n';
+            
+            // HTTPS check
+            debugInfo += '🔒 Security:\n';
+            debugInfo += '- Protocol: ' + window.location.protocol + '\n';
+            debugInfo += '- HTTPS: ' + (window.location.protocol === 'https:' ? '✅ Secure' : '⚠️ Not Secure (camera may not work)') + '\n';
+            debugInfo += '- Hostname: ' + window.location.hostname + '\n\n';
+            
+            updateScannerStatus(debugInfo, 'info');
+            
+            // Try to enumerate devices
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                navigator.mediaDevices.enumerateDevices()
+                    .then(devices => {
+                        console.log('All devices:', devices);
+                        
+                        let deviceInfo = '\n📹 Found Devices:\n';
+                        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                        const audioDevices = devices.filter(device => device.kind === 'audioinput');
+                        
+                        deviceInfo += '- Video inputs: ' + videoDevices.length + '\n';
+                        videoDevices.forEach((device, index) => {
+                            deviceInfo += '  ' + (index + 1) + '. ' + (device.label || 'Unknown Camera') + ' (ID: ' + device.deviceId.substring(0, 8) + '...)\n';
+                        });
+                        
+                        deviceInfo += '- Audio inputs: ' + audioDevices.length + '\n';
+                        audioDevices.forEach((device, index) => {
+                            deviceInfo += '  ' + (index + 1) + '. ' + (device.label || 'Unknown Microphone') + '\n';
+                        });
+                        
+                        if (videoDevices.length === 0) {
+                            deviceInfo += '\n⚠️ No camera devices found!\n';
+                            deviceInfo += 'Possible solutions:\n';
+                            deviceInfo += '1. Connect a camera\n';
+                            deviceInfo += '2. Use a different device (phone/tablet)\n';
+                            deviceInfo += '3. Check camera drivers\n';
+                            deviceInfo += '4. Try different browser\n';
+                        }
+                        
+                        updateScannerStatus(debugInfo + deviceInfo, 'info');
+                        
+                        // Store devices for later use
+                        cameras = videoDevices;
+                        console.log('Stored cameras:', cameras);
+                        
+                    })
+                    .catch(error => {
+                        console.error('Error enumerating devices:', error);
+                        updateScannerStatus(debugInfo + '\n❌ Error getting device list: ' + error.message, 'error');
+                    });
+            } else {
+                updateScannerStatus(debugInfo + '\n❌ Device enumeration not supported', 'error');
+            }
+        }
+
+        // Test basic camera access
+        function testBasicCameraAccess() {
+            console.log('Testing basic camera access...');
+            updateScannerStatus('🔍 Menguji akses kamera dasar...', 'info');
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateScannerStatus('❌ Browser tidak mendukung getUserMedia', 'error');
+                return;
+            }
+            
+            // Try very basic camera request
+            navigator.mediaDevices.getUserMedia({ 
+                video: true,
+                audio: false 
+            })
+            .then(function(stream) {
+                console.log('Basic camera access successful!');
+                console.log('Stream tracks:', stream.getTracks());
+                
+                // Get video track info
+                const videoTracks = stream.getVideoTracks();
+                if (videoTracks.length > 0) {
+                    const track = videoTracks[0];
+                    console.log('Video track:', track);
+                    console.log('Track settings:', track.getSettings());
+                    console.log('Track capabilities:', track.getCapabilities());
+                    
+                    let successInfo = '✅ Basic camera access successful!\n\n';
+                    successInfo += '📹 Video Track Info:\n';
+                    successInfo += '- Label: ' + (track.label || 'Unknown') + '\n';
+                    successInfo += '- Enabled: ' + track.enabled + '\n';
+                    successInfo += '- Muted: ' + track.muted + '\n';
+                    successInfo += '- State: ' + track.readyState + '\n';
+                    
+                    const settings = track.getSettings();
+                    successInfo += '\n⚙️ Settings:\n';
+                    successInfo += '- Width: ' + settings.width + '\n';
+                    successInfo += '- Height: ' + settings.height + '\n';
+                    successInfo += '- Frame Rate: ' + settings.frameRate + '\n';
+                    
+                    updateScannerStatus(successInfo, 'success');
+                    
+                    // Stop the test stream
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                
+            })
+            .catch(function(error) {
+                console.error('Basic camera access failed:', error);
+                handleCameraError(error);
+            });
+        }
+
+        // Show manual input fallback
+        function showManualInputFallback() {
+            setTimeout(() => {
+                document.getElementById('manualInput').focus();
+                updateScannerStatus('💡 Gunakan Manual Input atau coba dengan device lain (HP/tablet)', 'info');
+            }, 2000);
         }
 
         // Stop camera scanner
