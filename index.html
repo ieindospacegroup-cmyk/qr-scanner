@@ -695,10 +695,13 @@
             }
             
             // Set default dashboard URL
-            const dashboardUrl = 'https://script.google.com/macros/s/AKfycbw4mEvHsatVyOM3WUVs4EnVXTsk347ZUiIRjyNdMa1Hly4dcMmgRVK7OAhrI9tBA1Hh/exec';
+            const dashboardUrl = 'https://script.google.com/macros/s/AKfycbwndnFQAkxIv1g8H8urEY5DX5Eg5EMWrlPT28e-iDanrKbaDi7GHqRzzQSNJ564mSZg/exec';
+            
+            // Fix common URL issues
+            const fixedDashboardUrl = dashboardUrl.replace('https://', 'https://');
             
             // Get the return URL from URL parameter or use default dashboard
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || dashboardUrl;
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || fixedDashboardUrl;
             const processId = getUrlParameter('processId') || 'process_' + Date.now();
             
             console.log('returnUrl:', returnUrl);
@@ -773,10 +776,13 @@
             console.log('QR Scanner External Page Loaded');
             
             // Set default return URL to dashboard
-            const dashboardUrl = 'https://script.google.com/macros/s/AKfycbw4mEvHsatVyOM3WUVs4EnVXTsk347ZUiIRjyNdMa1Hly4dcMmgRVK7OAhrI9tBA1Hh/exec';
+            const dashboardUrl = 'https://script.google.com/macros/s/AKfycbwndnFQAkxIv1g8H8urEY5DX5Eg5EMWrlPT28e-iDanrKbaDi7GHqRzzQSNJ564mSZg/exec';
+            
+            // Fix common URL issues
+            const fixedDashboardUrl = dashboardUrl.replace('https://', 'https://');
             
             // Always use dashboard URL (either from parameter or default)
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || dashboardUrl;
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || fixedDashboardUrl;
             
             // Always show success message since we always have a return URL
             updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard dan Spreadsheet.', 'success');
