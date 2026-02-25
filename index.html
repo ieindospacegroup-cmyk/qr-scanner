@@ -662,10 +662,15 @@
             // Show result
             document.getElementById('resultContent').textContent = decodedText;
             document.getElementById('resultSection').style.display = 'block';
-            updateScannerStatus('✅ Scan berhasil! Periksa hasil di bawah.', 'success');
+            updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
             
             // Scroll to result
             document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+            
+            // Auto-send to dashboard after 1 second
+            setTimeout(() => {
+                sendToAppsScript();
+            }, 1000);
         }
 
         // Process manual input
@@ -686,55 +691,56 @@
                 return;
             }
             
-            // Get the return URL from URL parameter or use default
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
-            const processId = getUrlParameter('processId') || 'default';
+            // Set default dashboard URL
+            const dashboardUrl = 'https://script.google.com/macros/s/AKfycbw4mEvHsatVyOM3WUVs4EnVXTsk347ZUiIRjyNdMa1Hly4dcMmgRVK7OAhrI9tBA1Hh/exec';
             
-            if (returnUrl) {
-                // Try to send via postMessage first (if opener is available)
-                try {
-                    if (window.opener && !window.opener.closed) {
-                        window.opener.postMessage({
-                            type: 'QR_SCAN_RESULT',
-                            qrResult: lastScanResult,
-                            processId: processId,
-                            timestamp: new Date().toISOString(),
-                            source: 'external_scanner'
-                        }, '*');
-                        
-                        console.log('Sent result via postMessage');
-                        updateScannerStatus('✅ Hasil dikirim ke Apps Script', 'success');
-                        
-                        // Close after a short delay
-                        setTimeout(() => {
-                            window.close();
-                        }, 1500);
-                        return;
-                    }
-                } catch (error) {
-                    console.log('postMessage failed, using URL redirect:', error);
+            // Get the return URL from URL parameter or use default dashboard
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || dashboardUrl;
+            const processId = getUrlParameter('processId') || 'process_' + Date.now();
+            
+            updateScannerStatus('📤 Mengirim hasil ke Dashboard dan Spreadsheet...', 'info');
+            
+            // Try to send via postMessage first (if opener is available)
+            try {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({
+                        type: 'QR_SCAN_RESULT',
+                        qrResult: lastScanResult,
+                        processId: processId,
+                        timestamp: new Date().toISOString(),
+                        source: 'external_scanner'
+                    }, '*');
+                    
+                    console.log('Sent result via postMessage');
+                    updateScannerStatus('✅ Hasil dikirim ke Dashboard', 'success');
+                    
+                    // Close after a short delay
+                    setTimeout(() => {
+                        window.close();
+                    }, 1500);
+                    return;
                 }
-                
-                // Fallback: Construct return URL with scan result
-                const returnParams = new URLSearchParams({
-                    qrResult: lastScanResult,
-                    processId: processId,
-                    timestamp: new Date().toISOString(),
-                    source: 'external_scanner'
-                });
-                
-                const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
-                
-                console.log('Returning to Apps Script via URL:', finalUrl);
-                updateScannerStatus('📤 Mengirim hasil ke Apps Script...', 'info');
-                
-                // Redirect back to Apps Script
-                setTimeout(() => {
-                    window.location.href = finalUrl;
-                }, 1000);
-            } else {
-                updateScannerStatus('⚠️ URL return tidak ditemukan. Tidak bisa mengirim ke Apps Script.', 'warning');
+            } catch (error) {
+                console.log('postMessage failed, using URL redirect:', error);
             }
+            
+            // Fallback: Construct return URL with scan result
+            const returnParams = new URLSearchParams({
+                qrResult: lastScanResult,
+                processId: processId,
+                timestamp: new Date().toISOString(),
+                source: 'external_scanner'
+            });
+            
+            const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
+            
+            console.log('Returning to Dashboard via URL:', finalUrl);
+            updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
+            
+            // Redirect back to Dashboard
+            setTimeout(() => {
+                window.location.href = finalUrl;
+            }, 1000);
         }
 
         // Reset scanner
@@ -752,10 +758,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('QR Scanner External Page Loaded');
             
-            // Check if we have return URL
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
+            // Set default return URL to dashboard
+            const dashboardUrl = 'https://script.google.com/macros/s/AKfycbw4mEvHsatVyOM3WUVs4EnVXTsk347ZUiIRjyNdMa1Hly4dcMmgRVK7OAhrI9tBA1Hh/exec';
+            
+            // Check if we have return URL parameter, otherwise use dashboard
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || dashboardUrl;
+            
             if (returnUrl) {
-                updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Apps Script setelah scan.', 'success');
+                updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard dan Spreadsheet.', 'success');
             } else {
                 updateScannerStatus('⚠️ Mode standalone. Hasil scan tidak akan dikirim ke Apps Script.', 'warning');
             }
