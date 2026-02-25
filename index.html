@@ -761,14 +761,11 @@
             // Set default return URL to dashboard
             const dashboardUrl = 'https://script.google.com/macros/s/AKfycbw4mEvHsatVyOM3WUVs4EnVXTsk347ZUiIRjyNdMa1Hly4dcMmgRVK7OAhrI9tBA1Hh/exec';
             
-            // Check if we have return URL parameter, otherwise use dashboard
+            // Always use dashboard URL (either from parameter or default)
             const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || dashboardUrl;
             
-            if (returnUrl) {
-                updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard dan Spreadsheet.', 'success');
-            } else {
-                updateScannerStatus('⚠️ Mode standalone. Hasil scan tidak akan dikirim ke Apps Script.', 'warning');
-            }
+            // Always show success message since we always have a return URL
+            updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard dan Spreadsheet.', 'success');
             
             // Auto-focus manual input
             document.getElementById('manualInput').focus();
