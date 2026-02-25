@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=()">
     <title>QR Scanner - Production Line Tracker</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -774,6 +775,8 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('QR Scanner External Page Loaded');
+            console.log('Current URL:', window.location.href);
+            console.log('URL Parameters:', window.location.search);
             
             // Set default return URL to dashboard
             const dashboardUrl = 'https://script.google.com/macros/s/AKfycbwndnFQAkxIv1g8H8urEY5DX5Eg5EMWrlPT28e-iDanrKbaDi7GHqRzzQSNJ564mSZg/exec';
@@ -783,6 +786,8 @@
             
             // Always use dashboard URL (either from parameter or default)
             const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || fixedDashboardUrl;
+            
+            console.log('Final return URL:', returnUrl);
             
             // Always show success message since we always have a return URL
             updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard dan Spreadsheet.', 'success');
