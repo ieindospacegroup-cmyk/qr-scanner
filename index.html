@@ -686,6 +686,9 @@
 
         // Send result back to Apps Script
         function sendToAppsScript() {
+            console.log('=== sendToAppsScript called ===');
+            console.log('lastScanResult:', lastScanResult);
+            
             if (!lastScanResult) {
                 updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
                 return;
@@ -698,18 +701,27 @@
             const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || dashboardUrl;
             const processId = getUrlParameter('processId') || 'process_' + Date.now();
             
+            console.log('returnUrl:', returnUrl);
+            console.log('processId:', processId);
+            
             updateScannerStatus('📤 Mengirim hasil ke Dashboard dan Spreadsheet...', 'info');
             
             // Try to send via postMessage first (if opener is available)
             try {
+                console.log('Checking window.opener:', window.opener);
+                console.log('window.opener.closed:', window.opener ? window.opener.closed : 'N/A');
+                
                 if (window.opener && !window.opener.closed) {
-                    window.opener.postMessage({
+                    const messageData = {
                         type: 'QR_SCAN_RESULT',
                         qrResult: lastScanResult,
                         processId: processId,
                         timestamp: new Date().toISOString(),
                         source: 'external_scanner'
-                    }, '*');
+                    };
+                    
+                    console.log('Sending postMessage:', messageData);
+                    window.opener.postMessage(messageData, '*');
                     
                     console.log('Sent result via postMessage');
                     updateScannerStatus('✅ Hasil dikirim ke Dashboard', 'success');
@@ -719,6 +731,8 @@
                         window.close();
                     }, 1500);
                     return;
+                } else {
+                    console.log('Window opener not available or closed, using URL redirect');
                 }
             } catch (error) {
                 console.log('postMessage failed, using URL redirect:', error);
