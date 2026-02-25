@@ -260,11 +260,11 @@
         // Start camera scanner
         function startCameraScan() {
             console.log('=== STARTING CAMERA SCANNER ===');
-            updateScannerStatus('🔄 Memulai scanner...', 'info');
+            updateScannerStatus('Memulai scanner...', 'info');
             
             // Check camera support
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                updateScannerStatus('❌ Browser tidak mendukung kamera. Gunakan Chrome/Firefox terbaru.', 'error');
+                updateScannerStatus('Browser tidak mendukung kamera. Gunakan Chrome/Firefox terbaru.', 'error');
                 return;
             }
             
@@ -600,6 +600,42 @@
                 document.getElementById('manualInput').focus();
                 updateScannerStatus('💡 Gunakan Manual Input atau coba dengan device lain (HP/tablet)', 'info');
             }, 2000);
+        }
+
+        // Open external scanner
+        function openExternalScanner() {
+            console.log('=== OPENING EXTERNAL SCANNER ===');
+            updateScannerStatus('Membuka external scanner...', 'info');
+            
+            // Open external scanner in new tab
+            const externalScannerUrl = 'https://ieindospacegroup-cmyk.github.io/qr-scanner/';
+            window.open(externalScannerUrl, '_blank');
+            
+            updateScannerStatus('🌐 External scanner dibuka di tab baru', 'success');
+        }
+
+        // Open spreadsheet
+        function openSpreadsheet() {
+            console.log('=== OPENING SPREADSHEET ===');
+            updateScannerStatus('Membuka spreadsheet...', 'info');
+            
+            // Open spreadsheet in new tab
+            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1lTEg77SaBFlyfNVIRcpHN61CreHpnw6owB3RWqGyzQQ/edit?gid=722613554#gid=722613554';
+            window.open(spreadsheetUrl, '_blank');
+            
+            updateScannerStatus('📊 Spreadsheet dibuka di tab baru', 'success');
+        }
+
+        // Open external camera
+        function openExternalCamera() {
+            console.log('=== OPENING EXTERNAL CAMERA ===');
+            updateScannerStatus('Membuka external camera...', 'info');
+            
+            // Open external camera scanner in new tab
+            const externalCameraUrl = 'https://ieindospacegroup-cmyk.github.io/qr-scanner/';
+            window.open(externalCameraUrl, '_blank');
+            
+            updateScannerStatus('📷 External camera dibuka di tab baru', 'success');
         }
 
         // Stop camera scanner
