@@ -772,8 +772,9 @@
                 console.log('postMessage failed, using URL redirect:', error);
             }
             
-            // Fallback: Construct return URL with scan result
+            // Fallback: Handle scan result in standalone mode
             if (returnUrl) {
+                // Return to Dashboard with scan result
                 const returnParams = new URLSearchParams({
                     qrResult: lastScanResult,
                     processId: processId,
@@ -784,14 +785,34 @@
                 const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
                 
                 console.log('Returning to Dashboard via URL:', finalUrl);
-                updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
+                updateScannerStatus(' Mengirim hasil ke Dashboard...', 'info');
                 
                 // Redirect back to Dashboard
                 setTimeout(() => {
                     window.location.href = finalUrl;
                 }, 1000);
             } else {
-                updateScannerStatus('⚠️ Tidak ada return URL yang ditentukan', 'warning');
+                // Standalone mode: Just show result and provide options
+                updateScannerStatus(' Scan selesai! Mode standalone - hasil tersimpan lokal', 'success');
+                
+                // Show copy result button
+                const resultSection = document.getElementById('resultSection');
+                if (resultSection) {
+                    // Add copy button after result
+                    const copyButton = document.createElement('button');
+                    copyButton.textContent = ' Salin Hasil';
+                    copyButton.className = 'btn btn-info';
+                    copyButton.style.marginTop = '10px';
+                    copyButton.onclick = function() {
+                        navigator.clipboard.writeText(lastScanResult).then(() => {
+                            updateScannerStatus(' Hasil disalin ke clipboard!', 'success');
+                        }).catch(err => {
+                            updateScannerStatus(' Gagal menyalin hasil', 'error');
+                        });
+                    };
+                    
+                    resultSection.appendChild(copyButton);
+                }
             }
         }
 
