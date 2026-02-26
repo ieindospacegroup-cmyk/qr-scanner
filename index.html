@@ -204,6 +204,7 @@
                 <button class="btn btn-primary" onclick="startCameraScan()">📸 Start Camera</button>
                 <button class="btn" onclick="stopCameraScan()">⏹️ Stop Camera</button>
                 <button class="btn btn-info" onclick="switchCamera()">🔄 Switch Camera</button>
+                <button class="btn btn-warning" onclick="requestCameraPermission()">🔁 Request Camera Permission</button>
             </div>
         </div>
 
@@ -313,7 +314,23 @@
                     }
                 }).catch((err) => {
                     console.error('Camera enumeration error:', err);
-                    updateScannerStatus('❌ Gagal mengakses kamera: ' + err.message, 'error');
+                    
+                    if (err.name === 'NotAllowedError' || err.message.includes('Permission denied')) {
+                        updateScannerStatus('❌ Izin kamera ditolak. Silakan izinkan kamera di browser settings.', 'error');
+                        
+                        // Show instructions for enabling camera
+                        setTimeout(() => {
+                            updateScannerStatus('💡 Klik ikon 🔒 di address bar dan izinkan kamera, lalu refresh halaman.', 'warning');
+                        }, 2000);
+                    } else {
+                        updateScannerStatus('❌ Gagal mengakses kamera: ' + err.message + '. Gunakan Manual Input.', 'error');
+                    }
+                    
+                    // Focus on manual input as fallback
+                    setTimeout(() => {
+                        document.getElementById('manualInput').focus();
+                        updateScannerStatus('📝 Gunakan Manual Input untuk memasukkan QR data.', 'info');
+                    }, 3000);
                 });
 
             } catch (error) {
@@ -439,6 +456,54 @@
             } else {
                 updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
             }
+        }
+
+        // Request camera permission
+        function requestCameraPermission() {
+            console.log('=== REQUESTING CAMERA PERMISSION ===');
+            updateScannerStatus('🔁 Meminta izin kamera...', 'info');
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateScannerStatus('❌ Browser tidak mendukung kamera.', 'error');
+                return;
+            }
+            
+            // Request camera permission directly
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            })
+            .then(stream => {
+                console.log('Camera permission granted');
+                updateScannerStatus('✅ Izin kamera diberikan! Memulai scanner...', 'success');
+                
+                // Stop the test stream
+                stream.getTracks().forEach(track => track.stop());
+                
+                // Start the actual scanner
+                setTimeout(() => {
+                    startCameraScan();
+                }, 1000);
+                
+            })
+            .catch(err => {
+                console.error('Camera permission denied:', err);
+                
+                if (err.name === 'NotAllowedError' || err.message.includes('Permission denied')) {
+                    updateScannerStatus('❌ Izin kamera ditolak. Silakan ikuti petunjuk di bawah.', 'error');
+                    
+                    // Show detailed instructions
+                    setTimeout(() => {
+                        updateScannerStatus('📋 Petunjuk: 1) Klik ikon 🔒 di address bar 2) Pilih "Allow" untuk kamera 3) Refresh halaman', 'warning');
+                    }, 2000);
+                } else {
+                    updateScannerStatus('❌ Error kamera: ' + err.message, 'error');
+                }
+                
+                // Focus on manual input
+                setTimeout(() => {
+                    document.getElementById('manualInput').focus();
+                }, 3000);
+            });
         }
 
         // Reset scanner
