@@ -453,73 +453,11 @@
                 }).catch(err => {
                     updateScannerStatus('❌ Gagal menyalin hasil', 'error');
                 });
-            } else {
                 updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
             }
         }
 
-        // Request camera permission
-        function requestCameraPermission() {
-            console.log('=== REQUESTING CAMERA PERMISSION ===');
-            updateScannerStatus('🔁 Meminta izin kamera...', 'info');
-            
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                updateScannerStatus('❌ Browser tidak mendukung kamera.', 'error');
-                return;
-            }
-            
-            // Request camera permission directly
-            navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment' } 
-            })
-            .then(stream => {
-                console.log('Camera permission granted');
-                updateScannerStatus('✅ Izin kamera diberikan! Memulai scanner...', 'success');
-                
-                // Stop the test stream
-                stream.getTracks().forEach(track => track.stop());
-                
-                // Start the actual scanner
-                setTimeout(() => {
-                    startCameraScan();
-                }, 1000);
-                
-            })
-            .catch(err => {
-                console.error('Camera permission denied:', err);
-                
-                if (err.name === 'NotAllowedError' || err.message.includes('Permission denied')) {
-                    updateScannerStatus('❌ Izin kamera ditolak. Silakan ikuti petunjuk di bawah.', 'error');
-                    
-                    // Show detailed instructions
-                    setTimeout(() => {
-                        updateScannerStatus('📋 Petunjuk: 1) Klik ikon 🔒 di address bar 2) Pilih "Allow" untuk kamera 3) Refresh halaman', 'warning');
-                    }, 2000);
-                } else {
-                    updateScannerStatus('❌ Error kamera: ' + err.message, 'error');
-                }
-                
-                // Focus on manual input
-                setTimeout(() => {
-                    document.getElementById('manualInput').focus();
-                }, 3000);
-            });
-        }
-
-        // Reset scanner
-        function resetScanner() {
-            console.log('=== RESETTING SCANNER ===');
-            lastScanResult = null;
-            document.getElementById('resultSection').style.display = 'none';
-            updateScannerStatus('🔄 Scanner direset. Siap untuk scan berikutnya.', 'info');
-            
-            // Restart camera scanner
-            setTimeout(() => {
-                startCameraScan();
-            }, 1000);
-        }
-
-        // Send result back to Apps Script
+        // Send result back to Dashboard via postMessage or Apps Script GET
         function sendToAppsScript() {
             console.log('=== sendToAppsScript called ===');
             console.log('lastScanResult:', lastScanResult);
@@ -529,16 +467,12 @@
                 return;
             }
             
-            // Get URL parameters
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
-            const processId = getUrlParameter('processId') || 'process_' + Date.now();
+            const processId = getUrlParameter('processId') || 'ext_' + Date.now();
+            const mode = getUrlParameter('mode') || 'postMessage';
+            console.log('Process ID:', processId);
+            console.log('Mode:', mode);
             
-            console.log('returnUrl:', returnUrl);
-            console.log('processId:', processId);
-            
-            updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
-            
-            // Try to send via postMessage first (if opener is available)
+            // Try postMessage first (if opener is available)
             try {
                 console.log('Checking window.opener:', window.opener);
                 console.log('window.opener.closed:', window.opener ? window.opener.closed : 'N/A');
@@ -552,11 +486,11 @@
                         source: 'external_scanner'
                     };
                     
-                    console.log('Sending postMessage:', messageData);
+                    console.log('📤 SENDING POSTMESSAGE:', messageData);
                     window.opener.postMessage(messageData, '*');
                     
-                    console.log('Sent result via postMessage');
-                    updateScannerStatus('✅ Hasil dikirim ke Dashboard', 'success');
+                    console.log('✅ Sent result via postMessage');
+                    updateScannerStatus('✅ Hasil dikirim ke Dashboard via postMessage', 'success');
                     
                     // Close after a short delay
                     setTimeout(() => {
@@ -564,90 +498,56 @@
                     }, 1500);
                     return;
                 } else {
-                    console.log('Window opener not available or closed, using URL redirect');
+                    console.log('❌ Window opener not available or closed, trying Apps Script GET...');
                 }
             } catch (error) {
-                console.log('postMessage failed, using URL redirect:', error);
+                console.error('❌ postMessage failed, trying Apps Script GET:', error);
             }
             
-            // Fallback: Handle scan result in standalone mode
-            if (returnUrl) {
-                // Return to Dashboard with scan result
-                const returnParams = new URLSearchParams({
-                    qrResult: lastScanResult,
-                    processId: processId,
-                    timestamp: new Date().toISOString(),
-                    source: 'external_scanner'
-                });
-                
-                const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
-                
-                console.log('Returning to Dashboard via URL:', finalUrl);
-                updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
-                
-                // Redirect back to Dashboard
-                setTimeout(() => {
-                    window.location.href = finalUrl;
-                }, 1000);
-            } else {
-                // Standalone mode: Auto-send to dashboard
-                updateScannerStatus('📤 Scan selesai! Mengirim otomatis ke Dashboard...', 'info');
-                
-                // Auto-send after 2 seconds
-                setTimeout(() => {
-                    sendToDashboardManually();
-                }, 2000);
-            }
-        }
-
-        // Send to dashboard manually (standalone mode)
-        function sendToDashboardManually() {
-            console.log('=== SENDING TO DASHBOARD MANUALLY ===');
-            updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
+            // Fallback: Send to Apps Script via GET request (doGet)
+            updateScannerStatus('📤 Mengirim ke Apps Script via GET...', 'info');
             
-            if (!lastScanResult) {
-                updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
-                return;
-            }
-            
-            // Try to find dashboard URL from common patterns
-            const possibleUrls = [
+            // Try to get Apps Script URL from common patterns
+            const possibleAppsScriptUrls = [
                 'https://script.google.com/macros/s/AKfycbzcpuVqth4CpNkvMi8HWx2C0rVhsNO8uG6PIE4BKzwOYqN5dS766hlpdPPXYZsEDjil/exec',
-                'https://script.google.com/macros/s/',
-                window.location.origin
+                'https://script.google.com/macros/s/'
             ];
             
             let attemptCount = 0;
-            let maxAttempts = possibleUrls.length;
+            let maxAttempts = possibleAppsScriptUrls.length;
             
-            // Try each possible URL sequentially
-            function tryNextUrl() {
+            function tryNextAppsScriptUrl() {
                 if (attemptCount >= maxAttempts) {
-                    // All URLs failed, show manual instructions
-                    updateScannerStatus('⚠️ Tidak dapat terhubung ke Dashboard. Silakan copy hasil dan paste di dashboard.', 'warning');
+                    updateScannerStatus('❌ Tidak dapat terhubung ke Apps Script. Silakan copy hasil manual.', 'error');
+                    // Show result for manual copy
+                    document.getElementById('resultSection').style.display = 'block';
+                    document.getElementById('resultContent').textContent = lastScanResult;
                     return;
                 }
                 
-                const baseUrl = possibleUrls[attemptCount];
+                const baseUrl = possibleAppsScriptUrls[attemptCount];
                 attemptCount++;
                 
                 try {
-                    console.log('Trying URL:', baseUrl);
+                    console.log('Trying Apps Script URL:', baseUrl);
                     
-                    // Create form data for POST request
-                    const formData = new FormData();
-                    formData.append('action', 'processQR');
-                    formData.append('qrData', lastScanResult);
-                    formData.append('operator', 'External Scanner Auto');
-                    formData.append('processId', 'auto_' + Date.now());
+                    // Build GET request URL with QR data
+                    const params = new URLSearchParams({
+                        qrResult: lastScanResult,
+                        source: 'external_scanner',
+                        processId: processId,
+                        timestamp: new Date().toISOString()
+                    });
                     
-                    // Send POST request with timeout
+                    const fullUrl = baseUrl + '?' + params.toString();
+                    console.log('Full GET URL:', fullUrl);
+                    
+                    // Send GET request with timeout
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
                     
-                    fetch(baseUrl, {
-                        method: 'POST',
-                        body: formData,
+                    fetch(fullUrl, {
+                        method: 'GET',
                         signal: controller.signal
                     })
                     .then(response => {
@@ -658,21 +558,9 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Manual send response:', data);
+                        console.log('Apps Script GET response:', data);
                         if (data.success) {
-                            updateScannerStatus('✅ Hasil berhasil dikirim ke Dashboard! Spreadsheet akan diupdate...', 'success');
-                            
-                            // Auto-refresh dashboard after successful send
-                            setTimeout(() => {
-                                try {
-                                    // Try to refresh parent window if available
-                                    if (window.opener && !window.opener.closed) {
-                                        window.opener.location.reload();
-                                    }
-                                } catch (error) {
-                                    console.log('Could not refresh parent window:', error);
-                                }
-                            }, 500);
+                            updateScannerStatus('✅ Data tersimpan di Apps Script! Spreadsheet diupdate.', 'success');
                             
                             // Auto-close scanner after successful send
                             setTimeout(() => {
@@ -681,38 +569,44 @@
                                     window.close();
                                     // If window.close() doesn't work, show message
                                     setTimeout(() => {
-                                        updateScannerStatus('✅ Data terkirim! Dashboard di-refresh.', 'success');
+                                        updateScannerStatus('✅ Data tersimpan! Spreadsheet diupdate.', 'success');
                                     }, 1000);
                                 }, 2000);
                             }, 2000);
                         } else {
-                            updateScannerStatus('❌ Gagal mengirim: ' + data.message + '. Mencoba URL lain...', 'error');
-                            tryNextUrl();
+                            updateScannerStatus('❌ Gagal menyimpan: ' + data.message + '. Mencoba URL lain...', 'error');
+                            tryNextAppsScriptUrl();
                         }
                     })
                     .catch(error => {
                         clearTimeout(timeoutId);
-                        console.log('Failed with URL:', baseUrl, error);
+                        console.log('Failed with Apps Script URL:', baseUrl, error);
                         if (attemptCount < maxAttempts) {
-                            updateScannerStatus('⚠️ Gagal terhubung. Mencoba URL lain... (' + attemptCount + '/' + maxAttempts + ')', 'warning');
-                            setTimeout(tryNextUrl, 1000);
+                            updateScannerStatus('⚠️ Gagal terhubung. Mencoba Apps Script URL lain... (' + attemptCount + '/' + maxAttempts + ')', 'warning');
+                            setTimeout(tryNextAppsScriptUrl, 1000);
                         } else {
-                            updateScannerStatus('⚠️ Semua URL gagal. Silakan copy hasil dan paste di dashboard.', 'error');
+                            updateScannerStatus('❌ Semua Apps Script URL gagal. Silakan copy hasil manual.', 'error');
+                            // Show result for manual copy
+                            document.getElementById('resultSection').style.display = 'block';
+                            document.getElementById('resultContent').textContent = lastScanResult;
                         }
                     });
                     
                 } catch (error) {
-                    console.log('Error with URL:', baseUrl, error);
+                    console.log('Error with Apps Script URL:', baseUrl, error);
                     if (attemptCount < maxAttempts) {
-                        setTimeout(tryNextUrl, 500);
+                        setTimeout(tryNextAppsScriptUrl, 500);
                     } else {
-                        updateScannerStatus('⚠️ Tidak dapat terhubung ke Dashboard. Silakan copy hasil dan paste di dashboard.', 'error');
+                        updateScannerStatus('❌ Tidak dapat terhubung ke Apps Script. Silakan copy hasil manual.', 'error');
+                        // Show result for manual copy
+                        document.getElementById('resultSection').style.display = 'block';
+                        document.getElementById('resultContent').textContent = lastScanResult;
                     }
                 }
             }
             
-            // Start trying URLs
-            tryNextUrl();
+            // Start trying Apps Script URLs
+            tryNextAppsScriptUrl();
         }
 
         // Initialize on page load
