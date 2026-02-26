@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=()">
-    <title>QR Scanner - Production Line Tracker</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
+    <title>QR Scanner - FULFILMENT AQUATEAK 2026</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -23,7 +21,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             animation: fadeIn 0.8s ease-in;
         }
@@ -44,7 +42,7 @@
 
         .header h1 {
             color: white;
-            font-size: 28px;
+            font-size: 24px;
             margin-bottom: 10px;
             font-weight: 600;
         }
@@ -53,15 +51,8 @@
             background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
             border-radius: 15px;
             padding: 30px;
+            margin-bottom: 25px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        #qr-reader {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            border-radius: 10px;
-            overflow: hidden;
         }
 
         .scanner-status {
@@ -70,7 +61,6 @@
             margin: 15px 0;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
         }
 
         .scanner-status.success {
@@ -97,6 +87,12 @@
             border: 1px solid #ffeaa7;
         }
 
+        #qr-reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
         .btn {
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             color: white;
@@ -109,8 +105,6 @@
             margin: 5px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .btn:hover {
@@ -128,6 +122,15 @@
             background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
         }
 
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
+        }
+
         .button-group {
             display: flex;
             justify-content: center;
@@ -139,40 +142,34 @@
         .result-section {
             background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
             border-radius: 15px;
-            padding: 30px;
-            margin-top: 25px;
+            padding: 20px;
+            margin-top: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             display: none;
         }
 
         .result-content {
-            background: #2a2a2a;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
             border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #4a4a4a;
-            word-break: break-all;
             font-family: 'Courier New', monospace;
-            font-size: 16px;
-            color: #00ff00;
+            word-break: break-all;
+            margin-bottom: 15px;
         }
 
         .manual-input {
-            margin: 20px 0;
-        }
-
-        .manual-input input {
             width: 100%;
             padding: 15px;
             border: 2px solid #4a4a4a;
             border-radius: 8px;
             background: #2a2a2a;
             color: white;
-            font-size: 16px;
             font-family: 'Courier New', monospace;
+            resize: vertical;
+            margin-bottom: 10px;
         }
 
-        .manual-input input:focus {
+        .manual-input:focus {
             outline: none;
             border-color: #ff6b35;
             box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
@@ -187,8 +184,8 @@
                 max-width: 100%;
             }
             
-            .header h1 {
-                font-size: 24px;
+            .button-group {
+                flex-direction: column;
             }
         }
     </style>
@@ -196,459 +193,203 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📷 QR/Barcode Scanner</h1>
-            <p>Production Line Tracker - AQUATEAK 2026</p>
+            <h1>📷 QR Scanner - FULFILMENT AQUATEAK 2026</h1>
+            <div id="scannerStatus" class="scanner-status info">Memulai scanner...</div>
         </div>
 
         <div class="scanner-section">
-            <div id="scannerStatus" class="scanner-status info">
-                🔄 Siap untuk scanning...
-            </div>
-
+            <div id="qr-reader"></div>
+            
             <div class="button-group">
                 <button class="btn btn-primary" onclick="startCameraScan()">📸 Start Camera</button>
                 <button class="btn" onclick="stopCameraScan()">⏹️ Stop Camera</button>
-                <button class="btn btn-primary" onclick="switchCamera()">🔄 Switch Camera</button>
-                <button class="btn btn-warning" onclick="debugCamera()">🔍 Debug Camera</button>
-                <button class="btn btn-info" onclick="testBasicCameraAccess()">🧪 Test Basic Access</button>
-                <button class="btn btn-danger" onclick="forceRestartCamera()">🔄 Force Restart</button>
+                <button class="btn btn-info" onclick="switchCamera()">🔄 Switch Camera</button>
             </div>
+        </div>
 
-            <div id="qr-reader"></div>
-
-            <div class="manual-input">
-                <h3>📝 Manual Input (Alternatif)</h3>
-                <input type="text" id="manualInput" placeholder="Masukkan QR/Barcode secara manual..." 
-                       onkeypress="if(event.key === 'Enter') processManualInput()">
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="processManualInput()">🔍 Process Manual</button>
-                </div>
+        <div class="scanner-section">
+            <h3>📝 Manual Input</h3>
+            <textarea id="manualInput" 
+                      placeholder="Format: JO Number|Product Code|Product Name|QTY Order|Serial Number"
+                      rows="3"
+                      class="manual-input"></textarea>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="processManualInput()">📷 Process QR</button>
+                <button class="btn" onclick="clearManualInput()">🗑️ Clear</button>
             </div>
         </div>
 
         <div id="resultSection" class="result-section">
-            <h3>✅ Scan Result</h3>
+            <h3>📊 Scan Result</h3>
             <div id="resultContent" class="result-content"></div>
             <div class="button-group">
-                <button class="btn btn-primary" onclick="sendToAppsScript()">📤 Kirim ke Apps Script</button>
-                <button class="btn" onclick="resetScanner()">🔄 Scan Lagi</button>
+                <button class="btn btn-primary" onclick="sendToAppsScript()">📤 Send to Dashboard</button>
+                <button class="btn btn-info" onclick="copyResult()">📋 Copy Result</button>
+                <button class="btn" onclick="resetScanner()">🔄 Scan Again</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Global variables
         let html5QrCode = null;
+        let lastScanResult = null;
         let cameras = [];
         let currentCameraId = null;
-        let lastScanResult = null;
 
         // Get URL parameters
         function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
         }
 
         // Update scanner status
         function updateScannerStatus(message, type = 'info') {
-            const statusElement = document.getElementById('scannerStatus');
-            statusElement.textContent = message;
-            statusElement.className = 'scanner-status ' + type;
+            const statusDiv = document.getElementById('scannerStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = 'scanner-status ' + type;
         }
 
         // Start camera scanner
         function startCameraScan() {
             console.log('=== STARTING CAMERA SCANNER ===');
-            updateScannerStatus('Memulai scanner...', 'info');
+            updateScannerStatus('📸 Memulai scanner kamera...', 'info');
             
-            // Check camera support
+            // Check if camera is supported
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                updateScannerStatus('Browser tidak mendukung kamera. Gunakan Chrome/Firefox terbaru.', 'error');
+                updateScannerStatus('❌ Browser tidak mendukung kamera. Gunakan Manual Input.', 'error');
                 return;
             }
-            
-            // Clear previous scanner
-            if (html5QrCode) {
-                html5QrCode.clear();
-            }
-            
-            // Initialize scanner
-            html5QrCode = new Html5Qrcode("qr-reader");
-            
-            // Get available cameras with better error handling
-            Html5Qrcode.getCameras().then(devices => {
-                console.log('Available cameras:', devices);
-                cameras = devices;
-                
-                if (devices && devices.length > 0) {
-                    // Use the USB camera that was detected
-                    const selectedCamera = devices.find(device => 
-                        device.label && device.label.includes('USB2.0 HD UVC WebCam')
-                    ) || devices[0];
-                    
-                    currentCameraId = selectedCamera.id;
-                    
-                    console.log('Using camera:', selectedCamera.label || 'Camera ' + (devices.indexOf(selectedCamera) + 1));
-                    updateScannerStatus('📷 Menggunakan kamera: ' + (selectedCamera.label || 'Kamera utama'), 'info');
-                    
-                    // Start scanning with very permissive config
-                    html5QrCode.start(
-                        selectedCamera,
-                        {
-                            fps: 2, // Very low FPS for stability
-                            qrbox: { width: 150, height: 150 }, // Smaller scanning area
-                            aspectRatio: 1.0,
-                            // Add more permissive settings
-                            videoConstraints: {
-                                width: { min: 320, ideal: 640, max: 1280 },
-                                height: { min: 240, ideal: 480, max: 720 },
-                                facingMode: "environment"
-                            }
-                        },
-                        (decodedText, decodedResult) => {
-                            console.log('QR Code detected:', decodedText);
-                            onScanSuccess(decodedText);
-                        },
-                        (errorMessage) => {
-                            // Don't log every error to reduce console spam
-                            if (!errorMessage.includes('No QR code found') && 
-                                !errorMessage.includes('No barcode') &&
-                                !errorMessage.includes('NotFoundException')) {
-                                console.log('Scan error:', errorMessage);
-                            }
-                        }
-                    ).then(() => {
-                        console.log('Scanner started successfully');
-                        updateScannerStatus('✅ Scanner aktif. Menunggu video muncul...', 'info');
-                        
-                        // Check video status multiple times
-                        let checkCount = 0;
-                        const maxChecks = 10;
-                        const checkInterval = setInterval(() => {
-                            checkCount++;
-                            console.log('Checking video status, attempt:', checkCount);
-                            
-                            if (checkVideoStatus()) {
-                                clearInterval(checkInterval);
-                                updateScannerStatus('✅ Kamera aktif dan siap scan! Arahkan ke QR Code.', 'success');
-                            } else if (checkCount >= maxChecks) {
-                                clearInterval(checkInterval);
-                                updateScannerStatus('⚠️ Kamera aktif tapi video tidak muncul. Coba "Force Restart".', 'warning');
-                            }
-                        }, 1000);
-                        
-                    }).catch((error) => {
-                        console.error('Scanner start error:', error);
-                        handleCameraError(error);
-                    });
-                } else {
-                    updateScannerStatus('❌ Tidak ada kamera ditemukan. Gunakan Manual Input.', 'error');
-                    showManualInputFallback();
+
+            // Initialize HTML5 QR Code
+            try {
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                    console.log('HTML5 QR Code initialized');
                 }
-            }).catch((error) => {
-                console.error('Camera enumeration error:', error);
-                handleCameraError(error);
-            });
-        }
 
-        // Handle camera errors with better messages
-        function handleCameraError(error) {
-            let errorMsg = '❌ Gagal mengakses kamera';
-            
-            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                errorMsg = '❌ Izin kamera ditolak. Solusi:\n1. Klik ikon gembok/🔒 di address bar\n2. Pilih "Allow" atau "Izinkan"\n3. Refresh halaman (F5)\n4. Coba lagi';
-            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError' || error.message.includes('Requested device not found')) {
-                errorMsg = '❌ Tidak ada kamera ditemukan. Solusi:\n1. Pastikan kamera terhubung\n2. Coba gunakan HP/lain device\n3. Gunakan Manual Input\n4. Periksa driver kamera';
-            } else if (error.name === 'NotSupportedError') {
-                errorMsg = '❌ Browser tidak mendukung kamera. Gunakan Chrome, Firefox, atau Edge terbaru.';
-            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                errorMsg = '❌ Kamera sedang digunakan aplikasi lain. Tutup:\n1. Video call (Zoom, Meet, Teams)\n2. Aplikasi kamera lain\n3. Tab browser lain yang pakai kamera';
-            } else if (error.name === 'OverconstrainedError') {
-                errorMsg = '❌ Kamera tidak memenuhi requirements. Coba:\n1. Gunakan kamera lain\n2. Restart browser\n3. Gunakan Manual Input';
-            } else if (error.message.includes('Permission denied')) {
-                errorMsg = '❌ Izin kamera ditolak. Klik ikon gembok 🔒 di address bar dan izinkan kamera.';
-            } else {
-                errorMsg = '❌ Error kamera: ' + error.message + '\n\nSolusi: Gunakan Manual Input sebagai alternatif.';
-            }
-            
-            updateScannerStatus(errorMsg, 'error');
-            showManualInputFallback();
-        }
+                // Get available cameras
+                Html5Qrcode.getCameras().then(devices => {
+                    cameras = devices;
+                    console.log('Available cameras:', devices);
 
-        // Check video element status
-        function checkVideoStatus() {
-            const qrReaderDiv = document.getElementById('qr-reader');
-            if (!qrReaderDiv) {
-                console.log('QR reader div not found');
-                return false;
-            }
-            
-            const videoElement = qrReaderDiv.querySelector('video');
-            if (!videoElement) {
-                console.log('Video element not found in QR reader');
-                return false;
-            }
-            
-            console.log('Video element found:', videoElement);
-            console.log('Video src:', videoElement.src);
-            console.log('Video readyState:', videoElement.readyState);
-            console.log('Video videoWidth:', videoElement.videoWidth);
-            console.log('Video videoHeight:', videoElement.videoHeight);
-            console.log('Video paused:', videoElement.paused);
-            console.log('Video ended:', videoElement.ended);
-            
-            if (videoElement.readyState >= 2) { // HAVE_CURRENT_DATA
-                console.log('Video is ready and playing');
-                return true;
-            } else {
-                console.log('Video is not ready yet');
-                return false;
-            }
-        }
+                    if (devices && devices.length > 0) {
+                        // Use first camera or back camera if available
+                        const backCamera = devices.find(device => 
+                            device.label.toLowerCase().includes('back') || 
+                            device.label.toLowerCase().includes('environment')
+                        );
+                        
+                        const selectedCamera = backCamera || devices[0];
+                        currentCameraId = selectedCamera.id;
+                        
+                        console.log('Selected camera:', selectedCamera);
+                        
+                        // Start scanning
+                        html5QrCode.start(
+                            selectedCamera,
+                            {
+                                fps: 10,
+                                qrbox: { width: 250, height: 250 }
+                            },
+                            (decodedText, result) => {
+                                console.log('QR Code scan successful:', decodedText);
+                                onScanSuccess(decodedText);
+                            },
+                            (errorMessage) => {
+                                // Don't show every error, only important ones
+                                if (!errorMessage.includes('No QR code found')) {
+                                    console.log('QR Scan error:', errorMessage);
+                                }
+                            }
+                        ).then(() => {
+                            updateScannerStatus('✅ Scanner aktif. Arahkan kamera ke QR code.', 'success');
+                        }).catch((err) => {
+                            console.error('Unable to start scanning:', err);
+                            updateScannerStatus('❌ Gagal memulai scanner: ' + err.message, 'error');
+                        });
+                    } else {
+                        updateScannerStatus('❌ Tidak ada kamera yang ditemukan.', 'error');
+                    }
+                }).catch((err) => {
+                    console.error('Camera enumeration error:', err);
+                    updateScannerStatus('❌ Gagal mengakses kamera: ' + err.message, 'error');
+                });
 
-        // Show manual input fallback
-        function showManualInputFallback() {
-            setTimeout(() => {
-                document.getElementById('manualInput').focus();
-                updateScannerStatus('💡 Gunakan Manual Input atau coba dengan device lain (HP/tablet)', 'info');
-            }, 2000);
+            } catch (error) {
+                console.error('HTML5 QR Code initialization error:', error);
+                updateScannerStatus('❌ Library scanner error. Gunakan input manual.', 'error');
+            }
         }
 
         // Stop camera scanner
         function stopCameraScan() {
+            console.log('=== STOPPING CAMERA SCANNER ===');
+            
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
-                    console.log('Scanner stopped');
-                    updateScannerStatus('⏹️ Scanner dihentikan', 'info');
-                }).catch((error) => {
-                    console.error('Error stopping scanner:', error);
+                    console.log('Scanner stopped successfully');
+                    updateScannerStatus('⏹️ Scanner dihentikan.', 'info');
+                }).catch((err) => {
+                    console.error('Failed to stop scanning:', err);
+                    updateScannerStatus('❌ Gagal menghentikan scanner.', 'error');
                 });
+            } else {
+                updateScannerStatus('⏹️ Scanner tidak aktif.', 'info');
             }
         }
 
         // Switch camera
         function switchCamera() {
-            if (cameras.length <= 1) {
-                updateScannerStatus('⚠️ Hanya ada satu kamera tersedia', 'warning');
+            if (!html5QrCode || cameras.length <= 1) {
+                updateScannerStatus('❌ Hanya ada satu kamera tersedia.', 'warning');
                 return;
             }
-            
+
+            // Find current camera index
             const currentIndex = cameras.findIndex(cam => cam.id === currentCameraId);
-            const nextIndex = (currentIndex + 1) % cameras.length;
-            const nextCamera = cameras[nextIndex];
             
-            stopCameraScan();
+            // Try to find opposite camera type
+            let nextCamera;
+            const isBackCamera = cameras[currentIndex].label.toLowerCase().includes('back') || 
+                                cameras[currentIndex].label.toLowerCase().includes('environment') ||
+                                cameras[currentIndex].label.toLowerCase().includes('rear');
             
-            setTimeout(() => {
-                currentCameraId = nextCamera.id;
-                html5QrCode = new Html5Qrcode("qr-reader");
-                
-                html5QrCode.start(
-                    nextCamera,
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0
-                    },
-                    (decodedText, decodedResult) => {
-                        onScanSuccess(decodedText);
-                    },
-                    (errorMessage) => {
-                        // Handle scan errors silently
-                    }
-                ).then(() => {
-                    updateScannerStatus('✅ Camera diganti ke: ' + (nextCamera.label || 'Camera ' + (nextIndex + 1)), 'success');
-                }).catch((error) => {
-                    updateScannerStatus('❌ Gagal ganti kamera: ' + error.message, 'error');
-                });
-            }, 500);
-        }
-
-        // Debug camera function
-        function debugCamera() {
-            console.log('=== CAMERA DEBUG INFO ===');
-            updateScannerStatus('🔍 Mengecek informasi kamera...', 'info');
-            
-            let debugInfo = '📋 Camera Debug Information:\n\n';
-            
-            // Browser info
-            debugInfo += '🌐 Browser:\n';
-            debugInfo += '- Name: ' + navigator.userAgent + '\n';
-            debugInfo += '- Platform: ' + navigator.platform + '\n';
-            debugInfo += '- Language: ' + navigator.language + '\n\n';
-            
-            // Media devices support
-            debugInfo += '📱 Media Devices Support:\n';
-            debugInfo += '- mediaDevices: ' + (navigator.mediaDevices ? '✅ Available' : '❌ Not Available') + '\n';
-            debugInfo += '- getUserMedia: ' + (navigator.mediaDevices && navigator.mediaDevices.getUserMedia ? '✅ Available' : '❌ Not Available') + '\n';
-            debugInfo += '- enumerateDevices: ' + (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices ? '✅ Available' : '❌ Not Available') + '\n\n';
-            
-            // HTTPS check
-            debugInfo += '🔒 Security:\n';
-            debugInfo += '- Protocol: ' + window.location.protocol + '\n';
-            debugInfo += '- HTTPS: ' + (window.location.protocol === 'https:' ? '✅ Secure' : '⚠️ Not Secure (camera may not work)') + '\n';
-            debugInfo += '- Hostname: ' + window.location.hostname + '\n\n';
-            
-            updateScannerStatus(debugInfo, 'info');
-            
-            // Try to enumerate devices
-            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-                navigator.mediaDevices.enumerateDevices()
-                    .then(devices => {
-                        console.log('All devices:', devices);
-                        
-                        let deviceInfo = '\n📹 Found Devices:\n';
-                        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                        const audioDevices = devices.filter(device => device.kind === 'audioinput');
-                        
-                        deviceInfo += '- Video inputs: ' + videoDevices.length + '\n';
-                        videoDevices.forEach((device, index) => {
-                            deviceInfo += '  ' + (index + 1) + '. ' + (device.label || 'Unknown Camera') + ' (ID: ' + device.deviceId.substring(0, 8) + '...)\n';
-                        });
-                        
-                        deviceInfo += '- Audio inputs: ' + audioDevices.length + '\n';
-                        audioDevices.forEach((device, index) => {
-                            deviceInfo += '  ' + (index + 1) + '. ' + (device.label || 'Unknown Microphone') + '\n';
-                        });
-                        
-                        if (videoDevices.length === 0) {
-                            deviceInfo += '\n⚠️ No camera devices found!\n';
-                            deviceInfo += 'Possible solutions:\n';
-                            deviceInfo += '1. Connect a camera\n';
-                            deviceInfo += '2. Use a different device (phone/tablet)\n';
-                            deviceInfo += '3. Check camera drivers\n';
-                            deviceInfo += '4. Try different browser\n';
-                        }
-                        
-                        updateScannerStatus(debugInfo + deviceInfo, 'info');
-                        
-                        // Store devices for later use
-                        cameras = videoDevices;
-                        console.log('Stored cameras:', cameras);
-                        
-                    })
-                    .catch(error => {
-                        console.error('Error enumerating devices:', error);
-                        updateScannerStatus(debugInfo + '\n❌ Error getting device list: ' + error.message, 'error');
-                    });
+            if (isBackCamera) {
+                // Switch to front camera
+                nextCamera = cameras.find(device => 
+                    device.label.toLowerCase().includes('front') || 
+                    device.label.toLowerCase().includes('user')
+                );
             } else {
-                updateScannerStatus(debugInfo + '\n❌ Device enumeration not supported', 'error');
+                // Switch to back camera
+                nextCamera = cameras.find(device => 
+                    device.label.toLowerCase().includes('back') || 
+                    device.label.toLowerCase().includes('environment') ||
+                    device.label.toLowerCase().includes('rear')
+                );
             }
-        }
 
-        // Test basic camera access
-        function testBasicCameraAccess() {
-            console.log('Testing basic camera access...');
-            updateScannerStatus('🔍 Menguji akses kamera dasar...', 'info');
-            
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                updateScannerStatus('❌ Browser tidak mendukung getUserMedia', 'error');
-                return;
+            // If opposite camera not found, use next camera
+            if (!nextCamera) {
+                const nextIndex = (currentIndex + 1) % cameras.length;
+                nextCamera = cameras[nextIndex];
             }
-            
-            // Try very basic camera request
-            navigator.mediaDevices.getUserMedia({ 
-                video: true,
-                audio: false 
-            })
-            .then(function(stream) {
-                console.log('Basic camera access successful!');
-                console.log('Stream tracks:', stream.getTracks());
-                
-                // Get video track info
-                const videoTracks = stream.getVideoTracks();
-                if (videoTracks.length > 0) {
-                    const track = videoTracks[0];
-                    console.log('Video track:', track);
-                    console.log('Track settings:', track.getSettings());
-                    console.log('Track capabilities:', track.getCapabilities());
-                    
-                    let successInfo = '✅ Basic camera access successful!\n\n';
-                    successInfo += '📹 Video Track Info:\n';
-                    successInfo += '- Label: ' + (track.label || 'Unknown') + '\n';
-                    successInfo += '- Enabled: ' + track.enabled + '\n';
-                    successInfo += '- Muted: ' + track.muted + '\n';
-                    successInfo += '- State: ' + track.readyState + '\n';
-                    
-                    const settings = track.getSettings();
-                    successInfo += '\n⚙️ Settings:\n';
-                    successInfo += '- Width: ' + settings.width + '\n';
-                    successInfo += '- Height: ' + settings.height + '\n';
-                    successInfo += '- Frame Rate: ' + settings.frameRate + '\n';
-                    
-                    updateScannerStatus(successInfo, 'success');
-                    
-                    // Stop the test stream
-                    stream.getTracks().forEach(track => track.stop());
-                }
-                
-            })
-            .catch(function(error) {
-                console.error('Basic camera access failed:', error);
-                handleCameraError(error);
-            });
-        }
 
-        // Force restart camera
-        function forceRestartCamera() {
-            console.log('=== FORCE RESTART CAMERA ===');
-            updateScannerStatus('🔄 Force restart kamera...', 'info');
-            
-            // Stop any existing scanner
-            if (html5QrCode) {
-                try {
-                    html5QrCode.stop().then(() => {
-                        console.log('Scanner stopped for restart');
-                        html5QrCode.clear();
-                        console.log('Scanner cleared for restart');
-                        
-                        // Clear the QR reader div completely
-                        const qrReaderDiv = document.getElementById('qr-reader');
-                        if (qrReaderDiv) {
-                            qrReaderDiv.innerHTML = '';
-                            console.log('QR reader div cleared');
-                        }
-                        
-                        // Wait a moment before restarting
-                        setTimeout(() => {
-                            console.log('Restarting camera after clear...');
-                            startCameraScan();
-                        }, 1000);
-                        
-                    }).catch((error) => {
-                        console.error('Error stopping scanner for restart:', error);
-                        // Even if stop fails, try to restart
-                        html5QrCode.clear();
-                        const qrReaderDiv = document.getElementById('qr-reader');
-                        if (qrReaderDiv) {
-                            qrReaderDiv.innerHTML = '';
-                        }
-                        setTimeout(() => {
-                            startCameraScan();
-                        }, 1000);
-                    });
-                } catch (error) {
-                    console.error('Error during force restart:', error);
-                    // Manual cleanup
-                    html5QrCode = null;
-                    const qrReaderDiv = document.getElementById('qr-reader');
-                    if (qrReaderDiv) {
-                        qrReaderDiv.innerHTML = '';
-                    }
+            // Stop current scanner and start with new camera
+            if (html5QrCode && nextCamera) {
+                html5QrCode.stop().then(() => {
+                    currentCameraId = nextCamera.id;
+                    console.log('Switching to camera:', nextCamera);
+                    
+                    // Restart with new camera
                     setTimeout(() => {
                         startCameraScan();
-                    }, 2000);
-                }
-            } else {
-                // Just start fresh if no existing scanner
-                const qrReaderDiv = document.getElementById('qr-reader');
-                if (qrReaderDiv) {
-                    qrReaderDiv.innerHTML = '';
-                }
-                setTimeout(() => {
-                    startCameraScan();
-                }, 500);
+                    }, 500);
+                }).catch((err) => {
+                    console.error('Failed to stop for camera switch:', err);
+                    updateScannerStatus('❌ Gagal mengganti kamera.', 'error');
+                });
             }
         }
 
@@ -665,9 +406,6 @@
             document.getElementById('resultSection').style.display = 'block';
             updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
             
-            // Scroll to result
-            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
-            
             // Auto-send to dashboard after 1 second
             setTimeout(() => {
                 sendToAppsScript();
@@ -683,6 +421,37 @@
             } else {
                 updateScannerStatus('⚠️ Masukkan QR/Barcode terlebih dahulu', 'warning');
             }
+        }
+
+        // Clear manual input
+        function clearManualInput() {
+            document.getElementById('manualInput').value = '';
+        }
+
+        // Copy result to clipboard
+        function copyResult() {
+            if (lastScanResult) {
+                navigator.clipboard.writeText(lastScanResult).then(() => {
+                    updateScannerStatus('📋 Hasil disalin ke clipboard!', 'success');
+                }).catch(err => {
+                    updateScannerStatus('❌ Gagal menyalin hasil', 'error');
+                });
+            } else {
+                updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
+            }
+        }
+
+        // Reset scanner
+        function resetScanner() {
+            console.log('=== RESETTING SCANNER ===');
+            lastScanResult = null;
+            document.getElementById('resultSection').style.display = 'none';
+            updateScannerStatus('🔄 Scanner direset. Siap untuk scan berikutnya.', 'info');
+            
+            // Restart camera scanner
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
         }
 
         // Send result back to Apps Script
@@ -760,68 +529,9 @@
                 updateScannerStatus('📤 Scan selesai! Mengirim otomatis ke Dashboard...', 'info');
                 
                 // Auto-send after 2 seconds
-                window.autoSendTimeout = setTimeout(() => {
+                setTimeout(() => {
                     sendToDashboardManually();
                 }, 2000);
-                
-                // Show copy result button as backup
-                const resultSection = document.getElementById('resultSection');
-                if (resultSection) {
-                    // Add progress indicator for auto-send
-                    const progressDiv = document.createElement('div');
-                    progressDiv.id = 'autoSendProgress';
-                    progressDiv.style.marginTop = '15px';
-                    progressDiv.style.padding = '10px';
-                    progressDiv.style.background = 'rgba(255, 255, 255, 0.1)';
-                    progressDiv.style.borderRadius = '8px';
-                    progressDiv.style.textAlign = 'center';
-                    progressDiv.innerHTML = `
-                        <div style="color: #ff6b35; font-weight: bold;">
-                            🔄 Mengirim otomatis ke Dashboard...
-                        </div>
-                        <div style="margin-top: 5px; font-size: 12px; color: #ccc;">
-                            Tunggu 2 detik atau klik tombol di bawah untuk kirim sekarang
-                        </div>
-                    `;
-                    resultSection.appendChild(progressDiv);
-                    
-                    // Add immediate send button
-                    const immediateSendButton = document.createElement('button');
-                    immediateSendButton.textContent = '� Kirim Sekarang';
-                    immediateSendButton.className = 'btn btn-primary';
-                    immediateSendButton.style.marginTop = '10px';
-                    immediateSendButton.onclick = function() {
-                        // Clear the auto-send timeout
-                        if (window.autoSendTimeout) {
-                            clearTimeout(window.autoSendTimeout);
-                        }
-                        // Remove progress indicator
-                        const progress = document.getElementById('autoSendProgress');
-                        if (progress) {
-                            progress.remove();
-                        }
-                        // Send immediately
-                        sendToDashboardManually();
-                    };
-                    
-                    resultSection.appendChild(immediateSendButton);
-                    
-                    // Add copy button as backup
-                    const copyButton = document.createElement('button');
-                    copyButton.textContent = '� Salin Hasil';
-                    copyButton.className = 'btn btn-info';
-                    copyButton.style.marginTop = '10px';
-                    copyButton.style.marginLeft = '10px';
-                    copyButton.onclick = function() {
-                        navigator.clipboard.writeText(lastScanResult).then(() => {
-                            updateScannerStatus('📋 Hasil disalin ke clipboard!', 'success');
-                        }).catch(err => {
-                            updateScannerStatus('❌ Gagal menyalin hasil', 'error');
-                        });
-                    };
-                    
-                    resultSection.appendChild(copyButton);
-                }
             }
         }
 
@@ -887,6 +597,18 @@
                         if (data.success) {
                             updateScannerStatus('✅ Hasil berhasil dikirim ke Dashboard! Spreadsheet akan diupdate...', 'success');
                             
+                            // Auto-refresh dashboard after successful send
+                            setTimeout(() => {
+                                try {
+                                    // Try to refresh parent window if available
+                                    if (window.opener && !window.opener.closed) {
+                                        window.opener.location.reload();
+                                    }
+                                } catch (error) {
+                                    console.log('Could not refresh parent window:', error);
+                                }
+                            }, 500);
+                            
                             // Auto-close scanner after successful send
                             setTimeout(() => {
                                 updateScannerStatus('🔄 Scanner akan ditutup dalam 2 detik...', 'info');
@@ -894,7 +616,7 @@
                                     window.close();
                                     // If window.close() doesn't work, show message
                                     setTimeout(() => {
-                                        updateScannerStatus('✅ Data terkirim! Anda bisa menutup tab ini.', 'success');
+                                        updateScannerStatus('✅ Data terkirim! Dashboard di-refresh.', 'success');
                                     }, 1000);
                                 }, 2000);
                             }, 2000);
@@ -926,19 +648,6 @@
             
             // Start trying URLs
             tryNextUrl();
-        }
-
-        // Reset scanner for next scan
-        function resetScanner() {
-            console.log('=== RESETTING SCANNER ===');
-            lastScanResult = null;
-            document.getElementById('resultSection').style.display = 'none';
-            updateScannerStatus('🔄 Scanner direset. Siap untuk scan berikutnya.', 'info');
-            
-            // Restart camera scanner
-            setTimeout(() => {
-                startCameraScan();
-            }, 1000);
         }
 
         // Initialize on page load
