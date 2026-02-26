@@ -504,109 +504,36 @@
                 console.error('❌ postMessage failed, trying Apps Script GET:', error);
             }
             
-            // Fallback: Send to Apps Script via GET request (doGet)
-            updateScannerStatus('📤 Mengirim ke Apps Script via GET...', 'info');
+            // Fallback: Send to Apps Script via URL redirect (bypass CORS)
+            updateScannerStatus('📤 Mengirim ke Apps Script via redirect...', 'info');
             
-            // Try to get Apps Script URL from common patterns
-            const possibleAppsScriptUrls = [
-                'https://script.google.com/macros/s/AKfycbzcpuVqth4CpNkvMi8HWx2C0rVhsNO8uG6PIE4BKzwOYqN5dS766hlpdPPXYZsEDjil/exec',
-                'https://script.google.com/macros/s/'
-            ];
+            // Get returnUrl from URL parameters
+            const returnUrl = getUrlParameter('returnUrl');
+            console.log('Return URL:', returnUrl);
             
-            let attemptCount = 0;
-            let maxAttempts = possibleAppsScriptUrls.length;
+            // Use URL redirect to bypass CORS
+            const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbzcpuVqth4CpNkvMi8HWx2C0rVhsNO8uG6PIE4BKzwOYqN5dS766hlpdPPXYZsEDjil/exec';
             
-            function tryNextAppsScriptUrl() {
-                if (attemptCount >= maxAttempts) {
-                    updateScannerStatus('❌ Tidak dapat terhubung ke Apps Script. Silakan copy hasil manual.', 'error');
-                    // Show result for manual copy
-                    document.getElementById('resultSection').style.display = 'block';
-                    document.getElementById('resultContent').textContent = lastScanResult;
-                    return;
-                }
-                
-                const baseUrl = possibleAppsScriptUrls[attemptCount];
-                attemptCount++;
-                
-                try {
-                    console.log('Trying Apps Script URL:', baseUrl);
-                    
-                    // Build GET request URL with QR data
-                    const params = new URLSearchParams({
-                        qrResult: lastScanResult,
-                        source: 'external_scanner',
-                        processId: processId,
-                        timestamp: new Date().toISOString()
-                    });
-                    
-                    const fullUrl = baseUrl + '?' + params.toString();
-                    console.log('Full GET URL:', fullUrl);
-                    
-                    // Send GET request with timeout
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-                    
-                    fetch(fullUrl, {
-                        method: 'GET',
-                        signal: controller.signal
-                    })
-                    .then(response => {
-                        clearTimeout(timeoutId);
-                        if (!response.ok) {
-                            throw new Error('HTTP ' + response.status);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Apps Script GET response:', data);
-                        if (data.success) {
-                            updateScannerStatus('✅ Data tersimpan di Apps Script! Spreadsheet diupdate.', 'success');
-                            
-                            // Auto-close scanner after successful send
-                            setTimeout(() => {
-                                updateScannerStatus('🔄 Scanner akan ditutup dalam 2 detik...', 'info');
-                                setTimeout(() => {
-                                    window.close();
-                                    // If window.close() doesn't work, show message
-                                    setTimeout(() => {
-                                        updateScannerStatus('✅ Data tersimpan! Spreadsheet diupdate.', 'success');
-                                    }, 1000);
-                                }, 2000);
-                            }, 2000);
-                        } else {
-                            updateScannerStatus('❌ Gagal menyimpan: ' + data.message + '. Mencoba URL lain...', 'error');
-                            tryNextAppsScriptUrl();
-                        }
-                    })
-                    .catch(error => {
-                        clearTimeout(timeoutId);
-                        console.log('Failed with Apps Script URL:', baseUrl, error);
-                        if (attemptCount < maxAttempts) {
-                            updateScannerStatus('⚠️ Gagal terhubung. Mencoba Apps Script URL lain... (' + attemptCount + '/' + maxAttempts + ')', 'warning');
-                            setTimeout(tryNextAppsScriptUrl, 1000);
-                        } else {
-                            updateScannerStatus('❌ Semua Apps Script URL gagal. Silakan copy hasil manual.', 'error');
-                            // Show result for manual copy
-                            document.getElementById('resultSection').style.display = 'block';
-                            document.getElementById('resultContent').textContent = lastScanResult;
-                        }
-                    });
-                    
-                } catch (error) {
-                    console.log('Error with Apps Script URL:', baseUrl, error);
-                    if (attemptCount < maxAttempts) {
-                        setTimeout(tryNextAppsScriptUrl, 500);
-                    } else {
-                        updateScannerStatus('❌ Tidak dapat terhubung ke Apps Script. Silakan copy hasil manual.', 'error');
-                        // Show result for manual copy
-                        document.getElementById('resultSection').style.display = 'block';
-                        document.getElementById('resultContent').textContent = lastScanResult;
-                    }
-                }
-            }
+            // Build redirect URL with QR data
+            const params = new URLSearchParams({
+                qrResult: lastScanResult,
+                source: 'external_scanner',
+                processId: processId,
+                timestamp: new Date().toISOString(),
+                returnUrl: returnUrl, // Pass returnUrl for redirect back
+                redirectBack: 'true' // Enable redirect back to dashboard
+            });
             
-            // Start trying Apps Script URLs
-            tryNextAppsScriptUrl();
+            const redirectUrl = appsScriptUrl + '?' + params.toString();
+            console.log('Redirect URL:', redirectUrl);
+            
+            // Show success message before redirect
+            updateScannerStatus('✅ Mengirim data ke Apps Script... Halaman akan dialihkan.', 'success');
+            
+            // Redirect to Apps Script (bypasses CORS)
+            setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, 1500);
         }
 
         // Initialize on page load
