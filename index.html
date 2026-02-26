@@ -376,6 +376,95 @@
             showManualInputFallback();
         }
 
+        // Check video element status
+        function checkVideoStatus() {
+            const qrReaderDiv = document.getElementById('qr-reader');
+            if (!qrReaderDiv) {
+                console.log('QR reader div not found');
+                return false;
+            }
+            
+            const videoElement = qrReaderDiv.querySelector('video');
+            if (!videoElement) {
+                console.log('Video element not found in QR reader');
+                return false;
+            }
+            
+            console.log('Video element found:', videoElement);
+            console.log('Video src:', videoElement.src);
+            console.log('Video readyState:', videoElement.readyState);
+            console.log('Video videoWidth:', videoElement.videoWidth);
+            console.log('Video videoHeight:', videoElement.videoHeight);
+            console.log('Video paused:', videoElement.paused);
+            console.log('Video ended:', videoElement.ended);
+            
+            if (videoElement.readyState >= 2) { // HAVE_CURRENT_DATA
+                console.log('Video is ready and playing');
+                return true;
+            } else {
+                console.log('Video is not ready yet');
+                return false;
+            }
+        }
+
+        // Show manual input fallback
+        function showManualInputFallback() {
+            setTimeout(() => {
+                document.getElementById('manualInput').focus();
+                updateScannerStatus('💡 Gunakan Manual Input atau coba dengan device lain (HP/tablet)', 'info');
+            }, 2000);
+        }
+
+        // Stop camera scanner
+        function stopCameraScan() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    console.log('Scanner stopped');
+                    updateScannerStatus('⏹️ Scanner dihentikan', 'info');
+                }).catch((error) => {
+                    console.error('Error stopping scanner:', error);
+                });
+            }
+        }
+
+        // Switch camera
+        function switchCamera() {
+            if (cameras.length <= 1) {
+                updateScannerStatus('⚠️ Hanya ada satu kamera tersedia', 'warning');
+                return;
+            }
+            
+            const currentIndex = cameras.findIndex(cam => cam.id === currentCameraId);
+            const nextIndex = (currentIndex + 1) % cameras.length;
+            const nextCamera = cameras[nextIndex];
+            
+            stopCameraScan();
+            
+            setTimeout(() => {
+                currentCameraId = nextCamera.id;
+                html5QrCode = new Html5Qrcode("qr-reader");
+                
+                html5QrCode.start(
+                    nextCamera,
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    },
+                    (decodedText, decodedResult) => {
+                        onScanSuccess(decodedText);
+                    },
+                    (errorMessage) => {
+                        // Handle scan errors silently
+                    }
+                ).then(() => {
+                    updateScannerStatus('✅ Camera diganti ke: ' + (nextCamera.label || 'Camera ' + (nextIndex + 1)), 'success');
+                }).catch((error) => {
+                    updateScannerStatus('❌ Gagal ganti kamera: ' + error.message, 'error');
+                });
+            }, 500);
+        }
+
         // Debug camera function
         function debugCamera() {
             console.log('=== CAMERA DEBUG INFO ===');
@@ -563,131 +652,6 @@
             }
         }
 
-        // Check video element status
-        function checkVideoStatus() {
-            const qrReaderDiv = document.getElementById('qr-reader');
-            if (!qrReaderDiv) {
-                console.log('QR reader div not found');
-                return false;
-            }
-            
-            const videoElement = qrReaderDiv.querySelector('video');
-            if (!videoElement) {
-                console.log('Video element not found in QR reader');
-                return false;
-            }
-            
-            console.log('Video element found:', videoElement);
-            console.log('Video src:', videoElement.src);
-            console.log('Video readyState:', videoElement.readyState);
-            console.log('Video videoWidth:', videoElement.videoWidth);
-            console.log('Video videoHeight:', videoElement.videoHeight);
-            console.log('Video paused:', videoElement.paused);
-            console.log('Video ended:', videoElement.ended);
-            
-            if (videoElement.readyState >= 2) { // HAVE_CURRENT_DATA
-                console.log('Video is ready and playing');
-                return true;
-            } else {
-                console.log('Video is not ready yet');
-                return false;
-            }
-        }
-
-        // Show manual input fallback
-        function showManualInputFallback() {
-            setTimeout(() => {
-                document.getElementById('manualInput').focus();
-                updateScannerStatus('💡 Gunakan Manual Input atau coba dengan device lain (HP/tablet)', 'info');
-            }, 2000);
-        }
-
-        // Open external scanner
-        function openExternalScanner() {
-            console.log('=== OPENING EXTERNAL SCANNER ===');
-            updateScannerStatus('Membuka external scanner...', 'info');
-            
-            // Open external scanner in new tab
-            const externalScannerUrl = 'https://ieindospacegroup-cmyk.github.io/qr-scanner/';
-            window.open(externalScannerUrl, '_blank');
-            
-            updateScannerStatus('🌐 External scanner dibuka di tab baru', 'success');
-        }
-
-        // Open spreadsheet
-        function openSpreadsheet() {
-            console.log('=== OPENING SPREADSHEET ===');
-            updateScannerStatus('Membuka spreadsheet...', 'info');
-            
-            // Open spreadsheet in new tab
-            const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1lTEg77SaBFlyfNVIRcpHN61CreHpnw6owB3RWqGyzQQ/edit?gid=722613554#gid=722613554';
-            window.open(spreadsheetUrl, '_blank');
-            
-            updateScannerStatus('📊 Spreadsheet dibuka di tab baru', 'success');
-        }
-
-        // Open external camera
-        function openExternalCamera() {
-            console.log('=== OPENING EXTERNAL CAMERA ===');
-            updateScannerStatus('Membuka external camera...', 'info');
-            
-            // Open external camera scanner in new tab
-            const externalCameraUrl = 'https://ieindospacegroup-cmyk.github.io/qr-scanner/';
-            window.open(externalCameraUrl, '_blank');
-            
-            updateScannerStatus('📷 External camera dibuka di tab baru', 'success');
-        }
-
-        // Stop camera scanner
-        function stopCameraScan() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    console.log('Scanner stopped');
-                    updateScannerStatus('⏹️ Scanner dihentikan', 'info');
-                }).catch((error) => {
-                    console.error('Error stopping scanner:', error);
-                });
-            }
-        }
-
-        // Switch camera
-        function switchCamera() {
-            if (cameras.length <= 1) {
-                updateScannerStatus('⚠️ Hanya ada satu kamera tersedia', 'warning');
-                return;
-            }
-            
-            const currentIndex = cameras.findIndex(cam => cam.id === currentCameraId);
-            const nextIndex = (currentIndex + 1) % cameras.length;
-            const nextCamera = cameras[nextIndex];
-            
-            stopCameraScan();
-            
-            setTimeout(() => {
-                currentCameraId = nextCamera.id;
-                html5QrCode = new Html5Qrcode("qr-reader");
-                
-                html5QrCode.start(
-                    nextCamera,
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0
-                    },
-                    (decodedText, decodedResult) => {
-                        onScanSuccess(decodedText);
-                    },
-                    (errorMessage) => {
-                        // Handle scan errors silently
-                    }
-                ).then(() => {
-                    updateScannerStatus('✅ Camera diganti ke: ' + (nextCamera.label || 'Camera ' + (nextIndex + 1)), 'success');
-                }).catch((error) => {
-                    updateScannerStatus('❌ Gagal ganti kamera: ' + error.message, 'error');
-                });
-            }, 500);
-        }
-
         // Handle successful scan
         function onScanSuccess(decodedText) {
             console.log('Scan successful:', decodedText);
@@ -785,35 +749,196 @@
                 const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
                 
                 console.log('Returning to Dashboard via URL:', finalUrl);
-                updateScannerStatus(' Mengirim hasil ke Dashboard...', 'info');
+                updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
                 
                 // Redirect back to Dashboard
                 setTimeout(() => {
                     window.location.href = finalUrl;
                 }, 1000);
             } else {
-                // Standalone mode: Just show result and provide options
-                updateScannerStatus(' Scan selesai! Mode standalone - hasil tersimpan lokal', 'success');
+                // Standalone mode: Auto-send to dashboard
+                updateScannerStatus('📤 Scan selesai! Mengirim otomatis ke Dashboard...', 'info');
                 
-                // Show copy result button
+                // Auto-send after 2 seconds
+                window.autoSendTimeout = setTimeout(() => {
+                    sendToDashboardManually();
+                }, 2000);
+                
+                // Show copy result button as backup
                 const resultSection = document.getElementById('resultSection');
                 if (resultSection) {
-                    // Add copy button after result
+                    // Add progress indicator for auto-send
+                    const progressDiv = document.createElement('div');
+                    progressDiv.id = 'autoSendProgress';
+                    progressDiv.style.marginTop = '15px';
+                    progressDiv.style.padding = '10px';
+                    progressDiv.style.background = 'rgba(255, 255, 255, 0.1)';
+                    progressDiv.style.borderRadius = '8px';
+                    progressDiv.style.textAlign = 'center';
+                    progressDiv.innerHTML = `
+                        <div style="color: #ff6b35; font-weight: bold;">
+                            🔄 Mengirim otomatis ke Dashboard...
+                        </div>
+                        <div style="margin-top: 5px; font-size: 12px; color: #ccc;">
+                            Tunggu 2 detik atau klik tombol di bawah untuk kirim sekarang
+                        </div>
+                    `;
+                    resultSection.appendChild(progressDiv);
+                    
+                    // Add immediate send button
+                    const immediateSendButton = document.createElement('button');
+                    immediateSendButton.textContent = '� Kirim Sekarang';
+                    immediateSendButton.className = 'btn btn-primary';
+                    immediateSendButton.style.marginTop = '10px';
+                    immediateSendButton.onclick = function() {
+                        // Clear the auto-send timeout
+                        if (window.autoSendTimeout) {
+                            clearTimeout(window.autoSendTimeout);
+                        }
+                        // Remove progress indicator
+                        const progress = document.getElementById('autoSendProgress');
+                        if (progress) {
+                            progress.remove();
+                        }
+                        // Send immediately
+                        sendToDashboardManually();
+                    };
+                    
+                    resultSection.appendChild(immediateSendButton);
+                    
+                    // Add copy button as backup
                     const copyButton = document.createElement('button');
-                    copyButton.textContent = ' Salin Hasil';
+                    copyButton.textContent = '� Salin Hasil';
                     copyButton.className = 'btn btn-info';
                     copyButton.style.marginTop = '10px';
+                    copyButton.style.marginLeft = '10px';
                     copyButton.onclick = function() {
                         navigator.clipboard.writeText(lastScanResult).then(() => {
-                            updateScannerStatus(' Hasil disalin ke clipboard!', 'success');
+                            updateScannerStatus('📋 Hasil disalin ke clipboard!', 'success');
                         }).catch(err => {
-                            updateScannerStatus(' Gagal menyalin hasil', 'error');
+                            updateScannerStatus('❌ Gagal menyalin hasil', 'error');
                         });
                     };
                     
                     resultSection.appendChild(copyButton);
                 }
             }
+        }
+
+        // Send to dashboard manually (standalone mode)
+        function sendToDashboardManually() {
+            console.log('=== SENDING TO DASHBOARD MANUALLY ===');
+            updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
+            
+            if (!lastScanResult) {
+                updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
+                return;
+            }
+            
+            // Try to find dashboard URL from common patterns
+            const possibleUrls = [
+                'https://script.google.com/macros/s/AKfycbzcpuVqth4CpNkvMi8HWx2C0rVhsNO8uG6PIE4BKzwOYqN5dS766hlpdPPXYZsEDjil/exec',
+                'https://script.google.com/macros/s/',
+                window.location.origin
+            ];
+            
+            let attemptCount = 0;
+            let maxAttempts = possibleUrls.length;
+            
+            // Try each possible URL sequentially
+            function tryNextUrl() {
+                if (attemptCount >= maxAttempts) {
+                    // All URLs failed, show manual instructions
+                    updateScannerStatus('⚠️ Tidak dapat terhubung ke Dashboard. Silakan copy hasil dan paste di dashboard.', 'warning');
+                    return;
+                }
+                
+                const baseUrl = possibleUrls[attemptCount];
+                attemptCount++;
+                
+                try {
+                    console.log('Trying URL:', baseUrl);
+                    
+                    // Create form data for POST request
+                    const formData = new FormData();
+                    formData.append('action', 'processQR');
+                    formData.append('qrData', lastScanResult);
+                    formData.append('operator', 'External Scanner Auto');
+                    formData.append('processId', 'auto_' + Date.now());
+                    
+                    // Send POST request with timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                    
+                    fetch(baseUrl, {
+                        method: 'POST',
+                        body: formData,
+                        signal: controller.signal
+                    })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) {
+                            throw new Error('HTTP ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Manual send response:', data);
+                        if (data.success) {
+                            updateScannerStatus('✅ Hasil berhasil dikirim ke Dashboard! Spreadsheet akan diupdate...', 'success');
+                            
+                            // Auto-close scanner after successful send
+                            setTimeout(() => {
+                                updateScannerStatus('🔄 Scanner akan ditutup dalam 2 detik...', 'info');
+                                setTimeout(() => {
+                                    window.close();
+                                    // If window.close() doesn't work, show message
+                                    setTimeout(() => {
+                                        updateScannerStatus('✅ Data terkirim! Anda bisa menutup tab ini.', 'success');
+                                    }, 1000);
+                                }, 2000);
+                            }, 2000);
+                        } else {
+                            updateScannerStatus('❌ Gagal mengirim: ' + data.message + '. Mencoba URL lain...', 'error');
+                            tryNextUrl();
+                        }
+                    })
+                    .catch(error => {
+                        clearTimeout(timeoutId);
+                        console.log('Failed with URL:', baseUrl, error);
+                        if (attemptCount < maxAttempts) {
+                            updateScannerStatus('⚠️ Gagal terhubung. Mencoba URL lain... (' + attemptCount + '/' + maxAttempts + ')', 'warning');
+                            setTimeout(tryNextUrl, 1000);
+                        } else {
+                            updateScannerStatus('⚠️ Semua URL gagal. Silakan copy hasil dan paste di dashboard.', 'error');
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.log('Error with URL:', baseUrl, error);
+                    if (attemptCount < maxAttempts) {
+                        setTimeout(tryNextUrl, 500);
+                    } else {
+                        updateScannerStatus('⚠️ Tidak dapat terhubung ke Dashboard. Silakan copy hasil dan paste di dashboard.', 'error');
+                    }
+                }
+            }
+            
+            // Start trying URLs
+            tryNextUrl();
+        }
+
+        // Reset scanner for next scan
+        function resetScanner() {
+            console.log('=== RESETTING SCANNER ===');
+            lastScanResult = null;
+            document.getElementById('resultSection').style.display = 'none';
+            updateScannerStatus('🔄 Scanner direset. Siap untuk scan berikutnya.', 'info');
+            
+            // Restart camera scanner
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
         }
 
         // Initialize on page load
