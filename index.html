@@ -287,7 +287,7 @@
                         
                         // Start scanning
                         html5QrCode.start(
-                            selectedCamera,
+                            selectedCamera.id,
                             {
                                 fps: 10,
                                 qrbox: { width: 250, height: 250 }
@@ -679,6 +679,11 @@
             
             // Auto-focus manual input
             document.getElementById('manualInput').focus();
+            
+            // Auto-start camera scanner
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
         });
     </script>
 </body>
