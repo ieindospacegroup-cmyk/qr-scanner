@@ -731,20 +731,14 @@
                 return;
             }
             
-            // Set default dashboard URL
-            const dashboardUrl = 'https://script.google.com/macros/s/AKfycbzcpuVqth4CpNkvMi8HWx2C0rVhsNO8uG6PIE4BKzwOYqN5dS766hlpdPPXYZsEDjil/exec';
-            
-            // Fix common URL issues
-            const fixedDashboardUrl = dashboardUrl.replace('https://', 'https://');
-            
-            // Get the return URL from URL parameter or use default dashboard
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || fixedDashboardUrl;
+            // Get URL parameters
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
             const processId = getUrlParameter('processId') || 'process_' + Date.now();
             
             console.log('returnUrl:', returnUrl);
             console.log('processId:', processId);
             
-            updateScannerStatus('📤 Mengirim hasil ke Dashboard dan Spreadsheet...', 'info');
+            updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
             
             // Try to send via postMessage first (if opener is available)
             try {
@@ -779,33 +773,26 @@
             }
             
             // Fallback: Construct return URL with scan result
-            const returnParams = new URLSearchParams({
-                qrResult: lastScanResult,
-                processId: processId,
-                timestamp: new Date().toISOString(),
-                source: 'external_scanner'
-            });
-            
-            const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
-            
-            console.log('Returning to Dashboard via URL:', finalUrl);
-            updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
-            
-            // Redirect back to Dashboard
-            setTimeout(() => {
-                window.location.href = finalUrl;
-            }, 1000);
-        }
-
-        // Reset scanner
-        function resetScanner() {
-            lastScanResult = null;
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('resultContent').textContent = '';
-            updateScannerStatus('🔄 Siap untuk scanning...', 'info');
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (returnUrl) {
+                const returnParams = new URLSearchParams({
+                    qrResult: lastScanResult,
+                    processId: processId,
+                    timestamp: new Date().toISOString(),
+                    source: 'external_scanner'
+                });
+                
+                const finalUrl = returnUrl + (returnUrl.includes('?') ? '&' : '?') + returnParams.toString();
+                
+                console.log('Returning to Dashboard via URL:', finalUrl);
+                updateScannerStatus('📤 Mengirim hasil ke Dashboard...', 'info');
+                
+                // Redirect back to Dashboard
+                setTimeout(() => {
+                    window.location.href = finalUrl;
+                }, 1000);
+            } else {
+                updateScannerStatus('⚠️ Tidak ada return URL yang ditentukan', 'warning');
+            }
         }
 
         // Initialize on page load
@@ -814,29 +801,29 @@
             console.log('Current URL:', window.location.href);
             console.log('URL Parameters:', window.location.search);
             
-            // Set default return URL to external QR scanner
-            const externalScannerUrl = 'https://ieindospacegroup-cmyk.github.io/qr-scanner/?returnUrl=https%3A%2F%2Fn-6zfktny6wdfwqkh4y35jnsyahtskabksl3u2kyi-0lu-script.googleusercontent.com%2FuserCodeAppPanel%3FcreateOAuthDialog%3Dtrue&processId=process_1772004231459&title=Production+Line+Scanner+-+FULFILMENT+AQUATEAK+2026';
+            // Get URL parameters
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
+            const title = getUrlParameter('title') || 'QR Scanner';
+            const processId = getUrlParameter('processId') || 'process_' + Date.now();
             
-            // Fix common URL issues
-            const fixedDashboardUrl = dashboardUrl.replace('https://', 'https://');
+            console.log('Return URL:', returnUrl);
+            console.log('Title:', title);
+            console.log('Process ID:', processId);
             
-            // Always use dashboard URL (either from parameter or default)
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || fixedDashboardUrl;
+            // Update page title
+            if (title) {
+                document.title = title;
+            }
             
-            console.log('Final return URL:', returnUrl);
-            
-            // Always show success message since we always have a return URL
-            updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard dan Spreadsheet.', 'success');
+            // Always show success message since we have parameters
+            if (returnUrl) {
+                updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard.', 'success');
+            } else {
+                updateScannerStatus('⚠️ Scanner siap. Mode standalone (no return URL).', 'info');
+            }
             
             // Auto-focus manual input
             document.getElementById('manualInput').focus();
-        });
-
-        // Handle page visibility change
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && html5QrCode) {
-                stopCameraScan();
-            }
         });
     </script>
 </body>
