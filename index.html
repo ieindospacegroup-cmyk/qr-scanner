@@ -472,6 +472,10 @@
             console.log('Process ID:', processId);
             console.log('Mode:', mode);
             
+            // Get returnUrl from URL parameters
+            const returnUrl = getUrlParameter('returnUrl');
+            console.log('Return URL:', returnUrl);
+            
             // Try postMessage first (if opener is available)
             try {
                 console.log('Checking window.opener:', window.opener);
@@ -505,11 +509,7 @@
             }
             
             // Fallback: Send to Apps Script via URL redirect (bypass CORS)
-            updateScannerStatus('📤 Mengirim ke Apps Script via redirect...', 'info');
-            
-            // Get returnUrl from URL parameters
-            const returnUrl = getUrlParameter('returnUrl');
-            console.log('Return URL:', returnUrl);
+            updateScannerStatus('📤 Mengirim ke Apps Script dan kembali ke Dashboard...', 'info');
             
             // Use URL redirect to bypass CORS
             const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
@@ -521,14 +521,15 @@
                 processId: processId,
                 timestamp: new Date().toISOString(),
                 returnUrl: returnUrl, // Pass returnUrl for redirect back
-                redirectBack: 'true' // Enable redirect back to dashboard
+                redirectBack: 'true', // Enable redirect back to dashboard
+                scanSuccess: 'true' // Indicate successful scan
             });
             
             const redirectUrl = appsScriptUrl + '?' + params.toString();
             console.log('Redirect URL:', redirectUrl);
             
             // Show success message before redirect
-            updateScannerStatus('✅ Mengirim data ke Apps Script... Halaman akan dialihkan.', 'success');
+            updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
             
             // Redirect to Apps Script (bypasses CORS)
             setTimeout(() => {
