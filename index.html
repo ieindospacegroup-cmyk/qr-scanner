@@ -472,9 +472,11 @@
             console.log('Process ID:', processId);
             console.log('Mode:', mode);
             
-            // Get returnUrl from URL parameters
-            const returnUrl = getUrlParameter('returnUrl');
+            // Get returnUrl from URL parameters - DEBUGGING
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
             console.log('Return URL:', returnUrl);
+            console.log('Return URL type:', typeof returnUrl);
+            console.log('Return URL length:', returnUrl ? returnUrl.length : 'null');
             
             // Try postMessage first (if opener is available)
             try {
