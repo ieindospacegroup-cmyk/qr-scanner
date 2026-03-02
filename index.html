@@ -531,10 +531,10 @@
             // Show success message before redirect
             updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
             
-            // Redirect to Apps Script (bypasses CORS)
+            // IMMEDIATE redirect to Apps Script (bypasses CORS)
             setTimeout(() => {
                 window.location.href = redirectUrl;
-            }, 1500);
+            }, 500); // Reduced from 1500ms to 500ms for faster response
         }
 
         // Initialize on page load
