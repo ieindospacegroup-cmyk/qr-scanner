@@ -468,7 +468,7 @@
             }
             
             const processId = getUrlParameter('processId') || 'ext_' + Date.now();
-            const mode = getUrlParameter('mode') || 'postMessage';
+            const mode = getUrlParameter('mode') || 'redirect';
             console.log('Process ID:', processId);
             console.log('Mode:', mode);
             
@@ -533,10 +533,8 @@
             // Show success message before redirect
             updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
             
-            // IMMEDIATE redirect to Apps Script (bypasses CORS)
-            setTimeout(() => {
-                window.location.href = redirectUrl;
-            }, 500); // Reduced from 1500ms to 500ms for faster response
+            // IMMEDIATE redirect to Apps Script (no delay)
+            window.location.href = redirectUrl;
         }
 
         // Initialize on page load
