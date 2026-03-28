@@ -440,6 +440,66 @@
             return parsedData;
         }
 
+        // Store last scanned JO numbers for validation
+        let lastScannedJOs = new Map(); // Map to store JO Number -> Product Code
+
+        // Validate if JO Number already scanned with different Product Code
+        function validateJOAndProductCode(parsedData) {
+            const joNumber = parsedData.joNumber;
+            const productCode = parsedData.productCode;
+            
+            if (!joNumber || !productCode) {
+                return {
+                    isValid: true,
+                    warning: null,
+                    message: null
+                };
+            }
+            
+            // Check if this JO Number was scanned before
+            if (lastScannedJOs.has(joNumber)) {
+                const lastProductCode = lastScannedJOs.get(joNumber);
+                
+                if (lastProductCode !== productCode) {
+                    // Same JO Number but different Product Code
+                    return {
+                        isValid: false,
+                        warning: 'DUPLICATE_JO_DIFFERENT_PRODUCT',
+                        message: `⚠️ Peringatan: JO Number "${joNumber}" sudah discan dengan Product Code "${lastProductCode}". Sekarang mencoba scan dengan Product Code "${productCode}". Pastikan tidak salah barcode!`
+                    };
+                } else {
+                    // Same JO Number and same Product Code
+                    return {
+                        isValid: true,
+                        warning: 'DUPLICATE_JO_SAME_PRODUCT',
+                        message: `ℹ️ Info: JO Number "${joNumber}" dengan Product Code "${productCode}" sudah discan sebelumnya.`
+                    };
+                }
+            } else {
+                // First time scanning this JO Number
+                return {
+                    isValid: true,
+                    warning: null,
+                    message: null
+                };
+            }
+        }
+
+        // Add JO Number to tracking
+        function addJOScan(joNumber, productCode) {
+            if (joNumber && productCode) {
+                lastScannedJOs.set(joNumber, productCode);
+                console.log(`Added JO tracking: ${joNumber} -> ${productCode}`);
+                console.log('Current JO tracking:', Array.from(lastScannedJOs.entries()));
+            }
+        }
+
+        // Clear JO tracking
+        function clearJOScanTracking() {
+            lastScannedJOs.clear();
+            console.log('JO scan tracking cleared');
+        }
+
         // Handle successful scan
         function onScanSuccess(decodedText) {
             console.log('Scan successful:', decodedText);
@@ -448,26 +508,42 @@
             // Parse QR data
             const parsedData = parseQRData(decodedText);
             
+            // Validate JO Number and Product Code
+            const validation = validateJOAndProductCode(parsedData);
+            
             // Stop scanner
             stopCameraScan();
             
-            // Show formatted result
-            displayScanResult(parsedData);
+            // Show formatted result with validation
+            displayScanResult(parsedData, validation);
             
-            updateScannerStatus('✅ Scan berhasil! Data diparsing...', 'success');
-            
-            // Auto-send to dashboard after 1 second
-            setTimeout(() => {
-                sendToAppsScript();
-            }, 1000);
+            if (validation.isValid) {
+                // Add to JO tracking only if valid
+                addJOScan(parsedData.joNumber, parsedData.productCode);
+                updateScannerStatus('✅ Scan berhasil! Data diparsing...', 'success');
+                
+                // Auto-send to dashboard after 1 second
+                setTimeout(() => {
+                    sendToAppsScript();
+                }, 1000);
+            } else {
+                // Show warning for duplicate JO with different product
+                updateScannerStatus(validation.message, 'warning');
+            }
         }
 
         // Display scan result in formatted way
-        function displayScanResult(parsedData) {
+        function displayScanResult(parsedData, validation = null) {
             const resultContent = document.getElementById('resultContent');
             
             let html = '<div style="margin-bottom: 15px;">';
             html += '<h4 style="color: #ff6b35; margin-bottom: 10px;">📋 Parsed QR Data:</h4>';
+            
+            // Show validation message if available
+            if (validation && validation.message) {
+                const alertClass = validation.warning === 'DUPLICATE_JO_DIFFERENT_PRODUCT' ? 'warning' : 'info';
+                html += `<div class="scanner-status ${alertClass}" style="margin-bottom: 15px;">${validation.message}</div>`;
+            }
             
             if (parsedData.isValid) {
                 html += `<div style="display: grid; gap: 8px;">`;
@@ -480,6 +556,16 @@
                 html += `<div style="margin-top: 10px; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 5px;">
                     <small style="color: #4CAF50;">✅ Format valid - ${parsedData.fieldCount} fields detected</small>
                 </div>`;
+                
+                // Show JO tracking info
+                if (lastScannedJOs.size > 0) {
+                    html += `<div style="margin-top: 10px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px;">`;
+                    html += `<div style="font-size: 12px; color: #1976D2;"><strong>📋 JO Tracking (${lastScannedJOs.size} items):</strong></div>`;
+                    for (const [jo, product] of lastScannedJOs.entries()) {
+                        html += `<div style="font-size: 11px; margin-left: 10px;">• ${jo} → ${product}</div>`;
+                    }
+                    html += `</div>`;
+                }
             } else {
                 html += `<div style="color: #ff9800;">`;
                 html += `<div><strong>⚠️ Format tidak sesuai (expected: 5 fields, got: ${parsedData.fieldCount})</strong></div>`;
@@ -623,6 +709,56 @@
             
             // IMMEDIATE redirect to Apps Script (no delay)
             window.location.href = redirectUrl;
+        }
+
+        // Reset scanner
+        function resetScanner() {
+            console.log('=== RESETTING SCANNER ===');
+            
+            // Clear results
+            document.getElementById('resultContent').innerHTML = '';
+            document.getElementById('resultSection').style.display = 'none';
+            
+            // Clear JO tracking
+            clearJOScanTracking();
+            
+            // Clear last scan result
+            lastScanResult = null;
+            
+            updateScannerStatus('🔄 Scanner direset. Siap untuk scan baru.', 'info');
+            
+            // Auto-start camera after reset
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
+        }
+
+        // Request camera permission
+        function requestCameraPermission() {
+            console.log('=== REQUESTING CAMERA PERMISSION ===');
+            updateScannerStatus('🔁 Meminta izin kamera...', 'info');
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(stream) {
+                        console.log('Camera permission granted');
+                        updateScannerStatus('✅ Izin kamera diberikan. Memulai scanner...', 'success');
+                        
+                        // Stop the stream immediately
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        // Start scanner
+                        setTimeout(() => {
+                            startCameraScan();
+                        }, 500);
+                    })
+                    .catch(function(err) {
+                        console.error('Camera permission denied:', err);
+                        updateScannerStatus('❌ Izin kamera ditolak. Silakan izinkan kamera di browser settings.', 'error');
+                    });
+            } else {
+                updateScannerStatus('❌ Browser tidak mendukung kamera.', 'error');
+            }
         }
 
         // Initialize on page load
