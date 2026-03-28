@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner - FULFILMENT</title>
+    <title>QR Scanner - FULFILMENT AQUATEAK 2026</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -193,7 +193,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📷 QR Scanner - FULFILMENT</h1>
+            <h1>📷 QR Scanner - FULFILMENT AQUATEAK 2026</h1>
             <div id="scannerStatus" class="scanner-status info">Memulai scanner...</div>
         </div>
 
@@ -410,23 +410,95 @@
             }
         }
 
+        // Parse QR Code data according to format: JO Number|Product Code|Product Name|QTY Order|Serial Number
+        function parseQRData(qrText) {
+            console.log('Parsing QR data:', qrText);
+            
+            // Split by delimiter '|'
+            const fields = qrText.split('|');
+            
+            // Expected format: 5 fields
+            const expectedFields = 5;
+            const isValid = fields.length === expectedFields;
+            
+            if (!isValid) {
+                console.warn('Unexpected field count:', fields.length, 'Expected:', expectedFields);
+            }
+            
+            const parsedData = {
+                joNumber: fields[0] || '',
+                productCode: fields[1] || '',
+                productName: fields[2] || '',
+                qtyOrder: fields[3] || '',
+                serialNumber: fields[4] || '',
+                rawData: qrText,
+                fieldCount: fields.length,
+                isValid: isValid
+            };
+            
+            console.log('Parsed QR data:', parsedData);
+            return parsedData;
+        }
+
         // Handle successful scan
         function onScanSuccess(decodedText) {
             console.log('Scan successful:', decodedText);
             lastScanResult = decodedText;
             
+            // Parse QR data
+            const parsedData = parseQRData(decodedText);
+            
             // Stop scanner
             stopCameraScan();
             
-            // Show result
-            document.getElementById('resultContent').textContent = decodedText;
-            document.getElementById('resultSection').style.display = 'block';
-            updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
+            // Show formatted result
+            displayScanResult(parsedData);
+            
+            updateScannerStatus('✅ Scan berhasil! Data diparsing...', 'success');
             
             // Auto-send to dashboard after 1 second
             setTimeout(() => {
                 sendToAppsScript();
             }, 1000);
+        }
+
+        // Display scan result in formatted way
+        function displayScanResult(parsedData) {
+            const resultContent = document.getElementById('resultContent');
+            
+            let html = '<div style="margin-bottom: 15px;">';
+            html += '<h4 style="color: #ff6b35; margin-bottom: 10px;">📋 Parsed QR Data:</h4>';
+            
+            if (parsedData.isValid) {
+                html += `<div style="display: grid; gap: 8px;">`;
+                html += `<div><strong>JO Number:</strong> ${parsedData.joNumber}</div>`;
+                html += `<div><strong>Product Code:</strong> ${parsedData.productCode}</div>`;
+                html += `<div><strong>Product Name:</strong> ${parsedData.productName}</div>`;
+                html += `<div><strong>QTY Order:</strong> ${parsedData.qtyOrder}</div>`;
+                html += `<div><strong>Serial Number:</strong> ${parsedData.serialNumber}</div>`;
+                html += `</div>`;
+                html += `<div style="margin-top: 10px; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 5px;">
+                    <small style="color: #4CAF50;">✅ Format valid - ${parsedData.fieldCount} fields detected</small>
+                </div>`;
+            } else {
+                html += `<div style="color: #ff9800;">`;
+                html += `<div><strong>⚠️ Format tidak sesuai (expected: 5 fields, got: ${parsedData.fieldCount})</strong></div>`;
+                html += `<div style="margin-top: 10px;">`;
+                for (let i = 0; i < parsedData.fieldCount; i++) {
+                    html += `<div>Field ${i+1}: ${parsedData.rawData.split('|')[i]}</div>`;
+                }
+                html += `</div>`;
+                html += `</div>`;
+            }
+            
+            html += `<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">`;
+            html += `<div style="font-size: 12px; color: #ccc;"><strong>Raw Data:</strong></div>`;
+            html += `<div style="font-family: monospace; word-break: break-all; font-size: 11px;">${parsedData.rawData}</div>`;
+            html += `</div>`;
+            html += '</div>';
+            
+            resultContent.innerHTML = html;
+            document.getElementById('resultSection').style.display = 'block';
         }
 
         // Process manual input
@@ -448,11 +520,27 @@
         // Copy result to clipboard
         function copyResult() {
             if (lastScanResult) {
-                navigator.clipboard.writeText(lastScanResult).then(() => {
-                    updateScannerStatus('📋 Hasil disalin ke clipboard!', 'success');
+                const parsedData = parseQRData(lastScanResult);
+                let textToCopy = '';
+                
+                if (parsedData.isValid) {
+                    textToCopy = `JO Number: ${parsedData.joNumber}\n` +
+                                `Product Code: ${parsedData.productCode}\n` +
+                                `Product Name: ${parsedData.productName}\n` +
+                                `QTY Order: ${parsedData.qtyOrder}\n` +
+                                `Serial Number: ${parsedData.serialNumber}\n\n` +
+                                `Raw: ${parsedData.rawData}`;
+                } else {
+                    textToCopy = `Raw QR Data: ${parsedData.rawData}\n` +
+                                `Fields: ${parsedData.fieldCount} (expected: 5)`;
+                }
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    updateScannerStatus('📋 Hasil formatted disalin ke clipboard!', 'success');
                 }).catch(err => {
                     updateScannerStatus('❌ Gagal menyalin hasil', 'error');
                 });
+            } else {
                 updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
             }
         }
