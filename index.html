@@ -575,11 +575,17 @@
         function displayAllScannedItems(validation = null) {
             console.log('=== DISPLAY ALL SCANNED ITEMS ===');
             console.log('Total items to display:', allScannedItems.length);
+            console.log('Items array:', allScannedItems);
             
             const resultContent = document.getElementById('resultContent');
             
-            // Clear and rebuild
+            // Force immediate clear with multiple methods
             resultContent.innerHTML = '';
+            resultContent.textContent = '';
+            resultContent.style.display = 'none';
+            
+            // Force browser reflow
+            void resultContent.offsetWidth;
             
             let html = '<div style="margin-bottom: 15px;">';
             html += '<h4 style="color: #ff6b35; margin-bottom: 15px;">📋 All Scanned Items (' + allScannedItems.length + ' items):</h4>';
@@ -594,8 +600,9 @@
             allScannedItems.forEach((item, index) => {
                 const isNewest = index === allScannedItems.length - 1;
                 const borderColor = isNewest ? 'border: 2px solid #4CAF50;' : 'border: 1px solid #555;';
+                const bgColor = isNewest ? 'background: rgba(76, 175, 80, 0.1);' : 'background: rgba(255,255,255,0.05);';
                 
-                html += `<div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; ${borderColor}">`;
+                html += `<div style="margin-bottom: 15px; padding: 15px; ${bgColor} border-radius: 8px; ${borderColor}">`;
                 
                 // Header with index and time
                 html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">`;
@@ -606,31 +613,33 @@
                 html += `</div>`;
                 
                 if (item.isValid) {
-                    // Display fields
+                    // Display fields with HIGHLIGHT for newest
+                    const fieldColor = isNewest ? 'color: #4CAF50; font-weight: bold;' : 'color: #ff6b35;';
+                    
                     html += `<div style="display: grid; gap: 8px;">`;
                     html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">JO:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.joNumber || 'N/A'}</div>`;
+                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">JO:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.joNumber || 'N/A'}</div>`;
                     html += `</div>`;
                     
                     html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">Product Code:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.productCode || 'N/A'}</div>`;
+                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">Product Code:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.productCode || 'N/A'}</div>`;
                     html += `</div>`;
                     
                     html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">Product Name:</div>`;
-                    html += `<div style="color: #ffffff; font-size: 12px;">${item.productName || 'N/A'}</div>`;
+                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">Product Name:</div>`;
+                    html += `<div style="color: #ffffff; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.productName || 'N/A'}</div>`;
                     html += `</div>`;
                     
                     html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">QTY:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.qtyOrder || 'N/A'}</div>`;
+                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">QTY:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.qtyOrder || 'N/A'}</div>`;
                     html += `</div>`;
                     
                     html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">Serial:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.serialNumber || 'N/A'}</div>`;
+                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">Serial:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.serialNumber || 'N/A'}</div>`;
                     html += `</div>`;
                     html += `</div>`;
                 } else {
@@ -646,7 +655,7 @@
             // Summary section
             if (allScannedItems.length > 0) {
                 html += `<div style="margin-top: 20px; padding: 15px; background: rgba(33, 150, 243, 0.1); border-radius: 8px;">`;
-                html += `<div style="font-size: 12px; color: #1976D2;"><strong>� Summary:</strong></div>`;
+                html += `<div style="font-size: 12px; color: #1976D2;"><strong>📊 Summary:</strong></div>`;
                 html += `<div style="font-size: 11px; margin-top: 5px;">`;
                 html += `• Total items scanned: ${allScannedItems.length}<br>`;
                 html += `• Valid items: ${allScannedItems.filter(item => item.isValid).length}<br>`;
@@ -669,11 +678,17 @@
             
             html += '</div>';
             
-            // Update display
+            // Force immediate update without timeout
             resultContent.innerHTML = html;
-            document.getElementById('resultSection').style.display = 'block';
+            resultContent.style.display = 'block';
             
-            console.log('✅ All scanned items displayed successfully');
+            // Additional force update after a short delay
+            setTimeout(() => {
+                resultContent.innerHTML = html;
+                resultContent.style.display = 'block';
+                console.log('✅ All scanned items displayed successfully');
+                console.log('Current display HTML length:', html.length);
+            }, 50);
         }
 
         // Process manual input
@@ -723,10 +738,11 @@
         // Send result back to Dashboard via postMessage or Apps Script GET
         function sendToAppsScript() {
             console.log('=== sendToAppsScript called ===');
-            console.log('lastScanResult:', lastScanResult);
+            console.log('All scanned items:', allScannedItems);
+            console.log('Total items to send:', allScannedItems.length);
             
-            if (!lastScanResult) {
-                updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
+            if (allScannedItems.length === 0) {
+                updateScannerStatus('⚠️ Tidak ada data untuk dikirim', 'warning');
                 return;
             }
             
@@ -741,25 +757,28 @@
             console.log('Return URL type:', typeof returnUrl);
             console.log('Return URL length:', returnUrl ? returnUrl.length : 'null');
             
+            // Prepare data to send - ALL SCANNED ITEMS
+            const dataToSend = {
+                type: 'QR_SCAN_ALL_ITEMS',
+                allScannedItems: allScannedItems, // Send all items array
+                totalItems: allScannedItems.length,
+                lastScanResult: lastScanResult,
+                processId: processId,
+                timestamp: new Date().toISOString(),
+                source: 'external_scanner'
+            };
+            
             // Try postMessage first (if opener is available)
             try {
                 console.log('Checking window.opener:', window.opener);
                 console.log('window.opener.closed:', window.opener ? window.opener.closed : 'N/A');
                 
                 if (window.opener && !window.opener.closed) {
-                    const messageData = {
-                        type: 'QR_SCAN_RESULT',
-                        qrResult: lastScanResult,
-                        processId: processId,
-                        timestamp: new Date().toISOString(),
-                        source: 'external_scanner'
-                    };
+                    console.log('📤 SENDING POSTMESSAGE WITH ALL ITEMS:', dataToSend);
+                    window.opener.postMessage(dataToSend, '*');
                     
-                    console.log('📤 SENDING POSTMESSAGE:', messageData);
-                    window.opener.postMessage(messageData, '*');
-                    
-                    console.log('✅ Sent result via postMessage');
-                    updateScannerStatus('✅ Hasil dikirim ke Dashboard via postMessage', 'success');
+                    console.log('✅ Sent all items via postMessage');
+                    updateScannerStatus(`✅ ${allScannedItems.length} item(s) dikirim ke Dashboard via postMessage`, 'success');
                     
                     // Close after a short delay
                     setTimeout(() => {
@@ -774,14 +793,17 @@
             }
             
             // Fallback: Send to Apps Script via URL redirect (bypass CORS)
-            updateScannerStatus('📤 Mengirim ke Apps Script dan kembali ke Dashboard...', 'info');
+            updateScannerStatus('📤 Mengirim semua data ke Apps Script dan kembali ke Dashboard...', 'info');
             
             // Use URL redirect to bypass CORS
             const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
             
-            // Build redirect URL with QR data
+            // Build redirect URL with ALL scanned items data
             const params = new URLSearchParams({
-                qrResult: lastScanResult,
+                // Send all items as JSON string
+                allScannedItems: JSON.stringify(allScannedItems),
+                totalItems: allScannedItems.length,
+                lastScanResult: lastScanResult,
                 source: 'external_scanner',
                 processId: processId,
                 timestamp: new Date().toISOString(),
@@ -792,9 +814,10 @@
             
             const redirectUrl = appsScriptUrl + '?' + params.toString();
             console.log('Redirect URL:', redirectUrl);
+            console.log('Data being sent:', JSON.stringify(allScannedItems, null, 2));
             
             // Show success message before redirect
-            updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
+            updateScannerStatus(`✅ ${allScannedItems.length} item(s) diproses. Mengalihkan kembali ke Dashboard...`, 'success');
             
             // IMMEDIATE redirect to Apps Script (no delay)
             window.location.href = redirectUrl;
