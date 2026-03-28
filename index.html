@@ -237,6 +237,8 @@
         let lastScanResult = null;
         let cameras = [];
         let currentCameraId = null;
+        let allScannedItems = [];
+        let lastScannedJOs = new Map();
 
         // Get URL parameters
         function getUrlParameter(name) {
@@ -249,6 +251,190 @@
             const statusDiv = document.getElementById('scannerStatus');
             statusDiv.textContent = message;
             statusDiv.className = 'scanner-status ' + type;
+        }
+
+        // Parse QR data into structured format
+        function parseQRData(qrText) {
+            console.log('=== PARSING QR DATA ===');
+            console.log('Raw QR Text:', qrText);
+            
+            // Clean and split by delimiter '|'
+            const cleanedText = qrText.trim();
+            const fields = cleanedText.split('|');
+            
+            console.log('Split fields:', fields);
+            console.log('Number of fields:', fields.length);
+            
+            // Expected format: 5 fields
+            const expectedFields = 5;
+            const isValid = fields.length === expectedFields;
+            
+            if (!isValid) {
+                console.warn('⚠️ INVALID FORMAT - Expected:', expectedFields, 'fields, Got:', fields.length);
+                console.warn('Field contents:', fields);
+            } else {
+                console.log('✅ VALID FORMAT - All 5 fields detected');
+            }
+            
+            const parsedData = {
+                joNumber: fields[0] ? fields[0].trim() : '',
+                productCode: fields[1] ? fields[1].trim() : '',
+                productName: fields[2] ? fields[2].trim() : '',
+                qtyOrder: fields[3] ? fields[3].trim() : '',
+                serialNumber: fields[4] ? fields[4].trim() : '',
+                rawData: cleanedText,
+                fieldCount: fields.length,
+                isValid: isValid
+            };
+            
+            console.log('📋 PARSED RESULT:');
+            console.log('  JO Number:', parsedData.joNumber);
+            console.log('  Product Code:', parsedData.productCode);
+            console.log('  Product Name:', parsedData.productName);
+            console.log('  QTY Order:', parsedData.qtyOrder);
+            console.log('  Serial Number:', parsedData.serialNumber);
+            console.log('  Valid Format:', parsedData.isValid);
+            
+            return parsedData;
+        }
+
+        // Validate JO Number and Product Code
+        function validateJOAndProductCode(parsedData) {
+            const joNumber = parsedData.joNumber;
+            const productCode = parsedData.productCode;
+            
+            if (!joNumber || !productCode) {
+                return {
+                    isValid: true,
+                    warning: null,
+                    message: null
+                };
+            }
+            
+            // Check if this JO Number was scanned before
+            if (lastScannedJOs.has(joNumber)) {
+                const lastProductCode = lastScannedJOs.get(joNumber);
+                
+                if (lastProductCode !== productCode) {
+                    // Same JO Number but different Product Code - ALLOW but show warning
+                    return {
+                        isValid: true, // ALLOW the scan but show warning
+                        warning: 'DUPLICATE_JO_DIFFERENT_PRODUCT',
+                        message: `⚠️ Perhatian: JO Number "${joNumber}" sebelumnya discan dengan Product Code "${lastProductCode}". Sekarang dengan Product Code "${productCode}". Pastikan ini benar!`
+                    };
+                } else {
+                    // Same JO Number and same Product Code
+                    return {
+                        isValid: true,
+                        warning: 'DUPLICATE_JO_SAME_PRODUCT',
+                        message: `ℹ️ Info: JO Number "${joNumber}" dengan Product Code "${productCode}" sudah discan sebelumnya.`
+                    };
+                }
+            } else {
+                // First time scanning this JO Number
+                return {
+                    isValid: true,
+                    warning: null,
+                    message: null
+                };
+            }
+        }
+
+        // Add JO scan to tracking
+        function addJOScan(joNumber, productCode) {
+            if (joNumber && productCode) {
+                lastScannedJOs.set(joNumber, productCode);
+                console.log('JO Tracking updated:', Array.from(lastScannedJOs.entries()));
+            }
+        }
+
+        // Clear JO scan tracking
+        function clearJOScanTracking() {
+            lastScannedJOs.clear();
+            console.log('JO tracking cleared');
+        }
+
+        // Clear all scanned items
+        function clearAllScannedItems() {
+            allScannedItems = [];
+            console.log('All scanned items cleared');
+        }
+
+        // Display all scanned items
+        function displayAllScannedItems(validation) {
+            console.log('=== DISPLAYING ALL SCANNED ITEMS ===');
+            console.log('Items to display:', allScannedItems);
+            console.log('Validation:', validation);
+            
+            const resultContent = document.getElementById('resultContent');
+            const resultSection = document.getElementById('resultSection');
+            
+            // Force clear and rebuild display
+            resultContent.innerHTML = '';
+            resultSection.style.display = 'block';
+            
+            if (allScannedItems.length === 0) {
+                resultContent.innerHTML = '<p style="color: #888;">Tidak ada data yang discan.</p>';
+                return;
+            }
+            
+            let html = `<div style="margin-bottom: 15px;">
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">📊 ALL SCANNED ITEMS (${allScannedItems.length} items)</h4>
+            </div>`;
+            
+            allScannedItems.forEach((item, index) => {
+                const isLatest = index === allScannedItems.length - 1;
+                const borderStyle = isLatest ? '2px solid #4CAF50' : '1px solid #555';
+                const bgColor = isLatest ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+                const textColor = isLatest ? '#4CAF50' : '#fff';
+                
+                html += `<div style="border: ${borderStyle}; background: ${bgColor}; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h5 style="margin: 0; color: ${textColor}; font-weight: bold;">
+                            Item #${item.scanIndex} ${isLatest ? '(NEW)' : ''}
+                        </h5>
+                        <span style="color: #888; font-size: 12px;">${item.scanTime}</span>
+                    </div>`;
+                
+                if (item.isValid) {
+                    html += `<div style="font-size: 14px; line-height: 1.4;">
+                        <div><strong>JO Number:</strong> ${item.joNumber}</div>
+                        <div><strong>Product Code:</strong> ${item.productCode}</div>
+                        <div><strong>Product Name:</strong> ${item.productName}</div>
+                        <div><strong>QTY Order:</strong> ${item.qtyOrder}</div>
+                        <div><strong>Serial Number:</strong> ${item.serialNumber}</div>
+                    </div>`;
+                } else {
+                    html += `<div style="color: #ff9800; font-size: 14px;">
+                        <div><strong>⚠️ Invalid Format:</strong> ${item.fieldCount} fields (expected 5)</div>
+                        <div><strong>Raw Data:</strong> ${item.rawData}</div>
+                    </div>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            // Add summary
+            const uniqueJOs = new Set(allScannedItems.filter(item => item.isValid).map(item => item.joNumber));
+            html += `<div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h5 style="color: #2196F3; margin: 0 0 10px 0;">📈 SUMMARY</h5>
+                <div style="font-size: 14px;">
+                    <div><strong>Total Items:</strong> ${allScannedItems.length}</div>
+                    <div><strong>Valid Items:</strong> ${allScannedItems.filter(item => item.isValid).length}</div>
+                    <div><strong>Unique JO Numbers:</strong> ${uniqueJOs.size}</div>
+                    <div><strong>JO Tracking:</strong> ${Array.from(lastScannedJOs.entries()).length} tracked</div>
+                </div>
+            </div>`;
+            
+            // Add validation warning if exists
+            if (validation && validation.message) {
+                html += `<div style="background: rgba(255, 152, 0, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <div style="color: #ff9800; font-size: 14px;">${validation.message}</div>
+                </div>`;
+            }
+            
+            resultContent.innerHTML = html;
+            console.log('Display updated with', allScannedItems.length, 'items');
         }
 
         // Start camera scanner
