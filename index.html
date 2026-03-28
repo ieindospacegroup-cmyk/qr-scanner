@@ -285,29 +285,72 @@
                         currentCameraId = selectedCamera.id;
                         
                         console.log('Selected camera:', selectedCamera);
+                        console.log('Camera ID:', selectedCamera.id);
+                        console.log('Camera label:', selectedCamera.label);
                         
-                        // Start scanning
+                        // Start scanning with improved settings
                         html5QrCode.start(
                             selectedCamera.id,
                             {
-                                fps: 10,
-                                qrbox: { width: 250, height: 250 }
+                                fps: 20, // Increased FPS for better responsiveness
+                                qrbox: { width: 300, height: 300 }, // Larger QR box
+                                aspectRatio: 1.0
                             },
                             (decodedText, result) => {
-                                console.log('QR Code scan successful:', decodedText);
+                                console.log('=== QR CODE SCAN DETECTED ===');
+                                console.log('Decoded text:', decodedText);
+                                console.log('Scan result:', result);
                                 onScanSuccess(decodedText);
                             },
                             (errorMessage) => {
-                                // Don't show every error, only important ones
-                                if (!errorMessage.includes('No QR code found')) {
+                                // Show only important errors for debugging
+                                if (!errorMessage.includes('No QR code found') && 
+                                    !errorMessage.includes('MultiFormatReader') &&
+                                    !errorMessage.includes('NotFoundException')) {
                                     console.log('QR Scan error:', errorMessage);
                                 }
                             }
                         ).then(() => {
+                            console.log('✅ Scanner started successfully');
                             updateScannerStatus('✅ Scanner aktif. Arahkan kamera ke QR code.', 'success');
+                            
+                            // Add visual feedback
+                            const qrReader = document.getElementById('qr-reader');
+                            if (qrReader) {
+                                qrReader.style.border = '2px solid #4CAF50';
+                            }
                         }).catch((err) => {
                             console.error('Unable to start scanning:', err);
+                            console.error('Error details:', err.name, err.message);
                             updateScannerStatus('❌ Gagal memulai scanner: ' + err.message, 'error');
+                            
+                            // Try fallback to environment camera
+                            if (devices.length > 1) {
+                                console.log('Trying fallback camera...');
+                                const fallbackCamera = devices.find(device => 
+                                    device.label.toLowerCase().includes('environment')
+                                ) || devices[0];
+                                
+                                html5QrCode.start(
+                                    fallbackCamera.id,
+                                    {
+                                        fps: 15,
+                                        qrbox: { width: 250, height: 250 }
+                                    },
+                                    (decodedText, result) => {
+                                        console.log('QR Code scan successful (fallback):', decodedText);
+                                        onScanSuccess(decodedText);
+                                    },
+                                    (errorMessage) => {
+                                        // Silent error handling
+                                    }
+                                ).then(() => {
+                                    updateScannerStatus('✅ Scanner aktif dengan kamera fallback.', 'success');
+                                }).catch((fallbackErr) => {
+                                    console.error('Fallback also failed:', fallbackErr);
+                                    updateScannerStatus('❌ Semua kamera gagal. Gunakan Manual Input.', 'error');
+                                });
+                            }
                         });
                     } else {
                         updateScannerStatus('❌ Tidak ada kamera yang ditemukan.', 'error');
@@ -334,8 +377,8 @@
                 });
 
             } catch (error) {
-                console.error('HTML5 QR Code initialization error:', error);
-                updateScannerStatus('❌ Library scanner error. Gunakan input manual.', 'error');
+                console.error('Camera initialization error:', error);
+                updateScannerStatus('❌ Error initializing camera: ' + error.message, 'error');
             }
         }
 
@@ -480,12 +523,34 @@
 
         // Copy result to clipboard
         function copyResult() {
-            if (lastScanResult) {
-                navigator.clipboard.writeText(lastScanResult).then(() => {
-                    updateScannerStatus('📋 Hasil disalin ke clipboard!', 'success');
+            console.log('=== COPY RESULT CALLED ===');
+            console.log('All scanned items:', allScannedItems);
+            console.log('Total items available:', allScannedItems.length);
+            
+            if (allScannedItems.length > 0) {
+                let textToCopy = `📋 ALL SCANNED ITEMS (${allScannedItems.length} items):\n\n`;
+                
+                allScannedItems.forEach((item, index) => {
+                    textToCopy += `--- Item #${item.scanIndex} (${item.scanTime}) ---\n`;
+                    if (item.isValid) {
+                        textToCopy += `JO Number: ${item.joNumber}\n` +
+                                      `Product Code: ${item.productCode}\n` +
+                                      `Product Name: ${item.productName}\n` +
+                                      `QTY Order: ${item.qtyOrder}\n` +
+                                      `Serial Number: ${item.serialNumber}\n` +
+                                      `Raw: ${item.rawData}\n\n`;
+                    } else {
+                        textToCopy += `Raw QR Data: ${item.rawData}\n` +
+                                      `Fields: ${item.fieldCount} (expected: 5)\n\n`;
+                    }
+                });
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    updateScannerStatus(`📋 ${allScannedItems.length} item(s) disalin ke clipboard!`, 'success');
                 }).catch(err => {
                     updateScannerStatus('❌ Gagal menyalin hasil', 'error');
                 });
+            } else {
                 updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
             }
         }
