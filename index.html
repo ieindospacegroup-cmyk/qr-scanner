@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner pp</title>
+    <title>QR Scanner p.p</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -193,7 +193,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📷 QR Scanner pp </h1>
+            <h1>📷 QR Scanner p.p </h1>
             <div id="scannerStatus" class="scanner-status info">Memulai scanner...</div>
         </div>
 
@@ -455,7 +455,8 @@
             return parsedData;
         }
 
-        // Store last scanned JO numbers for validation
+        // Store all scanned items
+        let allScannedItems = []; // Array to store all scan results
         let lastScannedJOs = new Map(); // Map to store JO Number -> Product Code
 
         // Validate if JO Number already scanned with different Product Code
@@ -515,14 +516,33 @@
             console.log('JO scan tracking cleared');
         }
 
+        // Clear all scanned items
+        function clearAllScannedItems() {
+            allScannedItems = [];
+            console.log('All scanned items cleared');
+        }
+
         // Handle successful scan
         function onScanSuccess(decodedText) {
             console.log('=== NEW SCAN DETECTED ===');
             console.log('Scan successful:', decodedText);
+            console.log('Previous lastScanResult:', lastScanResult);
+            
+            // Force clear previous data
             lastScanResult = decodedText;
             
             // Parse QR data
             const parsedData = parseQRData(decodedText);
+            
+            // Add to all scanned items array
+            const scanItem = {
+                ...parsedData,
+                scanTime: new Date().toLocaleTimeString(),
+                scanIndex: allScannedItems.length + 1
+            };
+            allScannedItems.push(scanItem);
+            console.log('Added to scanned items:', scanItem);
+            console.log('Total scanned items:', allScannedItems.length);
             
             // Validate JO Number and Product Code
             const validation = validateJOAndProductCode(parsedData);
@@ -530,9 +550,9 @@
             // Stop scanner
             stopCameraScan();
             
-            // ALWAYS display the new scan result first
-            console.log('🔄 UPDATING DISPLAY WITH NEW DATA...');
-            displayScanResult(parsedData, validation);
+            // Display ALL scanned items
+            console.log('🔄 DISPLAYING ALL SCANNED ITEMS...');
+            displayAllScannedItems(validation);
             
             // Always add to JO tracking (update if exists)
             addJOScan(parsedData.joNumber, parsedData.productCode);
@@ -542,7 +562,7 @@
             } else if (validation.warning === 'DUPLICATE_JO_SAME_PRODUCT') {
                 updateScannerStatus('ℹ️ Data duplikat dengan JO dan Product Code sama.', 'info');
             } else {
-                updateScannerStatus('✅ Scan berhasil! Data diparsing...', 'success');
+                updateScannerStatus('✅ Scan berhasil! Data ditambahkan ke list.', 'success');
             }
             
             // Auto-send to dashboard after 1 second
@@ -551,12 +571,18 @@
             }, 1000);
         }
 
-        // Display scan result in formatted way
-        function displayScanResult(parsedData, validation = null) {
+        // Display ALL scanned items
+        function displayAllScannedItems(validation = null) {
+            console.log('=== DISPLAY ALL SCANNED ITEMS ===');
+            console.log('Total items to display:', allScannedItems.length);
+            
             const resultContent = document.getElementById('resultContent');
             
+            // Clear and rebuild
+            resultContent.innerHTML = '';
+            
             let html = '<div style="margin-bottom: 15px;">';
-            html += '<h4 style="color: #ff6b35; margin-bottom: 15px;">📋 QR Scan Result - All Fields:</h4>';
+            html += '<h4 style="color: #ff6b35; margin-bottom: 15px;">📋 All Scanned Items (' + allScannedItems.length + ' items):</h4>';
             
             // Show validation message if available
             if (validation && validation.message) {
@@ -564,78 +590,90 @@
                 html += `<div class="scanner-status ${alertClass}" style="margin-bottom: 15px;">${validation.message}</div>`;
             }
             
-            if (parsedData.isValid) {
-                // Display each field with clear separation
-                html += `<div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px;">`;
-                html += `<div style="display: grid; gap: 12px;">`;
+            // Display each scanned item
+            allScannedItems.forEach((item, index) => {
+                const isNewest = index === allScannedItems.length - 1;
+                const borderColor = isNewest ? 'border: 2px solid #4CAF50;' : 'border: 1px solid #555;';
                 
-                // JO Number
-                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
-                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">JO Number:</div>`;
-                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.joNumber || 'N/A'}</div>`;
+                html += `<div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; ${borderColor}">`;
+                
+                // Header with index and time
+                html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">`;
+                html += `<div style="font-weight: bold; color: ${isNewest ? '#4CAF50' : '#ff6b35'};">`;
+                html += `📦 Item #${item.scanIndex} ${isNewest ? '(NEW)' : ''}`;
+                html += `</div>`;
+                html += `<div style="font-size: 11px; color: #888;">${item.scanTime}</div>`;
                 html += `</div>`;
                 
-                // Product Code
-                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
-                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">Product Code:</div>`;
-                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.productCode || 'N/A'}</div>`;
-                html += `</div>`;
-                
-                // Product Name
-                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
-                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">Product Name:</div>`;
-                html += `<div style="color: #ffffff; font-size: 14px;">${parsedData.productName || 'N/A'}</div>`;
-                html += `</div>`;
-                
-                // QTY Order
-                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
-                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">QTY Order:</div>`;
-                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.qtyOrder || 'N/A'}</div>`;
-                html += `</div>`;
-                
-                // Serial Number
-                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
-                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">Serial Number:</div>`;
-                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.serialNumber || 'N/A'}</div>`;
-                html += `</div>`;
-                
-                html += `</div>`;
-                html += `</div>`;
-                
-                // Success indicator
-                html += `<div style="margin-top: 10px; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 5px;">`;
-                html += `<small style="color: #4CAF50;">✅ Semua 5 field berhasil dibaca dengan benar</small>`;
-                html += `</div>`;
-                
-                // Show JO tracking info
-                if (lastScannedJOs.size > 0) {
-                    html += `<div style="margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px;">`;
-                    html += `<div style="font-size: 12px; color: #1976D2;"><strong>📋 JO Tracking (${lastScannedJOs.size} items):</strong></div>`;
-                    for (const [jo, product] of lastScannedJOs.entries()) {
-                        html += `<div style="font-size: 11px; margin-left: 10px;">• ${jo} → ${product}</div>`;
-                    }
+                if (item.isValid) {
+                    // Display fields
+                    html += `<div style="display: grid; gap: 8px;">`;
+                    html += `<div style="display: flex; align-items: center;">`;
+                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">JO:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.joNumber || 'N/A'}</div>`;
+                    html += `</div>`;
+                    
+                    html += `<div style="display: flex; align-items: center;">`;
+                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">Product Code:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.productCode || 'N/A'}</div>`;
+                    html += `</div>`;
+                    
+                    html += `<div style="display: flex; align-items: center;">`;
+                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">Product Name:</div>`;
+                    html += `<div style="color: #ffffff; font-size: 12px;">${item.productName || 'N/A'}</div>`;
+                    html += `</div>`;
+                    
+                    html += `<div style="display: flex; align-items: center;">`;
+                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">QTY:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.qtyOrder || 'N/A'}</div>`;
+                    html += `</div>`;
+                    
+                    html += `<div style="display: flex; align-items: center;">`;
+                    html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px; font-size: 12px;">Serial:</div>`;
+                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px;">${item.serialNumber || 'N/A'}</div>`;
+                    html += `</div>`;
+                    html += `</div>`;
+                } else {
+                    html += `<div style="color: #ff9800; font-size: 12px;">`;
+                    html += `<strong>⚠️ Invalid format (${item.fieldCount} fields)</strong><br>`;
+                    html += `<div style="font-family: monospace; font-size: 10px; margin-top: 5px;">${item.rawData}</div>`;
                     html += `</div>`;
                 }
-            } else {
-                html += `<div style="color: #ff9800; padding: 15px; background: rgba(255, 152, 0, 0.1); border-radius: 5px;">`;
-                html += `<div><strong>⚠️ Format tidak sesuai (expected: 5 fields, got: ${parsedData.fieldCount})</strong></div>`;
-                html += `<div style="margin-top: 10px; font-family: monospace; font-size: 12px;">`;
-                for (let i = 0; i < parsedData.fieldCount; i++) {
-                    html += `<div>Field ${i+1}: "${parsedData.rawData.split('|')[i]}"</div>`;
-                }
+                
+                html += `</div>`;
+            });
+            
+            // Summary section
+            if (allScannedItems.length > 0) {
+                html += `<div style="margin-top: 20px; padding: 15px; background: rgba(33, 150, 243, 0.1); border-radius: 8px;">`;
+                html += `<div style="font-size: 12px; color: #1976D2;"><strong>� Summary:</strong></div>`;
+                html += `<div style="font-size: 11px; margin-top: 5px;">`;
+                html += `• Total items scanned: ${allScannedItems.length}<br>`;
+                html += `• Valid items: ${allScannedItems.filter(item => item.isValid).length}<br>`;
+                html += `• Invalid items: ${allScannedItems.filter(item => !item.isValid).length}<br>`;
+                html += `• Unique JO Numbers: ${new Set(allScannedItems.map(item => item.joNumber)).size}<br>`;
+                html += `• Unique Product Codes: ${new Set(allScannedItems.map(item => item.productCode)).size}`;
                 html += `</div>`;
                 html += `</div>`;
             }
             
-            // Raw data display
-            html += `<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">`;
-            html += `<div style="font-size: 12px; color: #ccc; margin-bottom: 5px;"><strong>Raw Data:</strong></div>`;
-            html += `<div style="font-family: monospace; word-break: break-all; font-size: 11px; color: #ffffff;">${parsedData.rawData}</div>`;
-            html += `</div>`;
+            // Show JO tracking info
+            if (lastScannedJOs.size > 0) {
+                html += `<div style="margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px;">`;
+                html += `<div style="font-size: 12px; color: #1976D2;"><strong>📋 JO Tracking:</strong></div>`;
+                for (const [jo, product] of lastScannedJOs.entries()) {
+                    html += `<div style="font-size: 11px; margin-left: 10px;">• ${jo} → ${product}</div>`;
+                }
+                html += `</div>`;
+            }
+            
             html += '</div>';
             
+            // Update display
             resultContent.innerHTML = html;
             document.getElementById('resultSection').style.display = 'block';
+            
+            console.log('✅ All scanned items displayed successfully');
         }
 
         // Process manual input
@@ -770,13 +808,14 @@
             document.getElementById('resultContent').innerHTML = '';
             document.getElementById('resultSection').style.display = 'none';
             
-            // Clear JO tracking
+            // Clear all tracking data
+            clearAllScannedItems();
             clearJOScanTracking();
             
             // Clear last scan result
             lastScanResult = null;
             
-            updateScannerStatus('🔄 Scanner direset. Siap untuk scan baru.', 'info');
+            updateScannerStatus('🔄 Scanner direset. Semua data dibersihkan.', 'info');
             
             // Auto-start camera after reset
             setTimeout(() => {
@@ -820,7 +859,7 @@
             
             // Get URL parameters
             const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
-            const title = getUrlParameter('title') || 'QR Scanner pp';
+            const title = getUrlParameter('title') || 'QR Scanner p.p';
             const processId = getUrlParameter('processId') || 'process_' + Date.now();
             
             console.log('Return URL:', returnUrl);
