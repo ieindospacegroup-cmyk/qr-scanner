@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner - FULFILMENT AQUATEAK 2026</title>
+    <title>QR Scanner </title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -193,7 +193,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📷 QR Scanner - FULFILMENT AQUATEAK 2026</h1>
+            <h1>📷 QR Scanner </h1>
             <div id="scannerStatus" class="scanner-status info">Memulai scanner...</div>
         </div>
 
@@ -412,31 +412,46 @@
 
         // Parse QR Code data according to format: JO Number|Product Code|Product Name|QTY Order|Serial Number
         function parseQRData(qrText) {
-            console.log('Parsing QR data:', qrText);
+            console.log('=== PARSING QR DATA ===');
+            console.log('Raw QR Text:', qrText);
             
-            // Split by delimiter '|'
-            const fields = qrText.split('|');
+            // Clean and split by delimiter '|'
+            const cleanedText = qrText.trim();
+            const fields = cleanedText.split('|');
+            
+            console.log('Split fields:', fields);
+            console.log('Number of fields:', fields.length);
             
             // Expected format: 5 fields
             const expectedFields = 5;
             const isValid = fields.length === expectedFields;
             
             if (!isValid) {
-                console.warn('Unexpected field count:', fields.length, 'Expected:', expectedFields);
+                console.warn('⚠️ INVALID FORMAT - Expected:', expectedFields, 'fields, Got:', fields.length);
+                console.warn('Field contents:', fields);
+            } else {
+                console.log('✅ VALID FORMAT - All 5 fields detected');
             }
             
             const parsedData = {
-                joNumber: fields[0] || '',
-                productCode: fields[1] || '',
-                productName: fields[2] || '',
-                qtyOrder: fields[3] || '',
-                serialNumber: fields[4] || '',
-                rawData: qrText,
+                joNumber: fields[0] ? fields[0].trim() : '',
+                productCode: fields[1] ? fields[1].trim() : '',
+                productName: fields[2] ? fields[2].trim() : '',
+                qtyOrder: fields[3] ? fields[3].trim() : '',
+                serialNumber: fields[4] ? fields[4].trim() : '',
+                rawData: cleanedText,
                 fieldCount: fields.length,
                 isValid: isValid
             };
             
-            console.log('Parsed QR data:', parsedData);
+            console.log('📋 PARSED RESULT:');
+            console.log('  JO Number:', parsedData.joNumber);
+            console.log('  Product Code:', parsedData.productCode);
+            console.log('  Product Name:', parsedData.productName);
+            console.log('  QTY Order:', parsedData.qtyOrder);
+            console.log('  Serial Number:', parsedData.serialNumber);
+            console.log('  Valid Format:', parsedData.isValid);
+            
             return parsedData;
         }
 
@@ -537,7 +552,7 @@
             const resultContent = document.getElementById('resultContent');
             
             let html = '<div style="margin-bottom: 15px;">';
-            html += '<h4 style="color: #ff6b35; margin-bottom: 10px;">📋 Parsed QR Data:</h4>';
+            html += '<h4 style="color: #ff6b35; margin-bottom: 15px;">📋 QR Scan Result - All Fields:</h4>';
             
             // Show validation message if available
             if (validation && validation.message) {
@@ -546,20 +561,51 @@
             }
             
             if (parsedData.isValid) {
-                html += `<div style="display: grid; gap: 8px;">`;
-                html += `<div><strong>JO Number:</strong> ${parsedData.joNumber}</div>`;
-                html += `<div><strong>Product Code:</strong> ${parsedData.productCode}</div>`;
-                html += `<div><strong>Product Name:</strong> ${parsedData.productName}</div>`;
-                html += `<div><strong>QTY Order:</strong> ${parsedData.qtyOrder}</div>`;
-                html += `<div><strong>Serial Number:</strong> ${parsedData.serialNumber}</div>`;
+                // Display each field with clear separation
+                html += `<div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px;">`;
+                html += `<div style="display: grid; gap: 12px;">`;
+                
+                // JO Number
+                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
+                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">JO Number:</div>`;
+                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.joNumber || 'N/A'}</div>`;
                 html += `</div>`;
-                html += `<div style="margin-top: 10px; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 5px;">
-                    <small style="color: #4CAF50;">✅ Format valid - ${parsedData.fieldCount} fields detected</small>
-                </div>`;
+                
+                // Product Code
+                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
+                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">Product Code:</div>`;
+                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.productCode || 'N/A'}</div>`;
+                html += `</div>`;
+                
+                // Product Name
+                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
+                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">Product Name:</div>`;
+                html += `<div style="color: #ffffff; font-size: 14px;">${parsedData.productName || 'N/A'}</div>`;
+                html += `</div>`;
+                
+                // QTY Order
+                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
+                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">QTY Order:</div>`;
+                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.qtyOrder || 'N/A'}</div>`;
+                html += `</div>`;
+                
+                // Serial Number
+                html += `<div style="display: flex; align-items: center; padding: 8px; background: rgba(74, 74, 74, 0.3); border-radius: 5px;">`;
+                html += `<div style="font-weight: bold; color: #ff6b35; min-width: 120px;">Serial Number:</div>`;
+                html += `<div style="color: #ffffff; font-family: monospace; font-size: 14px;">${parsedData.serialNumber || 'N/A'}</div>`;
+                html += `</div>`;
+                
+                html += `</div>`;
+                html += `</div>`;
+                
+                // Success indicator
+                html += `<div style="margin-top: 10px; padding: 10px; background: rgba(76, 175, 80, 0.2); border-radius: 5px;">`;
+                html += `<small style="color: #4CAF50;">✅ Semua 5 field berhasil dibaca dengan benar</small>`;
+                html += `</div>`;
                 
                 // Show JO tracking info
                 if (lastScannedJOs.size > 0) {
-                    html += `<div style="margin-top: 10px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px;">`;
+                    html += `<div style="margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px;">`;
                     html += `<div style="font-size: 12px; color: #1976D2;"><strong>📋 JO Tracking (${lastScannedJOs.size} items):</strong></div>`;
                     for (const [jo, product] of lastScannedJOs.entries()) {
                         html += `<div style="font-size: 11px; margin-left: 10px;">• ${jo} → ${product}</div>`;
@@ -567,19 +613,20 @@
                     html += `</div>`;
                 }
             } else {
-                html += `<div style="color: #ff9800;">`;
+                html += `<div style="color: #ff9800; padding: 15px; background: rgba(255, 152, 0, 0.1); border-radius: 5px;">`;
                 html += `<div><strong>⚠️ Format tidak sesuai (expected: 5 fields, got: ${parsedData.fieldCount})</strong></div>`;
-                html += `<div style="margin-top: 10px;">`;
+                html += `<div style="margin-top: 10px; font-family: monospace; font-size: 12px;">`;
                 for (let i = 0; i < parsedData.fieldCount; i++) {
-                    html += `<div>Field ${i+1}: ${parsedData.rawData.split('|')[i]}</div>`;
+                    html += `<div>Field ${i+1}: "${parsedData.rawData.split('|')[i]}"</div>`;
                 }
                 html += `</div>`;
                 html += `</div>`;
             }
             
+            // Raw data display
             html += `<div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">`;
-            html += `<div style="font-size: 12px; color: #ccc;"><strong>Raw Data:</strong></div>`;
-            html += `<div style="font-family: monospace; word-break: break-all; font-size: 11px;">${parsedData.rawData}</div>`;
+            html += `<div style="font-size: 12px; color: #ccc; margin-bottom: 5px;"><strong>Raw Data:</strong></div>`;
+            html += `<div style="font-family: monospace; word-break: break-all; font-size: 11px; color: #ffffff;">${parsedData.rawData}</div>`;
             html += `</div>`;
             html += '</div>';
             
