@@ -412,19 +412,52 @@
 
         // Handle successful scan
         function onScanSuccess(decodedText) {
+            console.log('=== NEW SCAN DETECTED ===');
             console.log('Scan successful:', decodedText);
+            console.log('Previous lastScanResult:', lastScanResult);
+            
+            // Force clear previous data
             lastScanResult = decodedText;
+            
+            // Parse QR data
+            const parsedData = parseQRData(decodedText);
+            
+            // Add to all scanned items array
+            const scanItem = {
+                ...parsedData,
+                scanTime: new Date().toLocaleTimeString(),
+                scanIndex: allScannedItems.length + 1
+            };
+            allScannedItems.push(scanItem);
+            console.log('Added to scanned items:', scanItem);
+            console.log('Total scanned items:', allScannedItems.length);
+            console.log('Full allScannedItems array:', JSON.stringify(allScannedItems, null, 2));
+            
+            // Validate JO Number and Product Code
+            const validation = validateJOAndProductCode(parsedData);
             
             // Stop scanner
             stopCameraScan();
             
-            // Show result
-            document.getElementById('resultContent').textContent = decodedText;
-            document.getElementById('resultSection').style.display = 'block';
-            updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
+            // Display ALL scanned items
+            console.log('🔄 DISPLAYING ALL SCANNED ITEMS...');
+            displayAllScannedItems(validation);
+            
+            // Always add to JO tracking (update if exists)
+            addJOScan(parsedData.joNumber, parsedData.productCode);
+            
+            if (validation.warning === 'DUPLICATE_JO_DIFFERENT_PRODUCT') {
+                updateScannerStatus('⚠️ JO Number sama dengan Product Code berbeda. Data ditampilkan, silakan verifikasi.', 'warning');
+            } else if (validation.warning === 'DUPLICATE_JO_SAME_PRODUCT') {
+                updateScannerStatus('ℹ️ Data duplikat dengan JO dan Product Code sama.', 'info');
+            } else {
+                updateScannerStatus('✅ Scan berhasil! Data ditambahkan ke list.', 'success');
+            }
             
             // Auto-send to dashboard after 1 second
             setTimeout(() => {
+                console.log('=== AUTO-SENDING TO DASHBOARD ===');
+                console.log('Items that will be sent:', allScannedItems);
                 sendToAppsScript();
             }, 1000);
         }
@@ -460,10 +493,11 @@
         // Send result back to Dashboard via postMessage or Apps Script GET
         function sendToAppsScript() {
             console.log('=== sendToAppsScript called ===');
-            console.log('lastScanResult:', lastScanResult);
+            console.log('All scanned items:', allScannedItems);
+            console.log('Total items to send:', allScannedItems.length);
             
-            if (!lastScanResult) {
-                updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
+            if (allScannedItems.length === 0) {
+                updateScannerStatus('⚠️ Tidak ada data untuk dikirim', 'warning');
                 return;
             }
             
@@ -478,25 +512,28 @@
             console.log('Return URL type:', typeof returnUrl);
             console.log('Return URL length:', returnUrl ? returnUrl.length : 'null');
             
+            // Prepare data to send - ALL SCANNED ITEMS
+            const dataToSend = {
+                type: 'QR_SCAN_ALL_ITEMS',
+                allScannedItems: allScannedItems, // Send all items array
+                totalItems: allScannedItems.length,
+                lastScanResult: lastScanResult,
+                processId: processId,
+                timestamp: new Date().toISOString(),
+                source: 'external_scanner'
+            };
+            
             // Try postMessage first (if opener is available)
             try {
                 console.log('Checking window.opener:', window.opener);
                 console.log('window.opener.closed:', window.opener ? window.opener.closed : 'N/A');
                 
                 if (window.opener && !window.opener.closed) {
-                    const messageData = {
-                        type: 'QR_SCAN_RESULT',
-                        qrResult: lastScanResult,
-                        processId: processId,
-                        timestamp: new Date().toISOString(),
-                        source: 'external_scanner'
-                    };
+                    console.log('📤 SENDING POSTMESSAGE WITH ALL ITEMS:', dataToSend);
+                    window.opener.postMessage(dataToSend, '*');
                     
-                    console.log('📤 SENDING POSTMESSAGE:', messageData);
-                    window.opener.postMessage(messageData, '*');
-                    
-                    console.log('✅ Sent result via postMessage');
-                    updateScannerStatus('✅ Hasil dikirim ke Dashboard via postMessage', 'success');
+                    console.log('✅ Sent all items via postMessage');
+                    updateScannerStatus(`✅ ${allScannedItems.length} item(s) dikirim ke Dashboard via postMessage`, 'success');
                     
                     // Close after a short delay
                     setTimeout(() => {
@@ -511,14 +548,17 @@
             }
             
             // Fallback: Send to Apps Script via URL redirect (bypass CORS)
-            updateScannerStatus('📤 Mengirim ke Apps Script dan kembali ke Dashboard...', 'info');
+            updateScannerStatus('📤 Mengirim semua data ke Apps Script dan kembali ke Dashboard...', 'info');
             
             // Use URL redirect to bypass CORS
             const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
             
-            // Build redirect URL with QR data
+            // Build redirect URL with ALL scanned items data
             const params = new URLSearchParams({
-                qrResult: lastScanResult,
+                // Send all items as JSON string
+                allScannedItems: JSON.stringify(allScannedItems),
+                totalItems: allScannedItems.length,
+                lastScanResult: lastScanResult,
                 source: 'external_scanner',
                 processId: processId,
                 timestamp: new Date().toISOString(),
@@ -529,12 +569,36 @@
             
             const redirectUrl = appsScriptUrl + '?' + params.toString();
             console.log('Redirect URL:', redirectUrl);
+            console.log('Data being sent:', JSON.stringify(allScannedItems, null, 2));
             
             // Show success message before redirect
-            updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
+            updateScannerStatus(`✅ ${allScannedItems.length} item(s) diproses. Mengalihkan kembali ke Dashboard...`, 'success');
             
             // IMMEDIATE redirect to Apps Script (no delay)
             window.location.href = redirectUrl;
+        }
+
+        // Reset scanner
+        function resetScanner() {
+            console.log('=== RESETTING SCANNER ===');
+            
+            // Clear results
+            document.getElementById('resultContent').innerHTML = '';
+            document.getElementById('resultSection').style.display = 'none';
+            
+            // Clear all tracking data
+            clearAllScannedItems();
+            clearJOScanTracking();
+            
+            // Clear last scan result
+            lastScanResult = null;
+            
+            updateScannerStatus('🔄 Scanner direset. Semua data dibersihkan.', 'info');
+            
+            // Auto-start camera after reset
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
         }
 
         // Initialize on page load
