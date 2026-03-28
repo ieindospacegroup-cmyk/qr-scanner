@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner </title>
+    <title>QR Scanner pp</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -476,11 +476,11 @@
                 const lastProductCode = lastScannedJOs.get(joNumber);
                 
                 if (lastProductCode !== productCode) {
-                    // Same JO Number but different Product Code
+                    // Same JO Number but different Product Code - ALLOW but show warning
                     return {
-                        isValid: false,
+                        isValid: true, // ALLOW the scan but show warning
                         warning: 'DUPLICATE_JO_DIFFERENT_PRODUCT',
-                        message: `⚠️ Peringatan: JO Number "${joNumber}" sudah discan dengan Product Code "${lastProductCode}". Sekarang mencoba scan dengan Product Code "${productCode}". Pastikan tidak salah barcode!`
+                        message: `⚠️ Perhatian: JO Number "${joNumber}" sebelumnya discan dengan Product Code "${lastProductCode}". Sekarang dengan Product Code "${productCode}". Pastikan ini benar!`
                     };
                 } else {
                     // Same JO Number and same Product Code
@@ -517,6 +517,7 @@
 
         // Handle successful scan
         function onScanSuccess(decodedText) {
+            console.log('=== NEW SCAN DETECTED ===');
             console.log('Scan successful:', decodedText);
             lastScanResult = decodedText;
             
@@ -529,22 +530,25 @@
             // Stop scanner
             stopCameraScan();
             
-            // Show formatted result with validation
+            // ALWAYS display the new scan result first
+            console.log('🔄 UPDATING DISPLAY WITH NEW DATA...');
             displayScanResult(parsedData, validation);
             
-            if (validation.isValid) {
-                // Add to JO tracking only if valid
-                addJOScan(parsedData.joNumber, parsedData.productCode);
-                updateScannerStatus('✅ Scan berhasil! Data diparsing...', 'success');
-                
-                // Auto-send to dashboard after 1 second
-                setTimeout(() => {
-                    sendToAppsScript();
-                }, 1000);
+            // Always add to JO tracking (update if exists)
+            addJOScan(parsedData.joNumber, parsedData.productCode);
+            
+            if (validation.warning === 'DUPLICATE_JO_DIFFERENT_PRODUCT') {
+                updateScannerStatus('⚠️ JO Number sama dengan Product Code berbeda. Data ditampilkan, silakan verifikasi.', 'warning');
+            } else if (validation.warning === 'DUPLICATE_JO_SAME_PRODUCT') {
+                updateScannerStatus('ℹ️ Data duplikat dengan JO dan Product Code sama.', 'info');
             } else {
-                // Show warning for duplicate JO with different product
-                updateScannerStatus(validation.message, 'warning');
+                updateScannerStatus('✅ Scan berhasil! Data diparsing...', 'success');
             }
+            
+            // Auto-send to dashboard after 1 second
+            setTimeout(() => {
+                sendToAppsScript();
+            }, 1000);
         }
 
         // Display scan result in formatted way
