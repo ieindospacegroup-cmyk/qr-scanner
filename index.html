@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner p.p</title>
+    <title>QR Scanner - FULFILMENT AQUATEAK 2026</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -193,7 +193,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📷 QR Scanner p.p </h1>
+            <h1>📷 QR Scanner - FULFILMENT AQUATEAK 2026</h1>
             <div id="scannerStatus" class="scanner-status info">Memulai scanner...</div>
         </div>
 
@@ -410,322 +410,23 @@
             }
         }
 
-        // Parse QR Code data according to format: JO Number|Product Code|Product Name|QTY Order|Serial Number
-        function parseQRData(qrText) {
-            console.log('=== PARSING QR DATA ===');
-            console.log('Raw QR Text:', qrText);
-            
-            // Clean and split by delimiter '|'
-            const cleanedText = qrText.trim();
-            const fields = cleanedText.split('|');
-            
-            console.log('Split fields:', fields);
-            console.log('Number of fields:', fields.length);
-            
-            // Expected format: 5 fields
-            const expectedFields = 5;
-            const isValid = fields.length === expectedFields;
-            
-            if (!isValid) {
-                console.warn('⚠️ INVALID FORMAT - Expected:', expectedFields, 'fields, Got:', fields.length);
-                console.warn('Field contents:', fields);
-            } else {
-                console.log('✅ VALID FORMAT - All 5 fields detected');
-            }
-            
-            const parsedData = {
-                joNumber: fields[0] ? fields[0].trim() : '',
-                productCode: fields[1] ? fields[1].trim() : '',
-                productName: fields[2] ? fields[2].trim() : '',
-                qtyOrder: fields[3] ? fields[3].trim() : '',
-                serialNumber: fields[4] ? fields[4].trim() : '',
-                rawData: cleanedText,
-                fieldCount: fields.length,
-                isValid: isValid
-            };
-            
-            console.log('📋 PARSED RESULT:');
-            console.log('  JO Number:', parsedData.joNumber);
-            console.log('  Product Code:', parsedData.productCode);
-            console.log('  Product Name:', parsedData.productName);
-            console.log('  QTY Order:', parsedData.qtyOrder);
-            console.log('  Serial Number:', parsedData.serialNumber);
-            console.log('  Valid Format:', parsedData.isValid);
-            
-            return parsedData;
-        }
-
-        // Store all scanned items
-        let allScannedItems = []; // Array to store all scan results
-        let lastScannedJOs = new Map(); // Map to store JO Number -> Product Code
-
-        // Validate if JO Number already scanned with different Product Code
-        function validateJOAndProductCode(parsedData) {
-            const joNumber = parsedData.joNumber;
-            const productCode = parsedData.productCode;
-            
-            if (!joNumber || !productCode) {
-                return {
-                    isValid: true,
-                    warning: null,
-                    message: null
-                };
-            }
-            
-            // Check if this JO Number was scanned before
-            if (lastScannedJOs.has(joNumber)) {
-                const lastProductCode = lastScannedJOs.get(joNumber);
-                
-                if (lastProductCode !== productCode) {
-                    // Same JO Number but different Product Code - ALLOW but show warning
-                    return {
-                        isValid: true, // ALLOW the scan but show warning
-                        warning: 'DUPLICATE_JO_DIFFERENT_PRODUCT',
-                        message: `⚠️ Perhatian: JO Number "${joNumber}" sebelumnya discan dengan Product Code "${lastProductCode}". Sekarang dengan Product Code "${productCode}". Pastikan ini benar!`
-                    };
-                } else {
-                    // Same JO Number and same Product Code
-                    return {
-                        isValid: true,
-                        warning: 'DUPLICATE_JO_SAME_PRODUCT',
-                        message: `ℹ️ Info: JO Number "${joNumber}" dengan Product Code "${productCode}" sudah discan sebelumnya.`
-                    };
-                }
-            } else {
-                // First time scanning this JO Number
-                return {
-                    isValid: true,
-                    warning: null,
-                    message: null
-                };
-            }
-        }
-
-        // Add JO Number to tracking
-        function addJOScan(joNumber, productCode) {
-            if (joNumber && productCode) {
-                lastScannedJOs.set(joNumber, productCode);
-                console.log(`Added JO tracking: ${joNumber} -> ${productCode}`);
-                console.log('Current JO tracking:', Array.from(lastScannedJOs.entries()));
-            }
-        }
-
-        // Clear JO tracking
-        function clearJOScanTracking() {
-            lastScannedJOs.clear();
-            console.log('JO scan tracking cleared');
-        }
-
-        // Clear all scanned items
-        function clearAllScannedItems() {
-            allScannedItems = [];
-            console.log('All scanned items cleared');
-        }
-
         // Handle successful scan
         function onScanSuccess(decodedText) {
-            console.log('=== NEW SCAN DETECTED ===');
             console.log('Scan successful:', decodedText);
-            console.log('Previous lastScanResult:', lastScanResult);
-            
-            // Force clear previous data
             lastScanResult = decodedText;
-            
-            // Parse QR data
-            const parsedData = parseQRData(decodedText);
-            
-            // Add to all scanned items array
-            const scanItem = {
-                ...parsedData,
-                scanTime: new Date().toLocaleTimeString(),
-                scanIndex: allScannedItems.length + 1
-            };
-            allScannedItems.push(scanItem);
-            console.log('Added to scanned items:', scanItem);
-            console.log('Total scanned items:', allScannedItems.length);
-            console.log('Full allScannedItems array:', JSON.stringify(allScannedItems, null, 2));
-            
-            // Validate JO Number and Product Code
-            const validation = validateJOAndProductCode(parsedData);
             
             // Stop scanner
             stopCameraScan();
             
-            // Display ALL scanned items
-            console.log('🔄 DISPLAYING ALL SCANNED ITEMS...');
-            displayAllScannedItems(validation);
-            
-            // Always add to JO tracking (update if exists)
-            addJOScan(parsedData.joNumber, parsedData.productCode);
-            
-            if (validation.warning === 'DUPLICATE_JO_DIFFERENT_PRODUCT') {
-                updateScannerStatus('⚠️ JO Number sama dengan Product Code berbeda. Data ditampilkan, silakan verifikasi.', 'warning');
-            } else if (validation.warning === 'DUPLICATE_JO_SAME_PRODUCT') {
-                updateScannerStatus('ℹ️ Data duplikat dengan JO dan Product Code sama.', 'info');
-            } else {
-                updateScannerStatus('✅ Scan berhasil! Data ditambahkan ke list.', 'success');
-            }
+            // Show result
+            document.getElementById('resultContent').textContent = decodedText;
+            document.getElementById('resultSection').style.display = 'block';
+            updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
             
             // Auto-send to dashboard after 1 second
             setTimeout(() => {
-                console.log('=== AUTO-SENDING TO DASHBOARD ===');
-                console.log('Items that will be sent:', allScannedItems);
                 sendToAppsScript();
             }, 1000);
-        }
-
-        // Display ALL scanned items
-        function displayAllScannedItems(validation = null) {
-            console.log('=== DISPLAY ALL SCANNED ITEMS ===');
-            console.log('Total items to display:', allScannedItems.length);
-            console.log('Items array:', allScannedItems);
-            
-            const resultContent = document.getElementById('resultContent');
-            
-            // Force immediate clear with multiple methods
-            resultContent.innerHTML = '';
-            resultContent.textContent = '';
-            resultContent.style.display = 'none';
-            
-            // Force browser reflow
-            void resultContent.offsetWidth;
-            
-            let html = '<div style="margin-bottom: 15px;">';
-            html += '<h4 style="color: #ff6b35; margin-bottom: 15px;">📋 All Scanned Items (' + allScannedItems.length + ' items):</h4>';
-            
-            // Show validation message if available
-            if (validation && validation.message) {
-                const alertClass = validation.warning === 'DUPLICATE_JO_DIFFERENT_PRODUCT' ? 'warning' : 'info';
-                html += `<div class="scanner-status ${alertClass}" style="margin-bottom: 15px;">${validation.message}</div>`;
-            }
-            
-            // Display each scanned item
-            allScannedItems.forEach((item, index) => {
-                const isNewest = index === allScannedItems.length - 1;
-                const borderColor = isNewest ? 'border: 2px solid #4CAF50;' : 'border: 1px solid #555;';
-                const bgColor = isNewest ? 'background: rgba(76, 175, 80, 0.1);' : 'background: rgba(255,255,255,0.05);';
-                
-                html += `<div style="margin-bottom: 15px; padding: 15px; ${bgColor} border-radius: 8px; ${borderColor}">`;
-                
-                // Header with index and time
-                html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">`;
-                html += `<div style="font-weight: bold; color: ${isNewest ? '#4CAF50' : '#ff6b35'};">`;
-                html += `📦 Item #${item.scanIndex} ${isNewest ? '(NEW)' : ''}`;
-                html += `</div>`;
-                html += `<div style="font-size: 11px; color: #888;">${item.scanTime}</div>`;
-                html += `</div>`;
-                
-                if (item.isValid) {
-                    // Display fields with HIGHLIGHT for newest
-                    const fieldColor = isNewest ? 'color: #4CAF50; font-weight: bold;' : 'color: #ff6b35;';
-                    
-                    html += `<div style="display: grid; gap: 8px;">`;
-                    html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">JO:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.joNumber || 'N/A'}</div>`;
-                    html += `</div>`;
-                    
-                    html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">Product Code:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.productCode || 'N/A'}</div>`;
-                    html += `</div>`;
-                    
-                    html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">Product Name:</div>`;
-                    html += `<div style="color: #ffffff; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.productName || 'N/A'}</div>`;
-                    html += `</div>`;
-                    
-                    html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">QTY:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.qtyOrder || 'N/A'}</div>`;
-                    html += `</div>`;
-                    
-                    html += `<div style="display: flex; align-items: center;">`;
-                    html += `<div style="${fieldColor} min-width: 120px; font-size: 12px;">Serial:</div>`;
-                    html += `<div style="color: #ffffff; font-family: monospace; font-size: 12px; ${isNewest ? 'font-weight: bold;' : ''}">${item.serialNumber || 'N/A'}</div>`;
-                    html += `</div>`;
-                    html += `</div>`;
-                } else {
-                    html += `<div style="color: #ff9800; font-size: 12px;">`;
-                    html += `<strong>⚠️ Invalid format (${item.fieldCount} fields)</strong><br>`;
-                    html += `<div style="font-family: monospace; font-size: 10px; margin-top: 5px;">${item.rawData}</div>`;
-                    html += `</div>`;
-                }
-                
-                html += `</div>`;
-            });
-            
-            // Summary section
-            if (allScannedItems.length > 0) {
-                html += `<div style="margin-top: 20px; padding: 15px; background: rgba(33, 150, 243, 0.1); border-radius: 8px;">`;
-                html += `<div style="font-size: 12px; color: #1976D2;"><strong>📊 Summary:</strong></div>`;
-                html += `<div style="font-size: 11px; margin-top: 5px;">`;
-                html += `• Total items scanned: ${allScannedItems.length}<br>`;
-                html += `• Valid items: ${allScannedItems.filter(item => item.isValid).length}<br>`;
-                html += `• Invalid items: ${allScannedItems.filter(item => !item.isValid).length}<br>`;
-                html += `• Unique JO Numbers: ${new Set(allScannedItems.map(item => item.joNumber)).size}<br>`;
-                html += `• Unique Product Codes: ${new Set(allScannedItems.map(item => item.productCode)).size}`;
-                html += `</div>`;
-                html += `</div>`;
-            }
-            
-            // Show JO tracking info
-            if (lastScannedJOs.size > 0) {
-                html += `<div style="margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px;">`;
-                html += `<div style="font-size: 12px; color: #1976D2;"><strong>📋 JO Tracking:</strong></div>`;
-                for (const [jo, product] of lastScannedJOs.entries()) {
-                    html += `<div style="font-size: 11px; margin-left: 10px;">• ${jo} → ${product}</div>`;
-                }
-                html += `</div>`;
-            }
-            
-            html += '</div>';
-            
-            // Force immediate update without timeout
-            resultContent.innerHTML = html;
-            resultContent.style.display = 'block';
-            
-            // Additional force update after a short delay
-            setTimeout(() => {
-                resultContent.innerHTML = html;
-                resultContent.style.display = 'block';
-                console.log('✅ All scanned items displayed successfully');
-                console.log('Current display HTML length:', html.length);
-            }, 50);
-        }
-
-        // Copy result to clipboard
-        function copyResult() {
-            console.log('=== COPY RESULT CALLED ===');
-            console.log('All scanned items:', allScannedItems);
-            console.log('Total items available:', allScannedItems.length);
-            
-            if (allScannedItems.length > 0) {
-                let textToCopy = `📋 ALL SCANNED ITEMS (${allScannedItems.length} items):\n\n`;
-                
-                allScannedItems.forEach((item, index) => {
-                    textToCopy += `--- Item #${item.scanIndex} (${item.scanTime}) ---\n`;
-                    if (item.isValid) {
-                        textToCopy += `JO Number: ${item.joNumber}\n` +
-                                      `Product Code: ${item.productCode}\n` +
-                                      `Product Name: ${item.productName}\n` +
-                                      `QTY Order: ${item.qtyOrder}\n` +
-                                      `Serial Number: ${item.serialNumber}\n` +
-                                      `Raw: ${item.rawData}\n\n`;
-                    } else {
-                        textToCopy += `Raw QR Data: ${item.rawData}\n` +
-                                      `Fields: ${item.fieldCount} (expected: 5)\n\n`;
-                    }
-                });
-                
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    updateScannerStatus(`📋 ${allScannedItems.length} item(s) disalin ke clipboard!`, 'success');
-                }).catch(err => {
-                    updateScannerStatus('❌ Gagal menyalin hasil', 'error');
-                });
-            } else {
-                updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
-            }
         }
 
         // Process manual input
@@ -741,16 +442,28 @@
 
         // Clear manual input
         function clearManualInput() {
+            document.getElementById('manualInput').value = '';
+        }
+
+        // Copy result to clipboard
+        function copyResult() {
+            if (lastScanResult) {
+                navigator.clipboard.writeText(lastScanResult).then(() => {
+                    updateScannerStatus('📋 Hasil disalin ke clipboard!', 'success');
+                }).catch(err => {
+                    updateScannerStatus('❌ Gagal menyalin hasil', 'error');
+                });
+                updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
+            }
         }
 
         // Send result back to Dashboard via postMessage or Apps Script GET
         function sendToAppsScript() {
             console.log('=== sendToAppsScript called ===');
-            console.log('All scanned items:', allScannedItems);
-            console.log('Total items to send:', allScannedItems.length);
+            console.log('lastScanResult:', lastScanResult);
             
-            if (allScannedItems.length === 0) {
-                updateScannerStatus('⚠️ Tidak ada data untuk dikirim', 'warning');
+            if (!lastScanResult) {
+                updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
                 return;
             }
             
@@ -765,28 +478,25 @@
             console.log('Return URL type:', typeof returnUrl);
             console.log('Return URL length:', returnUrl ? returnUrl.length : 'null');
             
-            // Prepare data to send - ALL SCANNED ITEMS
-            const dataToSend = {
-                type: 'QR_SCAN_ALL_ITEMS',
-                allScannedItems: allScannedItems, // Send all items array
-                totalItems: allScannedItems.length,
-                lastScanResult: lastScanResult,
-                processId: processId,
-                timestamp: new Date().toISOString(),
-                source: 'external_scanner'
-            };
-            
             // Try postMessage first (if opener is available)
             try {
                 console.log('Checking window.opener:', window.opener);
                 console.log('window.opener.closed:', window.opener ? window.opener.closed : 'N/A');
                 
                 if (window.opener && !window.opener.closed) {
-                    console.log('📤 SENDING POSTMESSAGE WITH ALL ITEMS:', dataToSend);
-                    window.opener.postMessage(dataToSend, '*');
+                    const messageData = {
+                        type: 'QR_SCAN_RESULT',
+                        qrResult: lastScanResult,
+                        processId: processId,
+                        timestamp: new Date().toISOString(),
+                        source: 'external_scanner'
+                    };
                     
-                    console.log('✅ Sent all items via postMessage');
-                    updateScannerStatus(`✅ ${allScannedItems.length} item(s) dikirim ke Dashboard via postMessage`, 'success');
+                    console.log('📤 SENDING POSTMESSAGE:', messageData);
+                    window.opener.postMessage(messageData, '*');
+                    
+                    console.log('✅ Sent result via postMessage');
+                    updateScannerStatus('✅ Hasil dikirim ke Dashboard via postMessage', 'success');
                     
                     // Close after a short delay
                     setTimeout(() => {
@@ -801,17 +511,14 @@
             }
             
             // Fallback: Send to Apps Script via URL redirect (bypass CORS)
-            updateScannerStatus('📤 Mengirim semua data ke Apps Script dan kembali ke Dashboard...', 'info');
+            updateScannerStatus('📤 Mengirim ke Apps Script dan kembali ke Dashboard...', 'info');
             
             // Use URL redirect to bypass CORS
             const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
             
-            // Build redirect URL with ALL scanned items data
+            // Build redirect URL with QR data
             const params = new URLSearchParams({
-                // Send all items as JSON string
-                allScannedItems: JSON.stringify(allScannedItems),
-                totalItems: allScannedItems.length,
-                lastScanResult: lastScanResult,
+                qrResult: lastScanResult,
                 source: 'external_scanner',
                 processId: processId,
                 timestamp: new Date().toISOString(),
@@ -822,64 +529,12 @@
             
             const redirectUrl = appsScriptUrl + '?' + params.toString();
             console.log('Redirect URL:', redirectUrl);
-            console.log('Data being sent:', JSON.stringify(allScannedItems, null, 2));
             
             // Show success message before redirect
-            updateScannerStatus(`✅ ${allScannedItems.length} item(s) diproses. Mengalihkan kembali ke Dashboard...`, 'success');
+            updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
             
             // IMMEDIATE redirect to Apps Script (no delay)
             window.location.href = redirectUrl;
-        }
-
-        // Reset scanner
-        function resetScanner() {
-            console.log('=== RESETTING SCANNER ===');
-            
-            // Clear results
-            document.getElementById('resultContent').innerHTML = '';
-            document.getElementById('resultSection').style.display = 'none';
-            
-            // Clear all tracking data
-            clearAllScannedItems();
-            clearJOScanTracking();
-            
-            // Clear last scan result
-            lastScanResult = null;
-            
-            updateScannerStatus('🔄 Scanner direset. Semua data dibersihkan.', 'info');
-            
-            // Auto-start camera after reset
-            setTimeout(() => {
-                startCameraScan();
-            }, 1000);
-        }
-
-        // Request camera permission
-        function requestCameraPermission() {
-            console.log('=== REQUESTING CAMERA PERMISSION ===');
-            updateScannerStatus('🔁 Meminta izin kamera...', 'info');
-            
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function(stream) {
-                        console.log('Camera permission granted');
-                        updateScannerStatus('✅ Izin kamera diberikan. Memulai scanner...', 'success');
-                        
-                        // Stop the stream immediately
-                        stream.getTracks().forEach(track => track.stop());
-                        
-                        // Start scanner
-                        setTimeout(() => {
-                            startCameraScan();
-                        }, 500);
-                    })
-                    .catch(function(err) {
-                        console.error('Camera permission denied:', err);
-                        updateScannerStatus('❌ Izin kamera ditolak. Silakan izinkan kamera di browser settings.', 'error');
-                    });
-            } else {
-                updateScannerStatus('❌ Browser tidak mendukung kamera.', 'error');
-            }
         }
 
         // Initialize on page load
@@ -890,7 +545,7 @@
             
             // Get URL parameters
             const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
-            const title = getUrlParameter('title') || 'QR Scanner p.p';
+            const title = getUrlParameter('title') || 'QR Scanner';
             const processId = getUrlParameter('processId') || 'process_' + Date.now();
             
             console.log('Return URL:', returnUrl);
