@@ -543,6 +543,7 @@
             allScannedItems.push(scanItem);
             console.log('Added to scanned items:', scanItem);
             console.log('Total scanned items:', allScannedItems.length);
+            console.log('Full allScannedItems array:', JSON.stringify(allScannedItems, null, 2));
             
             // Validate JO Number and Product Code
             const validation = validateJOAndProductCode(parsedData);
@@ -567,6 +568,8 @@
             
             // Auto-send to dashboard after 1 second
             setTimeout(() => {
+                console.log('=== AUTO-SENDING TO DASHBOARD ===');
+                console.log('Items that will be sent:', allScannedItems);
                 sendToAppsScript();
             }, 1000);
         }
@@ -691,6 +694,40 @@
             }, 50);
         }
 
+        // Copy result to clipboard
+        function copyResult() {
+            console.log('=== COPY RESULT CALLED ===');
+            console.log('All scanned items:', allScannedItems);
+            console.log('Total items available:', allScannedItems.length);
+            
+            if (allScannedItems.length > 0) {
+                let textToCopy = `📋 ALL SCANNED ITEMS (${allScannedItems.length} items):\n\n`;
+                
+                allScannedItems.forEach((item, index) => {
+                    textToCopy += `--- Item #${item.scanIndex} (${item.scanTime}) ---\n`;
+                    if (item.isValid) {
+                        textToCopy += `JO Number: ${item.joNumber}\n` +
+                                      `Product Code: ${item.productCode}\n` +
+                                      `Product Name: ${item.productName}\n` +
+                                      `QTY Order: ${item.qtyOrder}\n` +
+                                      `Serial Number: ${item.serialNumber}\n` +
+                                      `Raw: ${item.rawData}\n\n`;
+                    } else {
+                        textToCopy += `Raw QR Data: ${item.rawData}\n` +
+                                      `Fields: ${item.fieldCount} (expected: 5)\n\n`;
+                    }
+                });
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    updateScannerStatus(`📋 ${allScannedItems.length} item(s) disalin ke clipboard!`, 'success');
+                }).catch(err => {
+                    updateScannerStatus('❌ Gagal menyalin hasil', 'error');
+                });
+            } else {
+                updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
+            }
+        }
+
         // Process manual input
         function processManualInput() {
             const manualValue = document.getElementById('manualInput').value.trim();
@@ -704,35 +741,6 @@
 
         // Clear manual input
         function clearManualInput() {
-            document.getElementById('manualInput').value = '';
-        }
-
-        // Copy result to clipboard
-        function copyResult() {
-            if (lastScanResult) {
-                const parsedData = parseQRData(lastScanResult);
-                let textToCopy = '';
-                
-                if (parsedData.isValid) {
-                    textToCopy = `JO Number: ${parsedData.joNumber}\n` +
-                                `Product Code: ${parsedData.productCode}\n` +
-                                `Product Name: ${parsedData.productName}\n` +
-                                `QTY Order: ${parsedData.qtyOrder}\n` +
-                                `Serial Number: ${parsedData.serialNumber}\n\n` +
-                                `Raw: ${parsedData.rawData}`;
-                } else {
-                    textToCopy = `Raw QR Data: ${parsedData.rawData}\n` +
-                                `Fields: ${parsedData.fieldCount} (expected: 5)`;
-                }
-                
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    updateScannerStatus('📋 Hasil formatted disalin ke clipboard!', 'success');
-                }).catch(err => {
-                    updateScannerStatus('❌ Gagal menyalin hasil', 'error');
-                });
-            } else {
-                updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
-            }
         }
 
         // Send result back to Dashboard via postMessage or Apps Script GET
