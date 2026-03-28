@@ -298,7 +298,7 @@
             return parsedData;
         }
 
-        // Validate JO Number and Product Code
+        // Validate JO Number and Product Code (ALLOW ALL SCANS)
         function validateJOAndProductCode(parsedData) {
             const joNumber = parsedData.joNumber;
             const productCode = parsedData.productCode;
@@ -316,18 +316,18 @@
                 const lastProductCode = lastScannedJOs.get(joNumber);
                 
                 if (lastProductCode !== productCode) {
-                    // Same JO Number but different Product Code - ALLOW but show warning
+                    // Same JO Number but different Product Code - ALLOW with info
                     return {
-                        isValid: true, // ALLOW the scan but show warning
-                        warning: 'DUPLICATE_JO_DIFFERENT_PRODUCT',
-                        message: `⚠️ Perhatian: JO Number "${joNumber}" sebelumnya discan dengan Product Code "${lastProductCode}". Sekarang dengan Product Code "${productCode}". Pastikan ini benar!`
+                        isValid: true,
+                        warning: 'DIFFERENT_PRODUCT_SAME_JO',
+                        message: `ℹ️ JO Number "${joNumber}" sebelumnya dengan Product Code "${lastProductCode}". Sekarang dengan Product Code "${productCode}".`
                     };
                 } else {
                     // Same JO Number and same Product Code
                     return {
                         isValid: true,
-                        warning: 'DUPLICATE_JO_SAME_PRODUCT',
-                        message: `ℹ️ Info: JO Number "${joNumber}" dengan Product Code "${productCode}" sudah discan sebelumnya.`
+                        warning: 'SAME_PRODUCT_SAME_JO',
+                        message: `ℹ️ JO Number "${joNumber}" dengan Product Code "${productCode}" - Scan ke-${allScannedItems.filter(item => item.joNumber === joNumber && item.productCode === productCode).length + 1}`
                     };
                 }
             } else {
@@ -360,7 +360,7 @@
             console.log('All scanned items cleared');
         }
 
-        // Display all scanned items
+        // Display all scanned items with multi-scan support
         function displayAllScannedItems(validation) {
             console.log('=== DISPLAYING ALL SCANNED ITEMS ===');
             console.log('Items to display:', allScannedItems);
@@ -388,10 +388,16 @@
                 const bgColor = isLatest ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)';
                 const textColor = isLatest ? '#4CAF50' : '#fff';
                 
+                // Count duplicates for this JO/Product combination
+                const duplicateCount = allScannedItems.filter(i => 
+                    i.joNumber === item.joNumber && i.productCode === item.productCode
+                ).length;
+                const isDuplicate = duplicateCount > 1;
+                
                 html += `<div style="border: ${borderStyle}; background: ${bgColor}; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <h5 style="margin: 0; color: ${textColor}; font-weight: bold;">
-                            Item #${item.scanIndex} ${isLatest ? '(NEW)' : ''}
+                            Item #${item.scanIndex} ${isLatest ? '(NEW)' : ''} ${isDuplicate ? `(Dup: ${duplicateCount})` : ''}
                         </h5>
                         <span style="color: #888; font-size: 12px;">${item.scanTime}</span>
                     </div>`;
@@ -416,17 +422,20 @@
             
             // Add summary
             const uniqueJOs = new Set(allScannedItems.filter(item => item.isValid).map(item => item.joNumber));
+            const uniqueProducts = new Set(allScannedItems.filter(item => item.isValid).map(item => `${item.joNumber}|${item.productCode}`));
+            
             html += `<div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px;">
-                <h5 style="color: #2196F3; margin: 0 0 10px 0;">📈 SUMMARY</h5>
+                <h5 style="color: #2196F3; margin: 0 0 10px 0;">📈 SCAN SUMMARY</h5>
                 <div style="font-size: 14px;">
-                    <div><strong>Total Items:</strong> ${allScannedItems.length}</div>
-                    <div><strong>Valid Items:</strong> ${allScannedItems.filter(item => item.isValid).length}</div>
+                    <div><strong>Total Scans:</strong> ${allScannedItems.length}</div>
+                    <div><strong>Valid Scans:</strong> ${allScannedItems.filter(item => item.isValid).length}</div>
                     <div><strong>Unique JO Numbers:</strong> ${uniqueJOs.size}</div>
+                    <div><strong>Unique Products:</strong> ${uniqueProducts.size}</div>
                     <div><strong>JO Tracking:</strong> ${Array.from(lastScannedJOs.entries()).length} tracked</div>
                 </div>
             </div>`;
             
-            // Add validation warning if exists
+            // Add validation info if exists
             if (validation && validation.message) {
                 html += `<div style="background: rgba(255, 152, 0, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px;">
                     <div style="color: #ff9800; font-size: 14px;">${validation.message}</div>
@@ -471,72 +480,29 @@
                         currentCameraId = selectedCamera.id;
                         
                         console.log('Selected camera:', selectedCamera);
-                        console.log('Camera ID:', selectedCamera.id);
-                        console.log('Camera label:', selectedCamera.label);
                         
-                        // Start scanning with improved settings
+                        // Start scanning
                         html5QrCode.start(
                             selectedCamera.id,
                             {
-                                fps: 20, // Increased FPS for better responsiveness
-                                qrbox: { width: 300, height: 300 }, // Larger QR box
-                                aspectRatio: 1.0
+                                fps: 10,
+                                qrbox: { width: 250, height: 250 }
                             },
                             (decodedText, result) => {
-                                console.log('=== QR CODE SCAN DETECTED ===');
-                                console.log('Decoded text:', decodedText);
-                                console.log('Scan result:', result);
+                                console.log('QR Code scan successful:', decodedText);
                                 onScanSuccess(decodedText);
                             },
                             (errorMessage) => {
-                                // Show only important errors for debugging
-                                if (!errorMessage.includes('No QR code found') && 
-                                    !errorMessage.includes('MultiFormatReader') &&
-                                    !errorMessage.includes('NotFoundException')) {
+                                // Don't show every error, only important ones
+                                if (!errorMessage.includes('No QR code found')) {
                                     console.log('QR Scan error:', errorMessage);
                                 }
                             }
                         ).then(() => {
-                            console.log('✅ Scanner started successfully');
                             updateScannerStatus('✅ Scanner aktif. Arahkan kamera ke QR code.', 'success');
-                            
-                            // Add visual feedback
-                            const qrReader = document.getElementById('qr-reader');
-                            if (qrReader) {
-                                qrReader.style.border = '2px solid #4CAF50';
-                            }
                         }).catch((err) => {
                             console.error('Unable to start scanning:', err);
-                            console.error('Error details:', err.name, err.message);
                             updateScannerStatus('❌ Gagal memulai scanner: ' + err.message, 'error');
-                            
-                            // Try fallback to environment camera
-                            if (devices.length > 1) {
-                                console.log('Trying fallback camera...');
-                                const fallbackCamera = devices.find(device => 
-                                    device.label.toLowerCase().includes('environment')
-                                ) || devices[0];
-                                
-                                html5QrCode.start(
-                                    fallbackCamera.id,
-                                    {
-                                        fps: 15,
-                                        qrbox: { width: 250, height: 250 }
-                                    },
-                                    (decodedText, result) => {
-                                        console.log('QR Code scan successful (fallback):', decodedText);
-                                        onScanSuccess(decodedText);
-                                    },
-                                    (errorMessage) => {
-                                        // Silent error handling
-                                    }
-                                ).then(() => {
-                                    updateScannerStatus('✅ Scanner aktif dengan kamera fallback.', 'success');
-                                }).catch((fallbackErr) => {
-                                    console.error('Fallback also failed:', fallbackErr);
-                                    updateScannerStatus('❌ Semua kamera gagal. Gunakan Manual Input.', 'error');
-                                });
-                            }
                         });
                     } else {
                         updateScannerStatus('❌ Tidak ada kamera yang ditemukan.', 'error');
@@ -563,8 +529,8 @@
                 });
 
             } catch (error) {
-                console.error('Camera initialization error:', error);
-                updateScannerStatus('❌ Error initializing camera: ' + error.message, 'error');
+                console.error('HTML5 QR Code initialization error:', error);
+                updateScannerStatus('❌ Library scanner error. Gunakan input manual.', 'error');
             }
         }
 
@@ -639,7 +605,7 @@
             }
         }
 
-        // Handle successful scan
+        // Handle successful scan with multi-scan support
         function onScanSuccess(decodedText) {
             console.log('=== NEW SCAN DETECTED ===');
             console.log('Scan successful:', decodedText);
@@ -662,7 +628,7 @@
             console.log('Total scanned items:', allScannedItems.length);
             console.log('Full allScannedItems array:', JSON.stringify(allScannedItems, null, 2));
             
-            // Validate JO Number and Product Code
+            // Validate JO Number and Product Code (ALLOW ALL SCANS)
             const validation = validateJOAndProductCode(parsedData);
             
             // Stop scanner
@@ -675,20 +641,17 @@
             // Always add to JO tracking (update if exists)
             addJOScan(parsedData.joNumber, parsedData.productCode);
             
-            if (validation.warning === 'DUPLICATE_JO_DIFFERENT_PRODUCT') {
-                updateScannerStatus('⚠️ JO Number sama dengan Product Code berbeda. Data ditampilkan, silakan verifikasi.', 'warning');
-            } else if (validation.warning === 'DUPLICATE_JO_SAME_PRODUCT') {
-                updateScannerStatus('ℹ️ Data duplikat dengan JO dan Product Code sama.', 'info');
+            // Update status based on validation
+            if (validation.warning === 'DIFFERENT_PRODUCT_SAME_JO') {
+                updateScannerStatus('✅ Scan berhasil! Product berbeda dengan JO sama. Data ditambahkan.', 'success');
+            } else if (validation.warning === 'SAME_PRODUCT_SAME_JO') {
+                updateScannerStatus('✅ Scan berhasil! Duplicate scan. Data ditambahkan.', 'success');
             } else {
                 updateScannerStatus('✅ Scan berhasil! Data ditambahkan ke list.', 'success');
             }
             
-            // Auto-send to dashboard after 1 second
-            setTimeout(() => {
-                console.log('=== AUTO-SENDING TO DASHBOARD ===');
-                console.log('Items that will be sent:', allScannedItems);
-                sendToAppsScript();
-            }, 1000);
+            // Don't auto-send - let user manually send when ready
+            console.log('📤 Ready to send. User will click "Send to Dashboard" button when ready.');
         }
 
         // Process manual input
@@ -707,7 +670,7 @@
             document.getElementById('manualInput').value = '';
         }
 
-        // Copy result to clipboard
+        // Copy result to clipboard (multi-scan support)
         function copyResult() {
             console.log('=== COPY RESULT CALLED ===');
             console.log('All scanned items:', allScannedItems);
@@ -741,7 +704,7 @@
             }
         }
 
-        // Send result back to Dashboard via postMessage or Apps Script GET
+        // Send result back to Dashboard via postMessage or Apps Script GET (multi-scan support)
         function sendToAppsScript() {
             console.log('=== sendToAppsScript called ===');
             console.log('All scanned items:', allScannedItems);
@@ -757,7 +720,7 @@
             console.log('Process ID:', processId);
             console.log('Mode:', mode);
             
-            // Get returnUrl from URL parameters - DEBUGGING
+            // Get returnUrl from URL parameters
             const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
             console.log('Return URL:', returnUrl);
             console.log('Return URL type:', typeof returnUrl);
@@ -829,7 +792,7 @@
             window.location.href = redirectUrl;
         }
 
-        // Reset scanner
+        // Reset scanner (multi-scan support)
         function resetScanner() {
             console.log('=== RESETTING SCANNER ===');
             
