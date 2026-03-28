@@ -300,10 +300,16 @@
 
         // Validate JO Number and Product Code (ALLOW ALL SCANS)
         function validateJOAndProductCode(parsedData) {
+            console.log('=== VALIDATING JO AND PRODUCT CODE ===');
             const joNumber = parsedData.joNumber;
             const productCode = parsedData.productCode;
             
+            console.log('JO Number:', joNumber);
+            console.log('Product Code:', productCode);
+            console.log('Current JO tracking before validation:', Array.from(lastScannedJOs.entries()));
+            
             if (!joNumber || !productCode) {
+                console.log('❌ Missing JO or Product Code');
                 return {
                     isValid: true,
                     warning: null,
@@ -314,9 +320,11 @@
             // Check if this JO Number was scanned before
             if (lastScannedJOs.has(joNumber)) {
                 const lastProductCode = lastScannedJOs.get(joNumber);
+                console.log('JO Number found in tracking. Last Product Code:', lastProductCode);
                 
                 if (lastProductCode !== productCode) {
                     // Same JO Number but different Product Code - ALLOW with info
+                    console.log('✅ Different Product Code with same JO - ALLOWING');
                     return {
                         isValid: true,
                         warning: 'DIFFERENT_PRODUCT_SAME_JO',
@@ -324,6 +332,7 @@
                     };
                 } else {
                     // Same JO Number and same Product Code
+                    console.log('✅ Same Product Code with same JO - ALLOWING');
                     return {
                         isValid: true,
                         warning: 'SAME_PRODUCT_SAME_JO',
@@ -332,6 +341,7 @@
                 }
             } else {
                 // First time scanning this JO Number
+                console.log('✅ First time scanning this JO Number');
                 return {
                     isValid: true,
                     warning: null,
@@ -342,9 +352,16 @@
 
         // Add JO scan to tracking
         function addJOScan(joNumber, productCode) {
+            console.log('=== ADDING JO SCAN TO TRACKING ===');
+            console.log('JO Number:', joNumber);
+            console.log('Product Code:', productCode);
+            console.log('JO tracking before:', Array.from(lastScannedJOs.entries()));
+            
             if (joNumber && productCode) {
                 lastScannedJOs.set(joNumber, productCode);
-                console.log('JO Tracking updated:', Array.from(lastScannedJOs.entries()));
+                console.log('JO tracking after:', Array.from(lastScannedJOs.entries()));
+            } else {
+                console.log('❌ Missing JO or Product Code - not adding to tracking');
             }
         }
 
@@ -610,12 +627,15 @@
             console.log('=== NEW SCAN DETECTED ===');
             console.log('Scan successful:', decodedText);
             console.log('Previous lastScanResult:', lastScanResult);
+            console.log('Current allScannedItems length:', allScannedItems.length);
+            console.log('Current JO tracking:', Array.from(lastScannedJOs.entries()));
             
             // Force clear previous data
             lastScanResult = decodedText;
             
             // Parse QR data
             const parsedData = parseQRData(decodedText);
+            console.log('Parsed data:', parsedData);
             
             // Add to all scanned items array
             const scanItem = {
@@ -625,11 +645,12 @@
             };
             allScannedItems.push(scanItem);
             console.log('Added to scanned items:', scanItem);
-            console.log('Total scanned items:', allScannedItems.length);
+            console.log('Total scanned items after add:', allScannedItems.length);
             console.log('Full allScannedItems array:', JSON.stringify(allScannedItems, null, 2));
             
             // Validate JO Number and Product Code (ALLOW ALL SCANS)
             const validation = validateJOAndProductCode(parsedData);
+            console.log('Validation result:', validation);
             
             // Stop scanner
             stopCameraScan();
@@ -638,8 +659,9 @@
             console.log('🔄 DISPLAYING ALL SCANNED ITEMS...');
             displayAllScannedItems(validation);
             
-            // Always add to JO tracking (update if exists)
+            // Always add to JO tracking (update if exists) - AFTER display
             addJOScan(parsedData.joNumber, parsedData.productCode);
+            console.log('JO tracking after update:', Array.from(lastScannedJOs.entries()));
             
             // Update status based on validation
             if (validation.warning === 'DIFFERENT_PRODUCT_SAME_JO') {
