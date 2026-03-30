@@ -131,6 +131,15 @@
             background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
         }
 
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e0a800 0%, #ffc107 100%);
+        }
+
         .button-group {
             display: flex;
             justify-content: center;
@@ -422,9 +431,17 @@
                 return;
             }
             
+            // Check if this is the same as the last scan (prevent duplicate processing)
+            if (lastScanResult === decodedText) {
+                console.log('Duplicate scan detected - same as last scan:', decodedText);
+                updateScannerStatus('⚠️ QR Code sama dengan scan sebelumnya. Silakan scan QR Code yang berbeda.', 'warning');
+                return;
+            }
+            
             lastScanTime = now;
             
-            console.log('Scan successful:', decodedText);
+            console.log('New scan successful:', decodedText);
+            console.log('Previous scan was:', lastScanResult);
             lastScanResult = decodedText;
             
             // Stop scanner
@@ -450,6 +467,36 @@
             } else {
                 updateScannerStatus('⚠️ Masukkan QR/Barcode terlebih dahulu', 'warning');
             }
+        }
+
+        // Reset scanner and clear cache
+        function resetScanner() {
+            console.log('=== RESETTING SCANNER ===');
+            
+            // Clear all cached data
+            lastScanResult = null;
+            lastScanTime = 0;
+            
+            // Clear result display
+            document.getElementById('resultContent').textContent = '';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('manualInput').value = '';
+            
+            // Clear any remaining scanner state
+            if (html5QrCode) {
+                html5QrCode.clear().then(() => {
+                    console.log('Scanner cleared successfully');
+                }).catch((err) => {
+                    console.error('Failed to clear scanner:', err);
+                });
+            }
+            
+            updateScannerStatus('🔄 Scanner di-reset. Siap untuk scan baru.', 'info');
+            
+            // Restart scanner after a short delay
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
         }
 
         // Clear manual input
