@@ -246,8 +246,6 @@
         let lastScanResult = null;
         let cameras = [];
         let currentCameraId = null;
-        let lastScanTime = 0;
-        const scanCooldown = 1500;
 
         // Get URL parameters
         function getUrlParameter(name) {
@@ -367,6 +365,36 @@
             }
         }
 
+        // Request camera permission
+        function requestCameraPermission() {
+            console.log('=== REQUESTING CAMERA PERMISSION ===');
+            updateScannerStatus('🔁 Meminta izin kamera...', 'info');
+            
+            // Try to access camera to trigger permission
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    console.log('Camera permission granted');
+                    updateScannerStatus('✅ Izin kamera diberikan. Memulai scanner...', 'success');
+                    
+                    // Stop the stream immediately
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Start scanner
+                    setTimeout(() => {
+                        startCameraScan();
+                    }, 500);
+                })
+                .catch((err) => {
+                    console.error('Camera permission denied:', err);
+                    updateScannerStatus('❌ Izin kamera ditolak. Silakan izinkan kamera di browser settings.', 'error');
+                    
+                    // Show instructions
+                    setTimeout(() => {
+                        updateScannerStatus('💡 Klik ikon 🔒 di address bar dan izinkan kamera, lalu refresh halaman.', 'warning');
+                    }, 2000);
+                });
+        }
+
         // Switch camera
         function switchCamera() {
             if (!html5QrCode || cameras.length <= 1) {
@@ -423,50 +451,21 @@
 
         // Handle successful scan
         function onScanSuccess(decodedText) {
-            const now = Date.now();
+            console.log('Scan successful:', decodedText);
+            lastScanResult = decodedText;
             
-            // Prevent double scanning within cooldown period
-            if (now - lastScanTime < scanCooldown) {
-                console.log('Scan blocked - cooldown active');
-                return;
-            }
+            // Stop scanner
+            stopCameraScan();
             
-            // Check if this is the same as the last scan (prevent duplicate processing)
-            if (lastScanResult === decodedText) {
-                console.log('Duplicate scan detected - same as last scan:', decodedText);
-                updateScannerStatus('⚠️ QR Code sama dengan scan sebelumnya. Silakan scan QR Code yang berbeda.', 'warning');
-                return;
-            }
+            // Show result
+            document.getElementById('resultContent').textContent = decodedText;
+            document.getElementById('resultSection').style.display = 'block';
+            updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
             
-            lastScanTime = now;
-            
-            console.log('=== NEW SCAN DETECTED ===');
-            console.log('Current scan:', decodedText);
-            console.log('Previous scan was:', lastScanResult);
-            
-            // FORCE CLEAR previous result to prevent confusion
-            lastScanResult = null;
-            document.getElementById('resultContent').textContent = '';
-            document.getElementById('resultSection').style.display = 'none';
-            
-            // Small delay to ensure UI is cleared
+            // Auto-send to dashboard after 1 second
             setTimeout(() => {
-                console.log('Setting new scan result:', decodedText);
-                lastScanResult = decodedText;
-                
-                // Show result
-                document.getElementById('resultContent').textContent = decodedText;
-                document.getElementById('resultSection').style.display = 'block';
-                updateScannerStatus('✅ Scan berhasil! Mengirim QR: ' + decodedText.split('|')[4], 'success');
-                
-                // Stop scanner
-                stopCameraScan();
-                
-                // Auto-send to dashboard after 500ms
-                setTimeout(() => {
-                    sendToAppsScript();
-                }, 500);
-            }, 100);
+                sendToAppsScript();
+            }, 1000);
         }
 
         // Process manual input
@@ -480,27 +479,14 @@
             }
         }
 
-        // Reset scanner and clear cache
+        // Reset scanner
         function resetScanner() {
             console.log('=== RESETTING SCANNER ===');
-            
-            // Clear all cached data
-            lastScanResult = null;
-            lastScanTime = 0;
             
             // Clear result display
             document.getElementById('resultContent').textContent = '';
             document.getElementById('resultSection').style.display = 'none';
             document.getElementById('manualInput').value = '';
-            
-            // Clear any remaining scanner state
-            if (html5QrCode) {
-                html5QrCode.clear().then(() => {
-                    console.log('Scanner cleared successfully');
-                }).catch((err) => {
-                    console.error('Failed to clear scanner:', err);
-                });
-            }
             
             updateScannerStatus('🔄 Scanner di-reset. Siap untuk scan baru.', 'info');
             
@@ -538,10 +524,6 @@
                 return;
             }
             
-            // Extract serial number for display
-            const serialNumber = lastScanResult.split('|')[4] || 'Unknown';
-            console.log('Sending serial number:', serialNumber);
-            
             const processId = getUrlParameter('processId') || 'ext_' + Date.now();
             const mode = getUrlParameter('mode') || 'redirect';
             console.log('Process ID:', processId);
@@ -564,11 +546,7 @@
                         qrResult: lastScanResult,
                         processId: processId,
                         timestamp: new Date().toISOString(),
-                        source: 'external_scanner',
-                        updateSpreadsheet: 'true', // Force spreadsheet update
-                        spreadsheetId: '1uPw4WK3ppEbla21Fa0Iv4EbXhmVBGBE68N_frh8J0vw', // Target spreadsheet ID
-                        sheetName: 'Dashboard FULFILMENT GARDEN 2026', // Target sheet name
-                        action: 'updateFulfilmentData' // Specific action for spreadsheet update
+                        source: 'external_scanner'
                     };
                     
                     console.log('📤 SENDING POSTMESSAGE:', messageData);
@@ -603,11 +581,7 @@
                 timestamp: new Date().toISOString(),
                 returnUrl: returnUrl, // Pass returnUrl for redirect back
                 redirectBack: 'true', // Enable redirect back to dashboard
-                scanSuccess: 'true', // Indicate successful scan
-                updateSpreadsheet: 'true', // Force spreadsheet update
-                spreadsheetId: '1uPw4WK3ppEbla21Fa0Iv4EbXhmVBGBE68N_frh8J0vw', // Target spreadsheet ID
-                sheetName: 'Dashboard FULFILMENT GARDEN 2026', // Target sheet name
-                action: 'updateFulfilmentData' // Specific action for spreadsheet update
+                scanSuccess: 'true' // Indicate successful scan
             });
             
             const redirectUrl = appsScriptUrl + '?' + params.toString();
