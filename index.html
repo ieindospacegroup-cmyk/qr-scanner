@@ -564,7 +564,11 @@
                         qrResult: lastScanResult,
                         processId: processId,
                         timestamp: new Date().toISOString(),
-                        source: 'external_scanner'
+                        source: 'external_scanner',
+                        updateSpreadsheet: 'true', // Force spreadsheet update
+                        spreadsheetId: '1uPw4WK3ppEbla21Fa0Iv4EbXhmVBGBE68N_frh8J0vw', // Target spreadsheet ID
+                        sheetName: 'Dashboard FULFILMENT GARDEN 2026', // Target sheet name
+                        action: 'updateFulfilmentData' // Specific action for spreadsheet update
                     };
                     
                     console.log('📤 SENDING POSTMESSAGE:', messageData);
@@ -599,7 +603,11 @@
                 timestamp: new Date().toISOString(),
                 returnUrl: returnUrl, // Pass returnUrl for redirect back
                 redirectBack: 'true', // Enable redirect back to dashboard
-                scanSuccess: 'true' // Indicate successful scan
+                scanSuccess: 'true', // Indicate successful scan
+                updateSpreadsheet: 'true', // Force spreadsheet update
+                spreadsheetId: '1uPw4WK3ppEbla21Fa0Iv4EbXhmVBGBE68N_frh8J0vw', // Target spreadsheet ID
+                sheetName: 'Dashboard FULFILMENT GARDEN 2026', // Target sheet name
+                action: 'updateFulfilmentData' // Specific action for spreadsheet update
             });
             
             const redirectUrl = appsScriptUrl + '?' + params.toString();
