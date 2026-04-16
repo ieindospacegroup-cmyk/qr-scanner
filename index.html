@@ -148,56 +148,6 @@
             margin: 20px 0;
         }
 
-        /* Process Selection Dialog Styles */
-        .process-selection-dialog {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .process-selection-dialog h3 {
-            color: white;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .process-option {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .process-option:hover {
-            background: rgba(79, 172, 254, 0.2);
-            border-color: #4facfe;
-            transform: translateY(-1px);
-        }
-
-        .process-option.selected {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border-color: #4facfe;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
-        }
-
-        .process-name {
-            font-weight: 600;
-            font-size: 1em;
-            margin-bottom: 3px;
-        }
-
-        .process-description {
-            font-size: 0.8em;
-            color: #ccc;
-        }
-
         .result-section {
             background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
             border-radius: 15px;
@@ -499,7 +449,7 @@
             }
         }
 
-        // Handle successful scan with process selection
+        // Handle successful scan
         function onScanSuccess(decodedText) {
             console.log('Scan successful:', decodedText);
             lastScanResult = decodedText;
@@ -510,179 +460,12 @@
             // Show result
             document.getElementById('resultContent').textContent = decodedText;
             document.getElementById('resultSection').style.display = 'block';
-            updateScannerStatus('✅ Scan berhasil! Memilih proses tujuan...', 'success');
+            updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
             
-            // Show process selection dialog
-            showProcessSelectionDialog(decodedText);
-        }
-
-        // Show process selection dialog
-        function showProcessSelectionDialog(qrData) {
-            const processes = [
-                'MILLING 1', 'MILLING 2', 'ASSEMBLY', 'WAREHOUSE', 
-                'SEMI FINISH', 'INDOSPACE', 'SANDING', 'FINISHING', 
-                'WEAVING', 'CUSHION', 'PACKING', 'WH PACKED'
-            ];
-            
-            let processOptions = '';
-            processes.forEach(process => {
-                processOptions += `
-                    <div class="process-option" onclick="selectProcessForScan('${process}')" data-process="${process}">
-                        <div class="process-name">${process}</div>
-                        <div class="process-description">Pilih untuk pindah ke sini</div>
-                    </div>
-                `;
-            });
-            
-            // Add process selection to result section
-            const processSelectionHtml = `
-                <div class="process-selection-dialog">
-                    <h3>🏭 Pilih Proses Tujuan:</h3>
-                    <div class="process-grid">${processOptions}</div>
-                    <div class="button-group">
-                        <button class="btn btn-primary" onclick="confirmProcessSelectionForScan()" id="confirmProcessBtn" disabled>✅ Pindah ke Proses</button>
-                        <button class="btn" onclick="cancelProcessSelection()">❌ Batal</button>
-                    </div>
-                </div>
-            `;
-            
-            // Add to result section
-            const resultSection = document.getElementById('resultSection');
-            resultSection.innerHTML += processSelectionHtml;
-        }
-
-        // Select process for scan
-        let selectedScanProcess = null;
-        
-        function selectProcessForScan(process) {
-            // Remove previous selection
-            document.querySelectorAll('.process-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Add selection to clicked option
-            const selectedOption = document.querySelector(`[data-process="${process}"]`);
-            if (selectedOption) {
-                selectedOption.classList.add('selected');
-                selectedScanProcess = process;
-                document.getElementById('confirmProcessBtn').disabled = false;
-                updateScannerStatus(`✅ Proses dipilih: ${process}`, 'success');
-            }
-        }
-
-        // Confirm process selection for scan
-        function confirmProcessSelectionForScan() {
-            if (!selectedScanProcess || !lastScanResult) {
-                updateScannerStatus('⚠️ Silakan pilih proses terlebih dahulu', 'warning');
-                return;
-            }
-            
-            updateScannerStatus('📤 Mengirim ke Dashboard...', 'info');
-            
-            // Send result with process selection to dashboard
-            sendToAppsWithProcessSelection();
-        }
-
-        // Cancel process selection
-        function cancelProcessSelection() {
-            // Remove process selection dialog
-            const dialog = document.querySelector('.process-selection-dialog');
-            if (dialog) {
-                dialog.remove();
-            }
-            
-            // Reset variables
-            selectedScanProcess = null;
-            updateScannerStatus('🔄 Scanner siap untuk scan baru', 'info');
-            
-            // Restart scanner
+            // Auto-send to dashboard after 1 second
             setTimeout(() => {
-                startCameraScan();
+                sendToAppsScript();
             }, 1000);
-        }
-
-        // Send to Apps Script with process selection
-        function sendToAppsWithProcessSelection() {
-            console.log('=== sendToAppsWithProcessSelection called ===');
-            console.log('lastScanResult:', lastScanResult);
-            console.log('selectedScanProcess:', selectedScanProcess);
-            
-            if (!lastScanResult || !selectedScanProcess) {
-                updateScannerStatus('⚠️ Tidak ada hasil scan atau proses yang dipilih', 'warning');
-                return;
-            }
-            
-            const processId = getUrlParameter('processId') || 'ext_' + Date.now();
-            const mode = getUrlParameter('mode') || 'redirect';
-            console.log('Process ID:', processId);
-            console.log('Mode:', mode);
-            
-            // Get returnUrl from URL parameters - DEBUGGING
-            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
-            console.log('Return URL:', returnUrl);
-            console.log('Return URL type:', typeof returnUrl);
-            console.log('Return URL length:', returnUrl ? returnUrl.length : 'null');
-            
-            // Try postMessage first (if opener is available)
-            try {
-                console.log('Checking window.opener:', window.opener);
-                console.log('window.opener.closed:', window.opener ? window.opener.closed : 'N/A');
-                
-                if (window.opener && !window.opener.closed) {
-                    const messageData = {
-                        type: 'QR_SCAN_RESULT_WITH_PROCESS',
-                        qrResult: lastScanResult,
-                        selectedProcess: selectedScanProcess,
-                        processId: processId,
-                        timestamp: new Date().toISOString(),
-                        source: 'external_scanner'
-                    };
-                    
-                    console.log('📤 SENDING POSTMESSAGE WITH PROCESS SELECTION:', messageData);
-                    window.opener.postMessage(messageData, '*');
-                    
-                    console.log('✅ Sent result via postMessage');
-                    updateScannerStatus('✅ Hasil dikirim ke Dashboard via postMessage', 'success');
-                    
-                    // Close after a short delay
-                    setTimeout(() => {
-                        window.close();
-                    }, 1500);
-                    return;
-                } else {
-                    console.log('❌ Window opener not available or closed, trying Apps Script GET...');
-                }
-            } catch (error) {
-                console.error('❌ postMessage failed, trying Apps Script GET:', error);
-            }
-            
-            // Fallback: Send to Apps Script via URL redirect (bypass CORS)
-            updateScannerStatus('📤 Mengirim ke Apps Script dan kembali ke Dashboard...', 'info');
-            
-            // Use URL redirect to bypass CORS
-            const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
-            
-            // Build redirect URL with QR data AND process selection
-            const params = new URLSearchParams({
-                qrResult: lastScanResult,
-                selectedProcess: selectedScanProcess,
-                source: 'external_scanner',
-                processId: processId,
-                timestamp: new Date().toISOString(),
-                returnUrl: returnUrl, // Pass returnUrl for redirect back
-                redirectBack: 'true', // Enable redirect back to dashboard
-                scanSuccess: 'true', // Indicate successful scan
-                processSelection: 'true' // Indicate this is process selection
-            });
-            
-            const redirectUrl = appsScriptUrl + '?' + params.toString();
-            console.log('Redirect URL:', redirectUrl);
-            
-            // Show success message before redirect
-            updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
-            
-            // IMMEDIATE redirect to Apps Script (no delay)
-            window.location.href = redirectUrl;
         }
 
         // Process manual input
