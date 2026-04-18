@@ -2,9 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RFID Tracker Dashboard - FULFILMENT AQUATEAK 2026</title>
-    <!-- QR Scanner Library -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner - FULFILMENT AQUATEAK 2026</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * {
@@ -17,12 +16,12 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
             min-height: 100vh;
-            padding: 25px;
+            padding: 20px;
             color: #ffffff;
         }
 
         .container {
-            max-width: 1800px;
+            max-width: 600px;
             margin: 0 auto;
             animation: fadeIn 0.8s ease-in;
         }
@@ -37,175 +36,30 @@
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            text-align: center;
         }
 
         .header h1 {
             color: white;
-            font-size: 32px;
-            margin-bottom: 15px;
+            font-size: 24px;
+            margin-bottom: 10px;
             font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            letter-spacing: 0.5px;
         }
 
-        .header-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .last-updated {
-            color: #b0b0b0;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* Process Selection Modal Styles */
-        .process-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .process-option {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .process-option:hover {
-            background: rgba(79, 172, 254, 0.2);
-            border-color: #4facfe;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.2);
-        }
-
-        .process-option.selected {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border-color: #4facfe;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
-        }
-
-        .process-name {
-            font-weight: 600;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .process-description {
-            font-size: 0.9em;
-            color: #ccc;
-        }
-
-        .qr-info-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4facfe;
-        }
-
-        .qr-info-section h3 {
-            color: white;
-            margin-bottom: 15px;
-        }
-
-        .qr-info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .qr-info-item:last-child {
-            border-bottom: none;
-        }
-
-        .qr-info-label {
-            font-weight: 600;
-            color: #b0b0b0;
-        }
-
-        .qr-info-value {
-            color: white;
-            font-weight: 500;
-        }
-
-        /* QR Scanner Modal */
-        .qr-scanner-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-        }
-
-        .qr-scanner-content {
-            position: relative;
-            margin: 50px auto;
-            padding: 20px;
-            width: 90%;
-            max-width: 600px;
-            background: #3c3c3c;
-            border-radius: 10px;
-        }
-
-        .close-scanner {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #cccccc;
-        }
-
-        .close-scanner:hover {
-            color: white;
-        }
-
-        #qr-reader {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        /* Mobile-specific camera styles */
-        @media (max-width: 768px) {
-            #qr-reader {
-                max-width: 100%;
-                width: 100%;
-            }
-            
-            .qr-scanner-modal {
-                padding: 10px;
-            }
-            
-            video {
-                max-width: 100%;
-                height: auto;
-            }
+        .scanner-section {
+            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
         .scanner-status {
             text-align: center;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
             font-weight: bold;
         }
 
@@ -227,6 +81,18 @@
             border: 1px solid #5a5a5a;
         }
 
+        .scanner-status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        #qr-reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
         .btn {
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             color: white;
@@ -239,8 +105,6 @@
             margin: 5px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .btn:hover {
@@ -250,7 +114,8 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+            color: white;
             box-shadow: 0 4px 15px rgba(74, 74, 74, 0.3);
         }
 
@@ -260,3130 +125,508 @@
             box-shadow: 0 6px 20px rgba(74, 74, 74, 0.4);
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
         }
 
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #b71c1c 0%, #d32f2f 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
+        .btn-info:hover {
+            background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 25px;
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-number {
-            font-size: 42px;
-            font-weight: 700;
-            color: #ff6b35;
-            margin-bottom: 12px;
-            text-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-        }
-
-        .stat-label {
-            color: #b0b0b0;
-            font-size: 15px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .main-content {
-            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #ff6b35;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #e55a2b;
-        }
-
-        /* Enhanced Table Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 12px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 11px;
-            color: white;
-        }
-
-        th {
-            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
-            color: white;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 12px;
-        }
-
-        tr:hover {
-            background: rgba(255, 107, 53, 0.1);
-            transition: background 0.3s ease;
-        }
-
-        .process-cell {
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .process-cell.active {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-            color: white;
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-        }
-
-        .process-cell.inactive {
-            background: rgba(255, 255, 255, 0.05);
-            color: #b0b0b0;
-            font-style: italic;
-        }
-
-        .qc-cell {
-            min-width: 120px;
-        }
-
-        .qc-select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            font-size: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            color: black;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .qc-select:focus {
-            outline: none;
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
-        }
-
-        .serial-number {
-            background-color: #fef3c7;
-            color: #92400e;
-            font-weight: 600;
-            font-family: monospace;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: #b0b0b0;
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-left: 10px;
-            border: 2px solid #ff6b35;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-weight: 500;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
-        }
-
-        .success {
-            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-weight: 500;
-            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
-        }
-
-        .search-box {
-            margin-bottom: 15px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            font-size: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
-        }
-
-        .scanner-section {
-            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        .scanner-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .advanced-controls {
-            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 25px;
-            backdrop-filter: blur(10px);
-        }
-
-        .advanced-controls h3 {
-            margin: 0 0 20px 0;
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e0a800 0%, #ffc107 100%);
         }
 
         .button-group {
             display: flex;
+            justify-content: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #3c3c3c 0%, #4a4a4a 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+
+        .result-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+
+        .manual-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: white;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
             margin-bottom: 10px;
         }
 
-        .button-group .btn {
-            flex: 0 0 auto;
-            white-space: nowrap;
-        }
-
-        .scanner-input {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: monospace;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .scanner-input:focus {
+        .manual-input:focus {
             outline: none;
             border-color: #ff6b35;
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
         }
 
         @media (max-width: 768px) {
-            .scanner-controls {
-                grid-template-columns: 1fr;
+            .container {
+                padding: 10px;
             }
             
-            .advanced-controls {
-                margin-top: 15px;
+            #qr-reader {
+                max-width: 100%;
             }
             
             .button-group {
-                justify-content: center;
+                flex-direction: column;
             }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            table {
-                font-size: 9px;
-            }
-            
-            th, td {
-                padding: 4px;
-                font-size: 9px;
-            }
-        }
-
-        /* Button Color Variations */
-        .btn-info {
-            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(74, 74, 74, 0.3);
-        }
-
-        .btn-info:hover {
-            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 74, 74, 0.4);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #ff8c42 0%, #ffa500 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
-        }
-
-        .btn-warning:hover {
-            background: linear-gradient(135deg, #ffa500 0%, #ff8c42 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.4);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏭 RFID Tracker Dashboard - FULFILMENT AQUATEAK 2026</h1>
-            <div class="header-info">
-                <div class="last-updated" id="lastUpdated">Memuat data...</div>
-                <div>
-                    <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh Data</button>
-                    <button class="btn" onclick="loadData()">📊 Load Data</button>
-                    <button class="btn btn-warning" onclick="debugDataLoading()">🔍 Debug Data</button>
-                    <button class="btn btn-primary" onclick="initializeSystem()">🚀 Initialize</button>
-                    <button class="btn btn-danger" onclick="testConnectionFirst()">🔧 Test Connection</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="stats-grid" id="statsGrid">
-            <!-- Stats akan dimuat di sini -->
+            <h1>📷 QR Scanner - FULFILMENT AQUATEAK 2026</h1>
+            <div id="scannerStatus" class="scanner-status info">Memulai scanner...</div>
         </div>
 
         <div class="scanner-section">
-            <h2>📱 QR Scanner</h2>
-            <div id="scannerMessage"></div>
-            <div class="scanner-controls">
-                <div>
-                    <h3>📷 Camera Scan</h3>
-                    <div class="button-group">
-                        <button class="btn btn-primary" onclick="startCameraScan()">📸 Open Camera Scanner</button>
-                        <button class="btn btn-success" onclick="openExternalCamera()" id="externalCameraBtn">📷 External Camera Scanner</button>
-                        <button class="btn btn-info" onclick="testBarcodeFormats()">📊 Test Barcode</button>
-                        <button class="btn btn-warning" onclick="showDebugCounter()">🔍 Debug Counter</button>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <button class="btn" onclick="stopCameraScan()">⏹️ Stop Camera</button>
-                    </div>
-                </div>
-                <div>
-                    <h3>📝 Manual QR Input</h3>
-                    <textarea id="manualQRInput" 
-                              placeholder="Format: JO Number|Product Code|Product Name|QTY Order|Serial Number"
-                              rows="3"
-                              class="scanner-input"></textarea>
-                    <div style="margin-top: 10px;">
-                        <button class="btn btn-primary" onclick="processManualQR()">📷 Process QR</button>
-                        <button class="btn" onclick="clearManualQR()">🗑️ Clear</button>
-                        <button class="btn btn-warning" onclick="debugInputIssues()">🔍 Debug Input</button>
-                    </div>
-                </div>
-            </div>
+            <div id="qr-reader"></div>
             
-            <div class="advanced-controls">
-                <h3>🔧 Advanced Controls</h3>
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="testSimpleConnection()">🔌 Test Simple</button>
-                    <button class="btn" onclick="testSpreadsheetAccess()">📊 Test Spreadsheet</button>
-                    <button class="btn" onclick="testConnectionFirst()">🔧 Test Connection</button>
-                    <button class="btn btn-primary" onclick="debugProductionData()">🔍 Debug Data</button>
-                    <button class="btn" onclick="viewLogs()">📋 View Logs</button>
-                    <button class="btn" onclick="addSampleData()">➕ Add Sample</button>
-                    <button class="btn btn-primary" onclick="testQRScanning()">🧪 Test Scan</button>
-                    <button class="btn" onclick="testAutoSequentialScanning()">🔄 Test Sequential</button>
-                    <button class="btn" onclick="testQCUpdate()">👤 Test QC</button>
-                    <button class="btn" onclick="backupData()">💾 Backup</button>
-                    <button class="btn btn-primary" onclick="checkNextStep()">🔍 Check Next Step</button>
-                    <button class="btn" onclick="debugNextStep()">🐛 Debug Next Step</button>
-                    <button class="btn btn-primary" onclick="debugSequentialScanning()">🔬 Debug Sequential</button>
-                    <button class="btn" onclick="simpleSequentialTest()">🧪 Simple Test</button>
-                    <button class="btn btn-primary" onclick="testCounterSequentialScanning()">🔢 Counter Test</button>
-                    <button class="btn" onclick="getAllScanCounters()">📊 View Counters</button>
-                    <button class="btn btn-warning" onclick="testTotalQtyFix()">🔧 Test Total QTY</button>
-                    <button class="btn btn-danger" onclick="debugSequentialIssue()">🔍 Debug Sequential</button>
-                    <button class="btn btn-danger" onclick="resetAllCounters()">🔄 Reset All Counters</button>
-                    <button class="btn btn-success" onclick="testSequentialFix()">🧪 Test Sequential Fix</button>
-                    <button class="btn btn-info" onclick="testUserQRSample()">🧪 Test User QR</button>
-                    <button class="btn btn-warning" onclick="checkTotalQtyInSpreadsheet()">🔍 Check Total QTY</button>
-                    <button class="btn btn-success" onclick="updateTotalQtyFromQR()">🔄 Update Total QTY</button>
-                    <button class="btn btn-primary" onclick="testAutoUpdateTotalQty()">🔄 Test Auto Update</button>
-                    <button class="btn btn-success" onclick="testAutoScanUpdate()">🧪 Test Auto Scan</button>
-                    <button class="btn btn-danger" onclick="testUserQRWithDebug()">🐛 Debug User QR</button>
-                    <button class="btn btn-primary" onclick="testTrackingModel()">🎯 Test Tracking Model</button>
-                </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="startCameraScan()">📸 Start Camera</button>
+                <button class="btn" onclick="stopCameraScan()">⏹️ Stop Camera</button>
+                <button class="btn btn-info" onclick="switchCamera()">🔄 Switch Camera</button>
+                <button class="btn btn-warning" onclick="requestCameraPermission()">🔁 Request Camera Permission</button>
             </div>
         </div>
 
-        <style>
-            .error {
-                background: #ffebee;
-                color: #c62828;
-                padding: 10px;
-                border-radius: 5px;
-                margin-bottom: 10px;
-            }
-        </style>
-
-        <!-- QR Scanner Modal -->
-        <div id="qrScannerModal" class="qr-scanner-modal">
-            <div class="qr-scanner-content">
-                <span class="close-scanner" onclick="closeQRScanner()">&times;</span>
-                <h2>📸 QR Code Scanner</h2>
-                <div id="scannerStatus" class="scanner-status info">Memulai scanner...</div>
-                <div id="qr-reader"></div>
-                <div style="margin-top: 15px; text-align: center;">
-                    <button class="btn" onclick="switchCamera()">🔄 Switch Camera</button>
-                    <button class="btn" onclick="toggleFlashlight()">🔦 Flashlight</button>
-                    <button class="btn" onclick="closeQRScanner()">❌ Close Scanner</button>
-                </div>
-                <div style="margin-top: 10px; text-align: center; font-size: 12px; color: #666;">
-                    <p>💡 Tips: Ensure good lighting and steady hand for best results</p>
-                    <p>📱 For small barcodes: Hold camera closer and use flashlight if needed</p>
-                </div>
+        <div class="scanner-section">
+            <h3>📝 Manual Input</h3>
+            <textarea id="manualInput" 
+                      placeholder="Format: JO Number|Product Code|Product Name|QTY Order|Serial Number"
+                      rows="3"
+                      class="manual-input"></textarea>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="processManualInput()">📷 Process QR</button>
+                <button class="btn" onclick="clearManualInput()">🗑️ Clear</button>
             </div>
         </div>
 
-        <div class="main-content">
-            <!-- Process Selection Modal -->
-            <div id="processSelectionModal" class="qr-scanner-modal">
-                <div class="qr-scanner-content">
-                    <span class="close-scanner" onclick="closeProcessSelection()">&times;</span>
-                    <h2>🏭 Pilih Proses Tujuan</h2>
-                    <div id="processSelectionStatus" class="scanner-status info">Memuat proses...</div>
-                    
-                    <div id="qrInfo" class="qr-info-section">
-                        <h3>📦 Informasi Barang</h3>
-                        <div id="qrInfoContent"></div>
-                    </div>
-                    
-                    <div class="process-grid" id="processGrid">
-                        <!-- Process options will be loaded here -->
-                    </div>
-                    
-                    <div style="margin-top: 15px; text-align: center;">
-                        <button class="btn btn-primary" onclick="confirmProcessSelection()" id="confirmBtn" disabled>✅ Pindah ke Proses</button>
-                        <button class="btn" onclick="closeProcessSelection()">❌ Batal</button>
-                    </div>
-                </div>
-            </div>
-
-            <h2>📊 Production Data</h2>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 Cari berdasarkan Transaction ID, JO Number, Product Name..." onkeyup="searchTable()">
-            </div>
-            <div class="table-container">
-                <table id="productionTable">
-                    <thead>
-                        <tr>
-                            <th>Transaction ID</th>
-                            <th>Input Time</th>
-                            <th>JO Number</th>
-                            <th>Product Code</th>
-                            <th>Product Name</th>
-                            <th>Total QTY</th>
-                            <th>Serial Number</th>
-                            <th>MILLING 1</th>
-                            <th>QC NAME</th>
-                            <th>MILLING 2</th>
-                            <th>QC NAME</th>
-                            <th>ASSEMBLY</th>
-                            <th>QC NAME</th>
-                            <th>WAREHOUSE</th>
-                            <th>QC NAME</th>
-                            <th>SEMI FINISH</th>
-                            <th>QC NAME</th>
-                            <th>INDOSPACE</th>
-                            <th>QC NAME</th>
-                            <th>SANDING</th>
-                            <th>QC NAME</th>
-                            <th>FINISHING</th>
-                            <th>QC NAME</th>
-                            <th>WEAVING</th>
-                            <th>QC NAME</th>
-                            <th>CUSHION</th>
-                            <th>QC NAME</th>
-                            <th>PACKING</th>
-                            <th>QC NAME</th>
-                            <th>WH PACKED</th>
-                            <th>QC NAME</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="31" class="loading">Memuat data...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div id="resultSection" class="result-section">
+            <h3>📊 Scan Result</h3>
+            <div id="resultContent" class="result-content"></div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="sendToAppsScript()">📤 Send to Dashboard</button>
+                <button class="btn btn-info" onclick="copyResult()">📋 Copy Result</button>
+                <button class="btn" onclick="resetScanner()">🔄 Scan Again</button>
             </div>
         </div>
     </div>
 
     <script>
         // Global variables
-        let productionData = [];
-        let currentData = []; // Add currentData variable
-        let currentQRData = null;
-        let selectedProcess = null;
-        
-        // External Camera Scanner function
-        function openExternalCamera() {
-            const dashboardUrl = window.location.href;
-            const scannerUrl = 'https://ieindospacegroup-cmyk.github.io/qr-scanner/?returnUrl=' + encodeURIComponent(dashboardUrl) + '&title=' + encodeURIComponent('RFID Scanner - FULFILMENT AQUATEAK 2026');
-            window.open(scannerUrl, '_blank');
-        }
-        
-        // Handle messages from external scanner
-        function handleExternalScannerMessage(event) {
-            // Verify origin for security
-            if (event.origin !== 'https://ieindospacegroup-cmyk.github.io') {
-                return;
-            }
-            
-            const messageData = event.data;
-            
-            if (messageData.type === 'QR_SCAN_RESULT') {
-                // Process QR result and save to spreadsheet
-                processExternalQRResult(messageData);
-            } else if (messageData.type === 'QR_SCAN_RESULT_WITH_PROCESS') {
-                // Process QR result with process selection
-                processExternalQRResultWithProcess(messageData);
-            }
-        }
-        
-        // Process QR result from external scanner with process selection
-        function processExternalQRResultWithProcess(messageData) {
-            const qrResult = messageData.qrResult;
-            const selectedProcess = messageData.selectedProcess;
-            
-            if (!qrResult || !selectedProcess) {
-                showMessage('❌ Tidak ada hasil QR atau proses yang dipilih', 'error');
-                return;
-            }
-            
-            // Parse QR untuk menampilkan informasi lengkap
-            const qrParts = qrResult.split('|');
-            let qrInfo = '';
-            if (qrParts.length >= 5) {
-                qrInfo = `📦 ${qrParts[0]} | ${qrParts[2]} | QTY: ${qrParts[3]} | SN: ${qrParts[4]}`;
-            } else {
-                qrInfo = qrResult;
-            }
-            
-            showMessage('🔄 Memproses hasil scan: ' + qrInfo + ' → ' + selectedProcess, 'info');
-            
-            // Send to Google Apps Script for processing
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response && response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        
-                        // Auto-refresh dashboard data
-                        setTimeout(() => {
-                            loadData();
-                        }, 1000);
-                    } else {
-                        showMessage('❌ ' + (response ? response.message : 'Unknown error'), 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Error processing external QR with process:', error);
-                    showMessage('❌ Error memproses QR: ' + error.message, 'error');
-                })
-                .processQRWithProcessSelection({
-                    qrCodeData: qrResult,
-                    selectedProcess: selectedProcess,
-                    operator: 'External Scanner'
-                });
-        }
-        
-        // Process QR result from external scanner
-        function processExternalQRResult(messageData) {
-            const qrResult = messageData.qrResult;
-            
-            if (!qrResult) {
-                showMessage('❌ Tidak ada hasil QR yang diterima', 'error');
-                return;
-            }
-            
-            // Show process selection modal instead of direct processing
-            currentQRData = qrResult;
-            showProcessSelection(qrResult);
-        }
-        
-        // Listen for messages from external scanner
-        window.addEventListener('message', handleExternalScannerMessage);
-        
-        // Check environment and show/hide External Camera Scanner button
-        function checkEnvironment() {
-            const externalCameraBtn = document.getElementById('externalCameraBtn');
-            
-            if (externalCameraBtn) {
-                // Always show the button
-                externalCameraBtn.style.display = 'inline-block';
-            }
-        }
-        
-        // Run environment check when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            checkEnvironment();
-        });
-        
-        // QC Personnel per Process
-        const qcPersonnelByProcess = {
-            'MILLING 1': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'MILLING 2': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'ASSEMBLY': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'WAREHOUSE': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'SEMI FINISH': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'INDOSPACE': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'SANDING': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'FINISHING': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'WEAVING': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'CUSHION': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'PACKING': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso'],
-            'WH PACKED': ['None', 'Arif', 'Istanto', 'Yudo', 'Sugeng', 'Liling', 'Nur akib', 'Niam', 'Hendro', 'Reza', 'Fatkhul', 'Rizal', 'Jamal', 'Wawan', 'Santoso']
-        };
-
-        // Production processes
-        const PRODUCTION_PROCESSES = [
-            'MILLING 1', 'MILLING 2', 'ASSEMBLY', 'WAREHOUSE', 
-            'SEMI FINISH', 'INDOSPACE', 'SANDING', 'FINISHING', 
-            'WEAVING', 'CUSHION', 'PACKING', 'WH PACKED'
-        ];
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== PAGE LOADED ===');
-            testConnectionFirst();
-            
-            // Auto-load data after connection test
-            setTimeout(() => {
-                console.log('Auto-loading data after page load...');
-                loadData();
-            }, 2000);
-        });
-
-        // View Apps Script logs
-        function viewLogs() {
-            console.log('=== VIEWING LOGS ===');
-            showMessage('Getting logs information...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response && response.success) {
-                        let message = `📋 Apps Script Logs Information:\n\n`;
-                        message += `${response.instructions}\n\n`;
-                        message += `🔍 Recent tests to check:\n`;
-                        message += `1. testSpreadsheetAccess() - Should show 6 rows\n`;
-                        message += `2. getProductionData() - Should show detailed row processing\n`;
-                        message += `3. Check for ERROR messages in logs\n\n`;
-                        message += `📊 Expected in logs:\n`;
-                        message += `- "Total rows including header: 6"\n`;
-                        message += `- "Data rows (excluding header): 5"\n`;
-                        message += `- "FINAL RESULT: Returning 5 data rows"`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('❌ Failed to get logs info: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('Error getting logs: ' + error.message, 'error');
-                })
-                .getRecentLogs();
-        }
-
-        // Test spreadsheet access (detailed debugging)
-        function testSpreadsheetAccess() {
-            console.log('=== TESTING SPREADSHEET ACCESS ===');
-            showMessage('Testing spreadsheet access...', 'info');
-            
-            const timeoutId = setTimeout(() => {
-                showMessage('❌ Spreadsheet access timeout!', 'error');
-            }, 15000);
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    clearTimeout(timeoutId);
-                    console.log('=== SPREADSHEET ACCESS RESULT ===');
-                    console.log('Response:', response);
-                    
-                    if (response && response.success) {
-                        let message = `✅ Spreadsheet access successful!\n`;
-                        message += `📊 Spreadsheet: ${response.spreadsheetName}\n`;
-                        message += `🔗 URL: ${response.spreadsheetUrl}\n`;
-                        message += `📋 Sheet: ${response.sheetName}\n`;
-                        message += `📏 Size: ${response.totalRows} rows × ${response.totalColumns} columns\n`;
-                        message += `📄 Has data: ${response.hasData ? 'Yes' : 'No'}\n`;
-                        message += `📑 Available sheets: ${response.availableSheets.map(s => `${s.name} (${s.rows} rows)`).join(', ')}\n`;
-                        message += `📝 Headers: ${response.headers ? response.headers.length + ' columns' : 'N/A'}`;
-                        
-                        if (response.headers) {
-                            message += `\n📋 First 5 headers: ${response.headers.slice(0, 5).join(', ')}...`;
-                        }
-                        
-                        showMessage(message, 'success');
-                        
-                        // Auto-load data after successful spreadsheet access
-                        if (response.hasData) {
-                            setTimeout(() => {
-                                console.log('Auto-loading data after successful spreadsheet access...');
-                                loadData();
-                            }, 1000);
-                        } else {
-                            showMessage('⚠️ Spreadsheet connected but no data found. Add some data to Dashboard FULFILMENT AQUATEAK 2026.', 'info');
-                        }
-                    } else {
-                        let message = `❌ Spreadsheet access failed!\n`;
-                        message += `🚫 Error: ${response ? response.message : 'Unknown error'}\n`;
-                        
-                        if (response && response.spreadsheetId) {
-                            message += `🆔 Spreadsheet ID: ${response.spreadsheetId}\n`;
-                        }
-                        
-                        if (response && response.availableSheets) {
-                            message += `📑 Available sheets: ${response.availableSheets.map(s => `${s.name} (${s.rows} rows)`).join(', ')}`;
-                        }
-                        
-                        if (response && response.error) {
-                            message += `🔍 Technical error: ${response.error}`;
-                        }
-                        
-                        showMessage(message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    clearTimeout(timeoutId);
-                    console.error('=== SPREADSHEET ACCESS ERROR ===');
-                    console.error('Error:', error);
-                    
-                    let message = `❌ Spreadsheet access error: ${error.message}\n`;
-                    message += `🔧 Most likely causes:\n`;
-                    message += `1. Spreadsheet not shared with Apps Script\n`;
-                    message += `2. Wrong SPREADSHEET_ID\n`;
-                    message += `3. Sheet name "${SHEET_NAME}" doesn't exist\n`;
-                    message += `4. No internet connection`;
-                    
-                    showMessage(message, 'error');
-                })
-                .testSpreadsheetAccess();
-        }
-
-        // Simple connection test (no spreadsheet access)
-        function testSimpleConnection() {
-            console.log('=== TESTING SIMPLE CONNECTION ===');
-            showMessage('Testing basic connection...', 'info');
-            
-            const timeoutId = setTimeout(() => {
-                showMessage('❌ Simple connection timeout! Web app may not be deployed correctly.', 'error');
-            }, 5000);
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    clearTimeout(timeoutId);
-                    console.log('=== SIMPLE CONNECTION RESULT ===');
-                    console.log('Response:', response);
-                    
-                    if (response && response.success) {
-                        let message = `✅ Basic connection successful!\n`;
-                        message += `🕐 Server time: ${response.serverTime}\n`;
-                        message += `📅 Timestamp: ${response.timestamp}\n`;
-                        message += `🔗 Web app is responding correctly`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage(`❌ Simple connection failed: ${response ? response.message : 'Unknown error'}`, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    clearTimeout(timeoutId);
-                    console.error('=== SIMPLE CONNECTION ERROR ===');
-                    console.error('Error:', error);
-                    
-                    let message = `❌ Web app connection error: ${error.message}\n`;
-                    message += `🔧 Solutions:\n`;
-                    message += `1. Redeploy web app\n`;
-                    message += `2. Check deployment URL\n`;
-                    message += `3. Verify "Execute as" and "Who has access" settings`;
-                    
-                    showMessage(message, 'error');
-                })
-                .testSimpleConnection();
-        }
-
-        // Test connection first before loading data
-        function testConnectionFirst() {
-            console.log('=== TESTING CONNECTION ===');
-            showMessage('Testing connection to spreadsheet...', 'info');
-            
-            // Add timeout
-            const timeoutId = setTimeout(() => {
-                showMessage('❌ Connection timeout! Check:\n1. Internet connection\n2. Web app deployment\n3. Spreadsheet permissions', 'error');
-                console.error('Connection test timeout after 10 seconds');
-            }, 10000);
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    clearTimeout(timeoutId);
-                    console.log('=== CONNECTION TEST RESULT ===');
-                    console.log('Response:', response);
-                    console.log('Response type:', typeof response);
-                    
-                    let parsedResponse = null;
-                    try {
-                        // Parse JSON string response from backend
-                        if (typeof response === 'string') {
-                            parsedResponse = JSON.parse(response);
-                            console.log('Response parsed from JSON string');
-                        } else if (typeof response === 'object' && response !== null) {
-                            parsedResponse = response;
-                            console.log('Response is already an object');
-                        } else {
-                            console.log('Invalid response type');
-                            parsedResponse = { success: false, message: 'Invalid response type' };
-                        }
-                    } catch (e) {
-                        console.error('Error parsing response:', e);
-                        parsedResponse = { success: false, message: 'Error parsing response: ' + e.message };
-                    }
-                    
-                    console.log('Parsed response:', parsedResponse);
-                    
-                    if (parsedResponse && parsedResponse.success) {
-                        let message = `✅ Connection successful!\n`;
-                        message += `📊 Sheet: ${parsedResponse.sheetExists ? 'Found' : 'Not found'}\n`;
-                        message += `📈 Total rows: ${parsedResponse.totalRows}\n`;
-                        message += `📋 Data rows: ${parsedResponse.rowCount}\n`;
-                        message += `📝 Headers: ${parsedResponse.headers ? parsedResponse.headers.length + ' columns' : 'N/A'}\n`;
-                        
-                        if (parsedResponse.availableSheets) {
-                            message += `📑 Available sheets: ${parsedResponse.availableSheets.map(s => s.name).join(', ')}\n`;
-                        }
-                        
-                        if (parsedResponse.sampleData) {
-                            message += `📄 Sample data: ${JSON.stringify(parsedResponse.sampleData).substring(0, 100)}...\n`;
-                        }
-                        
-                        showMessage(message, 'success');
-                        
-                        if (parsedResponse.rowCount > 0) {
-                            setTimeout(() => {
-                                console.log('Auto-loading data after successful connection...');
-                                loadData();
-                            }, 1000);
-                        } else {
-                            showMessage('⚠️ Sheet found but no data rows. Check if data exists below header row.', 'info');
-                        }
-                    } else {
-                        let message = `❌ Connection failed: ${parsedResponse ? parsedResponse.message : 'Unknown error'}\n`;
-                        if (parsedResponse && parsedResponse.availableSheets) {
-                            message += `📑 Available sheets: ${parsedResponse.availableSheets.map(s => `${s.name} (${s.rows} rows)`).join(', ')}`;
-                        }
-                        showMessage(message, 'error');
-                        console.error('Connection failed:', parsedResponse);
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    clearTimeout(timeoutId);
-                    console.error('=== CONNECTION TEST ERROR ===');
-                    console.error('Error:', error);
-                    console.error('Error message:', error.message);
-                    console.error('Error stack:', error.stack);
-                    
-                    let message = `❌ Connection error: ${error.message}\n`;
-                    message += `🔧 Possible solutions:\n`;
-                    message += `1. Redeploy web app\n`;
-                    message += `2. Check spreadsheet permissions\n`;
-                    message += `3. Verify SPREADSHEET_ID\n`;
-                    message += `4. Check browser console (F12) for details`;
-                    
-                    showMessage(message, 'error');
-                })
-                .testBackendConnection();
-        }
-
-        // ========================================
-        // DATA MANAGEMENT FUNCTIONS
-        // ========================================
-
-        function loadDashboardData() {
-            showMessage('Loading dashboard data...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        updateDashboard(response);
-                        updateProductionTable(response.productionData);
-                        showMessage('Dashboard loaded successfully', 'success');
-                    } else {
-                        showMessage('Failed to load dashboard: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('Error loading dashboard: ' + error.message, 'error');
-                })
-                .loadDashboardData();
-        }
-
-        function updateDashboard(response) {
-            updateDashboardStats(response);
-        }
-
-        function updateDashboardStats(data) {
-            // Update statistics cards
-            const statsGrid = document.getElementById('statsGrid');
-            statsGrid.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-number">${data.totalOrders || 0}</div>
-                    <div class="stat-label">Total Orders</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.totalQuantity || 0}</div>
-                    <div class="stat-label">Total Quantity</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.inProduction || 0}</div>
-                    <div class="stat-label">In Production</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.completed || 0}</div>
-                    <div class="stat-label">Completed</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${data.efficiency || '0%'}</div>
-                    <div class="stat-label">Efficiency</div>
-                </div>
-            `;
-            
-            // Update last refresh time
-            const now = new Date();
-            const lastUpdated = document.getElementById('lastUpdated');
-            if (lastUpdated) {
-                lastUpdated.textContent = 'Terakhir diperbarui: ' + now.toLocaleString('id-ID');
-            }
-        }
-
-        function updateProductionTable(data) {
-            displayData(data);
-        }
-
-        function loadData() {
-            console.log('=== LOAD DATA CALLED ===');
-            showMessage('Memuat data...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('=== RAW RESPONSE RECEIVED IN FRONTEND ===');
-                    console.log('Raw response type:', typeof response);
-                    console.log('Raw response:', response);
-                    console.log('Raw response length:', response ? response.length : 0);
-
-                    let data = null;
-                    try {
-                        // Check if response is already an object/array (not a string)
-                        if (typeof response === 'object' && response !== null) {
-                            console.log('Response is already an object, using directly');
-                            data = response;
-                        } else if (typeof response === 'string') {
-                            console.log('Response is a string, parsing JSON');
-                            data = JSON.parse(response);
-                        } else {
-                            console.log('Response is neither object nor string, treating as empty');
-                            data = [];
-                        }
-                        
-                        console.log('=== PARSED DATA ===');
-                        console.log('Parsed data type:', typeof data);
-                        console.log('Parsed data length:', data ? data.length : 0);
-                        console.log('Is data null?', data === null);
-                        console.log('Is data undefined?', data === undefined);
-                        console.log('Parsed data:', data);
-                    } catch (e) {
-                        console.error('=== JSON PARSE ERROR ===');
-                        console.error('Error parsing JSON response:', e);
-                        console.error('Response that failed to parse:', response);
-                        showMessage('❌ Error parsing data from server: ' + e.message, 'error');
-                        return;
-                    }
-                    
-                    if (data && data.length > 0) {
-                        console.log('=== DATA PROCESSING SUCCESS ===');
-                        console.log('First row sample:', data[0]);
-                        console.log('First row length:', data[0].length);
-                        
-                        currentData = data;
-                        displayData(data);
-                        updateStats(data);
-                        showMessage('✅ Data berhasil dimuat (' + data.length + ' rows)', 'success');
-                    } else if (data && data.error) {
-                        console.log('=== SERVER ERROR ===');
-                        console.log('Server error:', data.error);
-                        showMessage('❌ Server error: ' + data.error, 'error');
-                    } else {
-                        console.log('=== NO DATA AFTER PARSING ===');
-                        console.log('Data after parsing:', data);
-                        showMessage('❌ Tidak ada data yang diterima setelah parsing. Data: ' + JSON.stringify(data), 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('=== LOAD DATA ERROR ===');
-                    console.error('Error:', error);
-                    console.error('Error message:', error.message);
-                    console.error('Error stack:', error.stack);
-                    showMessage('❌ Error loading data: ' + error.message, 'error');
-                })
-                .getProductionData();
-        }
-
-        function debugProductionData() {
-            console.log('=== DEBUG PRODUCTION DATA ===');
-            showMessage('Debugging production data...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('=== DEBUG RAW RESPONSE ===');
-                    console.log('Raw response type:', typeof response);
-                    console.log('Raw response:', response);
-                    
-                    let data = null;
-                    try {
-                        // Check if response is already an object/array (not a string)
-                        if (typeof response === 'object' && response !== null) {
-                            console.log('Response is already an object, using directly');
-                            data = response;
-                        } else if (typeof response === 'string') {
-                            console.log('Response is a string, parsing JSON');
-                            data = JSON.parse(response);
-                        } else {
-                            console.log('Response is neither object nor string, treating as empty');
-                            data = [];
-                        }
-                        
-                        console.log('=== DEBUG PARSED DATA ===');
-                        console.log('Data type:', typeof data);
-                        console.log('Data length:', data ? data.length : 0);
-                        console.log('Raw data:', data);
-                        
-                        if (data && data.length > 0) {
-                            console.log('First row sample:', data[0]);
-                            console.log('First row length:', data[0].length);
-                            
-                            let message = `🔍 DEBUG PRODUCTION DATA:\n`;
-                            message += `✅ Data found: ${data.length} rows\n`;
-                            message += `📏 First row length: ${data[0].length} columns\n`;
-                            message += `📋 Sample first row: ${JSON.stringify(data[0])}\n`;
-                            message += `🔢 Transaction ID: ${data[0][0]}\n`;
-                            message += `📅 Input Time: ${data[0][1]}\n`;
-                            message += `🏭 Product Name: ${data[0][4]}\n`;
-                            message += `📊 Total QTY: ${data[0][5]}\n`;
-                            message += `🔖 Serial Number: ${data[0][6]}\n`;
-                            message += `🔧 Check console for full details`;
-                            
-                            showMessage(message, 'success');
-                            
-                            // Try to display this data
-                            currentData = data;
-                            displayData(data);
-                            updateStats(data);
-                        } else if (data && data.error) {
-                            showMessage('❌ Server error: ' + data.error, 'error');
-                        } else {
-                            showMessage('🔍 No production data found in spreadsheet', 'error');
-                        }
-                    } catch (e) {
-                        console.error('Debug JSON parse error:', e);
-                        console.error('Response that failed to parse:', response);
-                        showMessage('❌ Debug error parsing response: ' + e.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('=== PRODUCTION DATA DEBUG ERROR ===');
-                    console.error('Error:', error);
-                    showMessage('❌ Debug error: ' + error.message, 'error');
-                })
-                .getProductionData();
-        }
-
-        function updateStats(data) {
-            console.log('=== UPDATE STATS CALLED ===');
-            console.log('Data for stats:', data ? data.length : 0, 'rows');
-            
-            const statsGrid = document.getElementById('statsGrid');
-            if (!statsGrid) {
-                console.log('Stats grid not found');
-                return;
-            }
-            
-            if (!data || data.length === 0) {
-                statsGrid.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Total Orders</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Total Quantity</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">In Production</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Completed</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            let totalOrders = data.length;
-            let totalQuantity = 0;
-            let inProduction = 0;
-            let completed = 0;
-            
-            data.forEach((row, index) => {
-                const qty = parseInt(row[5]) || 0; // Total QTY is at index 5
-                const milling1Qty = parseInt(row[7]) || 0; // MILLING 1 is at index 7
-                const whPackedQty = parseInt(row[29]) || 0; // WH PACKED is at index 29
-                
-                // DEBUG: Log each row's Total QTY
-                console.log(`Row ${index}: Total QTY=${qty}, Raw row[5]=${row[5]}, JO Number=${row[2]}`);
-                
-                totalQuantity += qty;
-                
-                if (milling1Qty > 0) {
-                    inProduction++;
-                }
-                
-                if (whPackedQty > 0) {
-                    completed++;
-                }
-            });
-            
-            statsGrid.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-number">${totalOrders}</div>
-                    <div class="stat-label">Total Orders</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${totalQuantity}</div>
-                    <div class="stat-label">Total Quantity</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${inProduction}</div>
-                    <div class="stat-label">In Production</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${completed}</div>
-                    <div class="stat-label">Completed</div>
-                </div>
-            `;
-            
-            console.log('Stats updated - Orders:', totalOrders, 'Qty:', totalQuantity, 'In Prod:', inProduction, 'Completed:', completed);
-        }
-
-        let isRefreshing = false; // Prevent multiple simultaneous refreshes
-        
-        function refreshData() {
-            // Prevent multiple simultaneous refreshes
-            if (isRefreshing) {
-                console.log('Already refreshing, ignoring duplicate request');
-                return;
-            }
-            
-            isRefreshing = true;
-            console.log('=== REFRESHING DASHBOARD DATA ===');
-            console.log('Time:', new Date().toLocaleTimeString());
-            showMessage('Memuat data...', 'info');
-            
-            // Add timeout to prevent infinite loading
-            const timeoutId = setTimeout(() => {
-                console.error('Dashboard refresh timeout after 10 seconds');
-                showMessage('❌ Timeout - Gagal memuat data dalam 10 detik. Coba refresh manual.', 'error');
-                isRefreshing = false; // Reset flag on timeout
-            }, 10000);
-            
-            google.script.run
-                .withSuccessHandler(function(data) {
-                    clearTimeout(timeoutId); // Clear timeout on success
-                    isRefreshing = false; // Reset flag on success
-                    
-                    console.log('=== DASHBOARD DATA RECEIVED ===');
-                    console.log('Time:', new Date().toLocaleTimeString());
-                    console.log('Data type:', typeof data);
-                    console.log('Data received:', data);
-                    console.log('Number of rows:', data ? data.length : 0);
-                    
-                    if (data && data.length > 0) {
-                        console.log('Calling displayData with data...');
-                        displayData(data);
-                        showMessage('✅ Data berhasil dimuat (' + data.length + ' rows)', 'success');
-                        console.log('Dashboard updated successfully');
-                    } else {
-                        console.log('No data found, displaying empty table');
-                        displayData([]);
-                        showMessage('📊 Tidak ada data', 'info');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    clearTimeout(timeoutId); // Clear timeout on error
-                    isRefreshing = false; // Reset flag on error
-                    
-                    console.error('=== DASHBOARD LOAD ERROR ===');
-                    console.error('Time:', new Date().toLocaleTimeString());
-                    console.error('Error:', error);
-                    console.error('Error message:', error.message);
-                    console.error('Error stack:', error.stack);
-                    showMessage('❌ Gagal memuat data: ' + error.message + '. Coba refresh manual.', 'error');
-                })
-                .getProductionData();
-        }
-
-        function displayData(data) {
-            console.log('=== DISPLAY DATA CALLED ===');
-            console.log('Time:', new Date().toLocaleTimeString());
-            console.log('Data length:', data ? data.length : 0);
-            console.log('Raw backend data array:', data);
-            
-            // Check if table elements exist
-            const table = document.getElementById('productionTable');
-            const tbody = document.getElementById('tableBody');
-            
-            console.log('Table element found:', !!table);
-            console.log('Tbody element found:', !!tbody);
-            console.log('Table visible:', table ? window.getComputedStyle(table).display !== 'none' : 'N/A');
-            console.log('Tbody visible:', tbody ? window.getComputedStyle(tbody).display !== 'none' : 'N/A');
-            
-            if (!tbody) {
-                console.error('Tbody element not found!');
-                showMessage('❌ Table body element not found', 'error');
-                return;
-            }
-            
-            tbody.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                console.log('No data to display, showing empty message');
-                tbody.innerHTML = '<tr><td colspan="32" class="loading">Tidak ada data</td></tr>';
-                return;
-            }
-
-            console.log('Processing ' + data.length + ' rows for display');
-
-            data.forEach((row, index) => {
-                console.log('=== PROCESSING ROW ' + index + ' ===');
-                console.log('Raw row array:', row);
-                console.log('Row length:', row.length);
-
-                try {
-                    const tr = document.createElement('tr');
-                    console.log('Created TR element:', !!tr);
-
-                    // Map array data to proper structure using bracket notation
-                    const order = {};
-                    order['Transaction ID'] = row[0];
-                    order['Input Time'] = row[1];
-                    order['JO Number'] = row[2];
-                    order['Product Code'] = row[3];
-                    order['Product Name'] = row[4];
-                    order['Total QTY'] = row[5];
-                    order['Serial Number'] = row[6];
-                    
-                    // DEBUG: Log Total QTY mapping
-                    console.log(`DEBUG MAPPING - Row ${index}:`);
-                    console.log(`  Raw row[5] (Total QTY): ${row[5]}`);
-                    console.log(`  Mapped order['Total QTY']: ${order['Total QTY']}`);
-                    console.log(`  Parsed Total QTY: ${parseInt(order['Total QTY']) || 0}`);
-                    console.log(`  JO Number: ${order['JO Number']}`);
-                    order['MILLING 1'] = row[7];
-                    order['QC_MILLING 1'] = row[8];
-                    order['MILLING 2'] = row[9];
-                    order['QC_MILLING 2'] = row[10];
-                    order['ASSEMBLY'] = row[11];
-                    order['QC_ASSEMBLY'] = row[12];
-                    order['WAREHOUSE'] = row[13];
-                    order['QC_WAREHOUSE'] = row[14];
-                    order['SEMI FINISH'] = row[15];
-                    order['QC_SEMI FINISH'] = row[16];
-                    order['INDOSPACE'] = row[17];
-                    order['QC_INDOSPACE'] = row[18];
-                    order['SANDING'] = row[19];
-                    order['QC_SANDING'] = row[20];
-                    order['FINISHING'] = row[21];
-                    order['QC_FINISHING'] = row[22];
-                    order['WEAVING'] = row[23];
-                    order['QC_WEAVING'] = row[24];
-                    order['CUSHION'] = row[25];
-                    order['QC_CUSHION'] = row[26];
-                    order['PACKING'] = row[27];
-                    order['QC_PACKING'] = row[28];
-                    order['WH PACKED'] = row[29];
-                    order['QC_WH PACKED'] = row[30];
-                    
-                    console.log('Mapped order object:', order);
-
-                    // Basic info columns
-                    tr.innerHTML = `
-                        <td>${order['Transaction ID'] || '--'}</td>
-                        <td>${order['Input Time'] || '--'}</td>
-                        <td>${order['JO Number'] || '--'}</td>
-                        <td>${order['Product Code'] || '--'}</td>
-                        <td><strong>${order['Product Name'] || '--'}</strong></td>
-                        <td class="process-cell">${order['Total QTY'] || 0}</td>
-                        <td class="serial-number">${order['Serial Number'] || '--'}</td>
-                    `;
-                    
-                    console.log('Basic info HTML set. TR innerHTML length:', tr.innerHTML.length);
-
-                    // Process and QC columns
-                    PRODUCTION_PROCESSES.forEach(process => {
-                        const qty = parseInt(order[process]) || 0;
-                        const qcKey = 'QC_' + process.replace(/\s+/g, '_');
-                        const qcPropertyKey = 'QC_' + process.replace(/\s+/g, ' '); // Fix: use space, not underscore
-                        const qcName = order[qcPropertyKey] || 'None';
-                        
-                        console.log('DEBUG - Process:', process);
-                        console.log('DEBUG - QC Key (underscore):', qcKey);
-                        console.log('DEBUG - QC Property Key (space):', qcPropertyKey);
-                        console.log('DEBUG - Raw QC Value:', order[qcPropertyKey]);
-                        console.log('DEBUG - Final QC Name:', qcName);
-
-                        tr.innerHTML += `
-                            <td class="process-cell ${qty > 0 ? 'active' : 'inactive'}">${qty}</td>
-                            <td class="qc-cell">${createQCSelect(order['Transaction ID'], process, qcName)}</td>
-                        `;
-                    });
-
-                    // Actions column
-                    tr.innerHTML += `
-                        <td>
-                            <button class="btn btn-danger" onclick="deleteOrder('${order['Transaction ID']}')" style="padding: 5px 10px; font-size: 10px;">
-                                🗑️ Delete
-                            </button>
-                        </td>
-                    `;
-
-                    console.log('Final TR innerHTML length:', tr.innerHTML.length);
-                    console.log('Appending TR to tbody...');
-                    
-                    tbody.appendChild(tr);
-                    console.log('Row appended to tbody. Total rows now:', tbody.children.length);
-                    console.log('Row HTML preview:', tr.innerHTML.substring(0, 100) + '...');
-                    
-                } catch (error) {
-                    console.error('Error processing row ' + index + ':', error);
-                    console.error('Error stack:', error.stack);
-                }
-            });
-
-            console.log('Table display completed');
-            console.log('Final tbody children count:', tbody.children.length);
-            console.log('Tbody innerHTML length:', tbody.innerHTML.length);
-            console.log('Tbody innerHTML preview:', tbody.innerHTML.substring(0, 200) + '...');
-            
-            // Final verification
-            setTimeout(() => {
-                console.log('=== FINAL VERIFICATION ===');
-                console.log('Tbody children count after delay:', tbody.children.length);
-                if (tbody.children[0]) {
-                    console.log('First row display style:', window.getComputedStyle(tbody.children[0]).display);
-                    console.log('First row visibility:', window.getComputedStyle(tbody.children[0]).visibility);
-                }
-            }, 100);
-        }
-
-        function createQCSelect(transactionId, process, selectedName) {
-            console.log('CREATE QC SELECT - Transaction ID:', transactionId);
-            console.log('CREATE QC SELECT - Process:', process);
-            console.log('CREATE QC SELECT - Selected Name:', selectedName);
-            
-            // Get QC personnel for this specific process
-            const qcPersonnel = qcPersonnelByProcess[process] || ['None'];
-            console.log('CREATE QC SELECT - QC Personnel for', process, ':', qcPersonnel);
-            
-            let options = '';
-            qcPersonnel.forEach(person => {
-                const selected = person === selectedName ? 'selected' : '';
-                console.log('CREATE QC SELECT - Person:', person, 'Selected:', selectedName, 'Is Selected:', selected);
-                options += `<option value="${person}" ${selected}>${person}</option>`;
-            });
-            
-            const selectHtml = `<select class="qc-select" onchange="updateQCName('${transactionId}', '${process}', this.value)">${options}</select>`;
-            console.log('CREATE QC SELECT - HTML:', selectHtml);
-            
-            return selectHtml;
-        }
-
-        // ========================================
-        // QR SCANNER FUNCTIONS
-        // ========================================
-
         let html5QrCode = null;
-        let currentCameraId = null;
+        let lastScanResult = null;
         let cameras = [];
-        let isProcessingQR = false; // Prevent multiple simultaneous scans
-        let flashlightState = false; // Track flashlight state
+        let currentCameraId = null;
 
-        // Simple Flashlight Control
-        function toggleFlashlight() {
-            try {
-                // Get the video element from the QR scanner
-                const videoElement = document.querySelector('#qr-reader video');
-                if (!videoElement || !videoElement.srcObject) {
-                    updateScannerStatus('❌ Flashlight tidak tersedia', 'error');
-                    return;
-                }
-                
-                const videoTrack = videoElement.srcObject.getVideoTracks()[0];
-                if (!videoTrack) {
-                    updateScannerStatus('❌ Flashlight tidak tersedia', 'error');
-                    return;
-                }
-                
-                const capabilities = videoTrack.getCapabilities();
-                if (!capabilities || !capabilities.torch) {
-                    updateScannerStatus('❌ Flashlight tidak didukung di device ini', 'error');
-                    return;
-                }
-                
-                flashlightState = !flashlightState;
-                videoTrack.applyConstraints({
-                    advanced: [{ torch: flashlightState }]
-                }).then(() => {
-                    updateScannerStatus(flashlightState ? '🔦 Flashlight ON' : '🔦 Flashlight OFF', 'info');
-                }).catch((error) => {
-                    console.error('Flashlight error:', error);
-                    updateScannerStatus('❌ Flashlight gagal: ' + error.message, 'error');
-                    flashlightState = !flashlightState; // Reset state
-                });
-                
-            } catch (error) {
-                console.error('Flashlight error:', error);
-                updateScannerStatus('❌ Flashlight error: ' + error.message, 'error');
-            }
+        // Get URL parameters
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
         }
 
-        // Start Camera QR Scanner
-        function startCameraScan() {
-            document.getElementById('qrScannerModal').style.display = 'block';
-            updateScannerStatus('Meminta izin kamera...', 'info');
-            
-            // Check if camera is supported
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                updateScannerStatus('❌ Browser tidak mendukung kamera. Gunakan Manual QR Input.', 'error');
-                setTimeout(() => {
-                    closeQRScanner();
-                    document.getElementById('manualQRInput').focus();
-                }, 2000);
-                return;
-            }
-            
-            // Initialize HTML5 QR Code
-            try {
-                html5QrCode = new Html5Qrcode("qr-reader");
-                console.log('HTML5 QR Code initialized');
-            } catch (error) {
-                console.error('HTML5 QR Code initialization error:', error);
-                updateScannerStatus('❌ Library scanner error. Gunakan input manual.', 'error');
-                setTimeout(() => {
-                    closeQRScanner();
-                    document.getElementById('manualQRInput').focus();
-                }, 2000);
-                return;
-            }
-            
-            // Get cameras
-            Html5Qrcode.getCameras().then(devices => {
-                console.log('Cameras found:', devices.length);
-                
-                if (devices && devices.length > 0) {
-                    cameras = devices;
-                    
-                    // Simple camera selection - use first available camera
-                    let selectedCamera = devices[0];
-                    
-                    // Try to find back camera on mobile
-                    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    if (isMobile) {
-                        selectedCamera = devices.find(device => 
-                            device.label.toLowerCase().includes('back') || 
-                            device.label.toLowerCase().includes('environment') ||
-                            device.label.toLowerCase().includes('rear')
-                        ) || devices[0];
-                    }
-                    
-                    currentCameraId = selectedCamera.id;
-                    console.log('Selected camera:', selectedCamera.label || 'Camera ' + (devices.indexOf(selectedCamera) + 1));
-                    
-                    // Simple and reliable configuration
-                    const config = {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0,
-                        supportedScanTypes: [0, 1] // QR Code + Barcode
-                    };
-                    
-                    console.log('Starting scanner with config:', config);
-                    console.log('Camera ID:', currentCameraId);
-                    
-                    // Start scanning with simple error handling
-                    html5QrCode.start(
-                        currentCameraId,
-                        config,
-                        (decodedText, decodedResult) => {
-                            console.log('Scan successful:', decodedText);
-                            onQRCodeSuccess(decodedText);
-                        },
-                        (errorMessage) => {
-                            // Handle scan error silently
-                            console.log('Scan error (normal):', errorMessage);
-                        }
-                    ).then(() => {
-                        console.log('Scanner started successfully');
-                        updateScannerStatus('✅ Scanner aktif. Arahkan ke QR Code atau Barcode.', 'success');
-                    }).catch((error) => {
-                        console.error('Scanner start error:', error);
-                        let errorMsg = '❌ Gagal memulai scanner';
-                        
-                        // Simple error detection
-                        if (error.message.includes('Permission') || error.message.includes('NotAllowed')) {
-                            errorMsg = '❌ Izin kamera ditolak. Mohon izinkan akses kamera dan refresh halaman.';
-                        } else if (error.message.includes('Camera') || error.message.includes('NotFound')) {
-                            errorMsg = '❌ Tidak ada kamera ditemukan. Gunakan input manual.';
-                        } else if (error.message.includes('NotSupported')) {
-                            errorMsg = '❌ Browser tidak mendukung kamera. Gunakan input manual.';
-                        } else {
-                            errorMsg = '❌ Error scanner: ' + error.message;
-                        }
-                        
-                        updateScannerStatus(errorMsg, 'error');
-                        
-                        // Show manual input option
-                        setTimeout(() => {
-                            closeQRScanner();
-                            document.getElementById('manualQRInput').focus();
-                            showMessage('📝 Gunakan Manual QR Input sebagai alternatif', 'info');
-                        }, 2000);
-                    });
-                } else {
-                    updateScannerStatus('❌ Tidak ada kamera ditemukan. Gunakan Manual QR Input.', 'error');
-                    setTimeout(() => {
-                        closeQRScanner();
-                        document.getElementById('manualQRInput').focus();
-                    }, 2000);
-                }
-            }).catch((error) => {
-                console.error('Camera enumeration error:', error);
-                updateScannerStatus('❌ Error mengakses kamera: ' + error.message, 'error');
-                setTimeout(() => {
-                    closeQRScanner();
-                    document.getElementById('manualQRInput').focus();
-                }, 2000);
-            });
-        }
-
-        // Stop Camera Scanner
-        function stopCameraScan() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => {
-                    updateScannerStatus('🛑 Scanner dihentikan', 'info');
-                    // Clear the object to release camera
-                    html5QrCode = null;
-                }).catch((err) => {
-                    console.log('Failed to stop scanning: ' + err);
-                    // Still clear the object even if stop failed
-                    html5QrCode = null;
-                });
-            } else if (html5QrCode) {
-                // Clear object if not scanning
-                html5QrCode = null;
-            }
-        }
-
-        // Close QR Scanner Modal
-        function closeQRScanner() {
-            stopCameraScan();
-            document.getElementById('qrScannerModal').style.display = 'none';
-        }
-
-        // Switch Camera
-        function switchCamera() {
-            if (cameras.length <= 1) {
-                updateScannerStatus('❌ Hanya ada satu kamera tersedia', 'error');
-                return;
-            }
-            
-            // Find current camera index
-            const currentIndex = cameras.findIndex(cam => cam.id === currentCameraId);
-            
-            // Try to find opposite camera type
-            let nextCamera;
-            const isBackCamera = cameras[currentIndex].label.toLowerCase().includes('back') || 
-                                cameras[currentIndex].label.toLowerCase().includes('environment') ||
-                                cameras[currentIndex].label.toLowerCase().includes('rear');
-            
-            if (isBackCamera) {
-                // Switch to front camera
-                nextCamera = cameras.find(device => 
-                    device.label.toLowerCase().includes('front') || 
-                    device.label.toLowerCase().includes('user')
-                ) || cameras[0];
-            } else {
-                // Switch to back camera
-                nextCamera = cameras.find(device => 
-                    device.label.toLowerCase().includes('back') || 
-                    device.label.toLowerCase().includes('environment') ||
-                    device.label.toLowerCase().includes('rear')
-                ) || cameras[1];
-            }
-            
-            currentCameraId = nextCamera.id;
-            
-            stopCameraScan();
-            
-            setTimeout(() => {
-                startCameraScan();
-                updateScannerStatus('🔄 Beralih ke kamera: ' + nextCamera.label || 'Kamera ' + (cameras.indexOf(nextCamera) + 1), 'info');
-            }, 1000); // Increased from 500ms to 1000ms
-        }
-
-        // Handle QR Code Success
-        function onQRCodeSuccess(decodedText) {
-            // Prevent multiple simultaneous processing
-            if (isProcessingQR) {
-                console.log('Scan already processing, ignoring duplicate scan');
-                return;
-            }
-            
-            isProcessingQR = true;
-            updateScannerStatus('🔄 Memproses Scan...', 'info');
-            
-            console.log('=== CODE SCANNED ===');
-            console.log('Scan Data:', decodedText);
-            
-            // Add a small delay to prevent duplicate processing
-            setTimeout(() => {
-                google.script.run
-                    .withSuccessHandler(function(response) {
-                        console.log('=== SCAN PROCESSING RESPONSE ===');
-                        console.log('Response:', response);
-                        
-                        if (response && response.success) {
-                            const scanType = response.scanType || 'Unknown';
-                            updateScannerStatus('✅ ' + scanType + ' berhasil diproses!', 'success');
-                            
-                            // Show success message with details
-                            let message = `✅ ${scanType} berhasil diproses!\n`;
-                            message += `🆔 JO Number: ${response.joNumber || 'Unknown'}\n`;
-                            message += `📦 Product: ${response.productName || 'Unknown'}\n`;
-                            message += `🔧 Process: ${response.processName || 'Unknown'}\n`;
-                            message += `📊 Scan Count: ${response.scanCount || '1'}\n`;
-                            message += `🏷️ Type: ${scanType}`;
-                            
-                            showMessage(message, 'success');
-                            
-                            // AUTO-REFRESH DATA after successful scan processing
-                            setTimeout(() => {
-                                console.log('Auto-refreshing data after scan...');
-                                loadData();
-                            }, 1000);
-                            
-                            // Stop scanner temporarily and restart for next scan
-                            setTimeout(() => {
-                                console.log('Restarting scanner for next scan...');
-                                stopCameraScan();
-                                
-                                // Restart scanner after 1 second
-                                setTimeout(() => {
-                                    startCameraScan();
-                                    updateScannerStatus('🔄 Scanner siap untuk scan berikutnya', 'info');
-                                }, 1000);
-                            }, 2000);
-                        } else {
-                            updateScannerStatus('❌ Scan gagal diproses', 'error');
-                            showMessage('❌ Scan gagal diproses: ' + (response ? response.message : 'Unknown error'), 'error');
-                            
-                            // Keep scanner running for retry
-                            setTimeout(() => {
-                                isProcessingQR = false;
-                                updateScannerStatus('🔄 Scanner siap, coba lagi', 'info');
-                            }, 2000);
-                        }
-                        
-                        // Reset processing flag after complete cycle
-                        setTimeout(() => {
-                            isProcessingQR = false;
-                            console.log('Processing flag reset - ready for next scan');
-                        }, 4000); // Increased to cover restart cycle
-                    })
-                    .withFailureHandler(function(error) {
-                        console.error('=== SCAN PROCESSING ERROR ===');
-                        console.error('Error:', error);
-                        updateScannerStatus('❌ Error memproses Scan', 'error');
-                        showMessage('❌ Error memproses Scan: ' + error.message, 'error');
-                        
-                        // Reset processing flag and keep scanner running
-                        setTimeout(() => {
-                            isProcessingQR = false;
-                            updateScannerStatus('🔄 Scanner siap, coba lagi', 'info');
-                        }, 2000);
-                    })
-                    .processQRWithPureCounter(decodedText);
-            }, 1500);
-        }
-
-        // Update Scanner Status
-        function updateScannerStatus(message, type) {
+        // Update scanner status
+        function updateScannerStatus(message, type = 'info') {
             const statusDiv = document.getElementById('scannerStatus');
             statusDiv.textContent = message;
             statusDiv.className = 'scanner-status ' + type;
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('qrScannerModal');
-            if (event.target === modal) {
-                closeQRScanner();
-            }
-        }
-
-        function processManualQR() {
-            // Prevent multiple simultaneous processing
-            if (isProcessingQR) {
-                console.log('QR already processing, ignoring duplicate request');
+        // Start camera scanner
+        function startCameraScan() {
+            console.log('=== STARTING CAMERA SCANNER ===');
+            updateScannerStatus('📸 Memulai scanner kamera...', 'info');
+            
+            // Check if camera is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateScannerStatus('❌ Browser tidak mendukung kamera. Gunakan Manual Input.', 'error');
                 return;
             }
-            
-            const qrInput = document.getElementById('manualQRInput').value.trim();
-            
-            if (!qrInput) {
-                showMessage('Silakan masukkan QR Code data', 'error');
-                return;
-            }
-            
-            // Show process selection modal instead of direct processing
-            currentQRData = qrInput;
-            showProcessSelection(qrInput);
-        }
 
-        function clearManualQR() {
-            document.getElementById('manualQRInput').value = '';
-        }
-        
-        // Show process selection modal
-        function showProcessSelection(qrData) {
-            const modal = document.getElementById('processSelectionModal');
-            const qrInfoContent = document.getElementById('qrInfoContent');
-            const processGrid = document.getElementById('processGrid');
-            const statusDiv = document.getElementById('processSelectionStatus');
-            
-            // Parse QR data to show info
-            const qrParts = qrData.split('|');
-            let qrInfo = '';
-            
-            if (qrParts.length >= 5) {
-                qrInfo = `
-                    <div class="qr-info-item">
-                        <span class="qr-info-label">JO Number:</span>
-                        <span class="qr-info-value">${qrParts[0]}</span>
-                    </div>
-                    <div class="qr-info-item">
-                        <span class="qr-info-label">Product Code:</span>
-                        <span class="qr-info-value">${qrParts[1]}</span>
-                    </div>
-                    <div class="qr-info-item">
-                        <span class="qr-info-label">Product Name:</span>
-                        <span class="qr-info-value">${qrParts[2]}</span>
-                    </div>
-                    <div class="qr-info-item">
-                        <span class="qr-info-label">Total QTY:</span>
-                        <span class="qr-info-value">${qrParts[3]}</span>
-                    </div>
-                    <div class="qr-info-item">
-                        <span class="qr-info-label">Serial Number:</span>
-                        <span class="qr-info-value">${qrParts[4]}</span>
-                    </div>
-                `;
-            } else {
-                qrInfo = `
-                    <div class="qr-info-item">
-                        <span class="qr-info-label">QR Data:</span>
-                        <span class="qr-info-value">${qrData}</span>
-                    </div>
-                `;
-            }
-            
-            qrInfoContent.innerHTML = qrInfo;
-            
-            // Generate process options
-            let processOptions = '';
-            PRODUCTION_PROCESSES.forEach(process => {
-                processOptions += `
-                    <div class="process-option" onclick="selectProcess('${process}')" data-process="${process}">
-                        <div class="process-name">${process}</div>
-                        <div class="process-description">Click to select</div>
-                    </div>
-                `;
-            });
-            
-            processGrid.innerHTML = processOptions;
-            statusDiv.textContent = 'Pilih proses tujuan:';
-            
-            // Show modal
-            modal.style.display = 'block';
-            
-            // Reset selection
-            selectedProcess = null;
-            document.getElementById('confirmBtn').disabled = true;
-        }
+            // Initialize HTML5 QR Code
+            try {
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                    console.log('HTML5 QR Code initialized');
+                }
 
-        // Select process
-        function selectProcess(process) {
-            // Remove previous selection
-            document.querySelectorAll('.process-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Add selection to clicked option
-            const selectedOption = document.querySelector(`[data-process="${process}"]`);
-            if (selectedOption) {
-                selectedOption.classList.add('selected');
-                selectedProcess = process;
-                document.getElementById('confirmBtn').disabled = false;
-                document.getElementById('processSelectionStatus').textContent = `✅ Proses dipilih: ${process}`;
-            }
-        }
+                // Get available cameras
+                Html5Qrcode.getCameras().then(devices => {
+                    cameras = devices;
+                    console.log('Available cameras:', devices);
 
-        // Confirm process selection
-        function confirmProcessSelection() {
-            console.log('=== CONFIRM PROCESS SELECTION ===');
-            console.log('Selected Process:', selectedProcess);
-            console.log('Current QR Data:', currentQRData);
-            console.log('typeof selectedProcess:', typeof selectedProcess);
-            console.log('typeof currentQRData:', typeof currentQRData);
-            
-            if (!selectedProcess || !currentQRData) {
-                showMessage('Silakan pilih proses terlebih dahulu', 'error');
-                return;
-            }
-            
-            // Save values before closing modal
-            const qrData = currentQRData;
-            const process = selectedProcess;
-            
-            showMessage('🔄 Memproses QR...', 'info');
-            closeProcessSelection();
-            
-            console.log('CALLING processQRWithProcessSelection...');
-            console.log('PARAMETERS TO SEND:');
-            console.log('  qrCodeData:', qrData);
-            console.log('  selectedProcess:', process);
-            console.log('  operator: Dashboard User');
-            
-            // Call backend with process selection
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('SUCCESS RESPONSE:', response);
-                    if (response && response.success) {
-                        showMessage('SUCCESS: ' + response.message, 'success');
-                        document.getElementById('manualQRInput').value = '';
-                        console.log('=== TRIGGERING AUTO REFRESH ===');
-                        console.log('Calling loadData() in 1 second...');
-                        setTimeout(() => {
-                            console.log('=== AUTO REFRESH STARTED ===');
-                            loadData();
-                        }, 1000);
+                    if (devices && devices.length > 0) {
+                        // Use first camera or back camera if available
+                        const backCamera = devices.find(device => 
+                            device.label.toLowerCase().includes('back') || 
+                            device.label.toLowerCase().includes('environment')
+                        );
+                        
+                        const selectedCamera = backCamera || devices[0];
+                        currentCameraId = selectedCamera.id;
+                        
+                        console.log('Selected camera:', selectedCamera);
+                        
+                        // Start scanning
+                        html5QrCode.start(
+                            selectedCamera.id,
+                            {
+                                fps: 10,
+                                qrbox: { width: 250, height: 250 }
+                            },
+                            (decodedText, result) => {
+                                console.log('QR Code scan successful:', decodedText);
+                                onScanSuccess(decodedText);
+                            },
+                            (errorMessage) => {
+                                // Don't show every error, only important ones
+                                if (!errorMessage.includes('No QR code found')) {
+                                    console.log('QR Scan error:', errorMessage);
+                                }
+                            }
+                        ).then(() => {
+                            updateScannerStatus('✅ Scanner aktif. Arahkan kamera ke QR code.', 'success');
+                        }).catch((err) => {
+                            console.error('Unable to start scanning:', err);
+                            updateScannerStatus('❌ Gagal memulai scanner: ' + err.message, 'error');
+                        });
                     } else {
-                        showMessage('ERROR: ' + (response ? response.message : 'Unknown error'), 'error');
+                        updateScannerStatus('❌ Tidak ada kamera yang ditemukan.', 'error');
                     }
+                }).catch((err) => {
+                    console.error('Camera enumeration error:', err);
+                    
+                    if (err.name === 'NotAllowedError' || err.message.includes('Permission denied')) {
+                        updateScannerStatus('❌ Izin kamera ditolak. Silakan izinkan kamera di browser settings.', 'error');
+                        
+                        // Show instructions for enabling camera
+                        setTimeout(() => {
+                            updateScannerStatus('💡 Klik ikon 🔒 di address bar dan izinkan kamera, lalu refresh halaman.', 'warning');
+                        }, 2000);
+                    } else {
+                        updateScannerStatus('❌ Gagal mengakses kamera: ' + err.message + '. Gunakan Manual Input.', 'error');
+                    }
+                    
+                    // Focus on manual input as fallback
+                    setTimeout(() => {
+                        document.getElementById('manualInput').focus();
+                        updateScannerStatus('📝 Gunakan Manual Input untuk memasukkan QR data.', 'info');
+                    }, 3000);
+                });
+
+            } catch (error) {
+                console.error('HTML5 QR Code initialization error:', error);
+                updateScannerStatus('❌ Library scanner error. Gunakan input manual.', 'error');
+            }
+        }
+
+        // Stop camera scanner
+        function stopCameraScan() {
+            console.log('=== STOPPING CAMERA SCANNER ===');
+            
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    console.log('Scanner stopped successfully');
+                    updateScannerStatus('⏹️ Scanner dihentikan.', 'info');
+                }).catch((err) => {
+                    console.error('Failed to stop scanning:', err);
+                    updateScannerStatus('❌ Gagal menghentikan scanner.', 'error');
+                });
+            } else {
+                updateScannerStatus('⏹️ Scanner tidak aktif.', 'info');
+            }
+        }
+
+        // Request camera permission
+        function requestCameraPermission() {
+            console.log('=== REQUESTING CAMERA PERMISSION ===');
+            updateScannerStatus('🔁 Meminta izin kamera...', 'info');
+            
+            // Try to access camera to trigger permission
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    console.log('Camera permission granted');
+                    updateScannerStatus('✅ Izin kamera diberikan. Memulai scanner...', 'success');
+                    
+                    // Stop stream immediately
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Start scanner
+                    setTimeout(() => {
+                        startCameraScan();
+                    }, 500);
                 })
-                .processQRWithProcessSelection({
-                    qrCodeData: qrData,
-                    selectedProcess: process,
-                    operator: 'Dashboard User'
+                .catch((err) => {
+                    console.error('Camera permission denied:', err);
+                    updateScannerStatus('❌ Izin kamera ditolak. Silakan izinkan kamera di browser settings.', 'error');
+                    
+                    // Show instructions
+                    setTimeout(() => {
+                        updateScannerStatus('💡 Klik ikon 🔒 di address bar dan izinkan kamera, lalu refresh halaman.', 'warning');
+                    }, 2000);
                 });
         }
 
-        // Close process selection modal
-        function closeProcessSelection() {
-            const modal = document.getElementById('processSelectionModal');
-            modal.style.display = 'none';
-            
-            // Reset variables
-            selectedProcess = null;
-            currentQRData = null;
-        }
-
-        // ========================================
-        // QC MANAGEMENT FUNCTIONS
-        // ========================================
-
-        function updateQCName(transactionId, process, qcName) {
-            console.log('=== UPDATING QC NAME ===');
-            console.log('Transaction ID:', transactionId);
-            console.log('Process:', process);
-            console.log('QC Name:', qcName);
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('=== QC UPDATE RESPONSE ===');
-                    console.log('Response:', response);
-                    
-                    if (response && response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        
-                        // AUTO-REFRESH DATA after successful QC update
-                        setTimeout(() => {
-                            console.log('Auto-refreshing data after QC update...');
-                            loadData();
-                        }, 500);
-                    } else {
-                        showMessage('❌ ' + (response ? response.message : 'Unknown error'), 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('=== QC UPDATE ERROR ===');
-                    console.error('Error:', error);
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .updateQCName(transactionId, process, qcName);
-        }
-
-        // Test Functions
-        function testAutoSequentialScanning() {
-            showMessage(' Testing Sequential Scanning...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage(' ' + response.message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage(' ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage(' Error: ' + error.message, 'error');
-                })
-                .testAutoSequentialScanning();
-        }
-
-        function testQCUpdate() {
-            showMessage(' Testing QC Update...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage(' ' + response.message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage(' ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage(' Error: ' + error.message, 'error');
-                })
-                .testQCUpdate();
-        }
-
-        // ========================================
-        // UTILITY FUNCTIONS
-        // ========================================
-
-        function searchTable() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toUpperCase();
-            const table = document.getElementById('productionTable');
-            const tr = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < tr.length; i++) {
-                let txtValue = tr[i].textContent || tr[i].innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = '';
-                } else {
-                    tr[i].style.display = 'none';
-                }
-            }
-        }
-
-        function showMessage(message, type) {
-            const messageDiv = document.getElementById('scannerMessage');
-            const className = type === 'success' ? 'success' : (type === 'error' ? 'error' : 'info');
-            messageDiv.innerHTML = `<div class="${className}">${message}</div>`;
-            
-            setTimeout(() => {
-                messageDiv.innerHTML = '';
-            }, 5000);
-        }
-
-        // Test Tracking Model
-        function testTrackingModel() {
-            console.log('=== TESTING TRACKING MODEL - TOTAL QTY TETAP ===');
-            showMessage('🎯 Testing Tracking Model - Total QTY Tetap...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Tracking Model Test Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🎯 TRACKING MODEL TEST RESULTS:\n\n`;
-                        message += `📱 QR Code: ${response.qrCode}\n`;
-                        message += `🎯 Model: ${response.model}\n\n`;
-                        
-                        message += `📊 Total QTY Tracking:\n`;
-                        message += `  Expected: ${response.expectedQty} (tetap untuk order ini)\n`;
-                        message += `  Before Scan: ${response.beforeQty}\n`;
-                        message += `  After Scan: ${response.afterQty}\n\n`;
-                        
-                        if (response.isCorrect) {
-                            message += `✅ TRACKING MODEL BERHASIL!\n`;
-                            message += `🎯 Total QTY tetap ${response.expectedQty} untuk order ini\n`;
-                            message += `📋 Order: ${response.qrCode.split('|')[0]} | ${response.qrCode.split('|')[2]}\n`;
-                            message += `💡 Setiap scan akan menjaga Total QTY = ${response.expectedQty}`;
-                        } else {
-                            message += `❌ TRACKING MODEL GAGAL\n`;
-                            message += `🎯 Total QTY seharusnya: ${response.expectedQty}\n`;
-                            message += `📊 Actual Total QTY: ${response.afterQty}\n`;
-                            message += `💡 Perlu perbaikan auto-update`;
-                        }
-                        
-                        message += `\n📋 Scan Result: ${response.scanResult.message}`;
-                        
-                        showMessage(message, response.isCorrect ? 'success' : 'error');
-                        
-                        // Auto-refresh dashboard
-                        setTimeout(() => {
-                            loadData();
-                        },2000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Tracking Model Test Error:', error);
-                    showMessage('❌ Error testing tracking model: ' + error.message, 'error');
-                })
-                .testTrackingModel();
-        }
-
-        // Test Auto Update Total QTY
-        function testAutoUpdateTotalQty() {
-            console.log('=== TESTING AUTO-UPDATE TOTAL QTY ===');
-            showMessage('🔄 Testing auto-update Total QTY...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Auto Update Test Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🔄 Auto-Update Test Results:\n\n`;
-                        message += `📱 Test QR: ${response.parsed.joNumber} | SN: ${response.parsed.serialNumber} | QTY: ${response.parsed.totalQty}\n`;
-                        message += `🔄 Auto-Updated: ${response.autoUpdated ? '✅ Yes' : '⚠️ No update needed'}\n\n`;
-                        
-                        if (response.scanResult && response.scanResult.success) {
-                            message += `📋 Scan Result:\n`;
-                            message += `  Process: ${response.scanResult.processName}\n`;
-                            message += `  Message: ${response.scanResult.message}\n`;
-                            message += `✅ Auto-update Total QTY is working!`;
-                        } else {
-                            message += `❌ Scan failed: ${response.scanResult ? response.scanResult.message : 'Unknown error'}`;
-                        }
-                        
-                        message += `\n\n💡 Check logs for detailed debugging info`;
-                        
-                        showMessage(message, response.scanResult && response.scanResult.success ? 'success' : 'error');
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Auto Update Test Error:', error);
-                    showMessage('❌ Error testing auto-update: ' + error.message, 'error');
-                })
-                .testAutoUpdateTotalQty();
-        }
-
-        // Test Auto Scan Update
-        function testAutoScanUpdate() {
-            console.log('=== TESTING AUTO-UPDATE DURING SCAN ===');
-            showMessage('🧪 Testing auto-update during scan...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Auto Scan Update Test Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🧪 Auto-Update During Scan Test:\n\n`;
-                        message += `📱 Test QR: TCV/JO/26-0033|RAUL-150|Raul Recta Coffee Table 150|10|10\n`;
-                        message += `📊 Before Scan: Total QTY = ${response.beforeQty}\n`;
-                        message += `📊 After Scan: Total QTY = ${response.afterQty}\n`;
-                        message += `🎯 Expected: Total QTY = ${response.expectedQty}\n`;
-                        message += `🔄 Auto-Updated: ${response.autoUpdated ? '✅ YES' : '⚠️ Already Correct'}\n\n`;
-                        
-                        if (response.autoUpdated) {
-                            message += `✅ BERHASIL! Total QTY otomatis terupdate saat scan!\n`;
-                            message += `💡 Tidak perlu klik tombol "Check Total QTY" lagi!`;
-                        } else {
-                            message += `✅ Total QTY sudah benar, tidak perlu update`;
-                        }
-                        
-                        message += `\n📋 Scan Result: ${response.scanResult.message}`;
-                        
-                        showMessage(message, 'success');
-                        
-                        // Auto-refresh dashboard to see changes
-                        setTimeout(() => {
-                            loadData();
-                        }, 2000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Auto Scan Update Test Error:', error);
-                    showMessage('❌ Error testing auto-scan update: ' + error.message, 'error');
-                })
-                .testAutoScanUpdate();
-        }
-
-        // Test User QR with Debug
-        function testUserQRWithDebug() {
-            console.log('=== TESTING USER QR WITH DEBUG ===');
-            showMessage('🐛 Debugging user QR with detailed logs...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('User QR Debug Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🐛 Debug Results for User QR:\n\n`;
-                        message += `📱 Test QR: TCV/JO/26-0033|RAUL-150|Raul Recta Coffee Table 150|10|10\n\n`;
-                        
-                        message += `📊 Parsed Data:\n`;
-                        message += `  JO: ${response.parsed.joNumber}\n`;
-                        message += `  Product: ${response.parsed.productCode}\n`;
-                        message += `  Name: ${response.parsed.productName}\n`;
-                        message += `  Total QTY: ${response.parsed.totalQty}\n`;
-                        message += `  Serial: ${response.parsed.serialNumber}\n\n`;
-                        
-                        if (response.beforeScan.length > 0) {
-                            message += `📋 Before Scan:\n`;
-                            response.beforeScan.forEach(row => {
-                                message += `  Row ${row.row}: QTY=${row.totalQty} (${row.totalQtyType})\n`;
-                            });
-                            message += `\n`;
-                        } else {
-                            message += `📋 Before Scan: No existing data\n\n`;
-                        }
-                        
-                        message += `📋 After Scan:\n`;
-                        response.afterScan.forEach(row => {
-                            message += `  Row ${row.row}: QTY=${row.totalQty} (${row.totalQtyType})\n`;
-                        });
-                        
-                        message += `\n${response.message}`;
-                        
-                        if (response.message.includes('berhasil')) {
-                            message += `\n\n✅ Auto-update Total QTY berfungsi dengan benar!`;
-                        } else {
-                            message += `\n\n❌ Masalah: Total QTY tidak terupdate dengan benar`;
-                            message += `\n💡 Check logs untuk detail debugging`;
-                        }
-                        
-                        showMessage(message, response.message.includes('berhasil') ? 'success' : 'error');
-                        
-                        // Auto-refresh dashboard
-                        setTimeout(() => {
-                            loadData();
-                        }, 2000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('User QR Debug Error:', error);
-                    showMessage('❌ Error debugging user QR: ' + error.message, 'error');
-                })
-                .testUserQRWithDebug();
-        }
-
-         // Update Total QTY from QR
-        function updateTotalQtyFromQR() {
-            console.log('=== UPDATING TOTAL QTY FROM QR ===');
-            
-            if (!confirm('⚠️ Apakah Anda yakin ingin update Total QTY untuk semua data yang salah? Ini akan mengubah data di spreadsheet.')) {
+        // Switch camera
+        function switchCamera() {
+            if (!html5QrCode || cameras.length <= 1) {
+                updateScannerStatus('❌ Hanya ada satu kamera tersedia.', 'warning');
                 return;
             }
-            
-            showMessage('🔄 Updating Total QTY from QR codes...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Update Total QTY Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🔄 Total QTY Update Results:\n\n`;
-                        message += `✅ Rows updated: ${response.updatedCount}\n`;
-                        message += `⚠️ Rows not found: ${response.notFoundCount}\n\n`;
-                        
-                        if (response.results.length > 0) {
-                            message += `📋 Updated rows:\n`;
-                            response.results.forEach(row => {
-                                message += `  Row ${row.row}: JO=${row.joNumber}, QTY ${row.oldQty}→${row.newQty}\n`;
-                            });
-                        }
-                        
-                        if (response.notFoundCount > 0) {
-                            message += `\n💡 Some rows need manual QR scanning for correct QTY`;
-                        }
-                        
-                        message += `\n🔄 Auto-refreshing dashboard...`;
-                        
-                        showMessage(message, 'success');
-                        
-                        // Auto-refresh data after update
-                        setTimeout(() => {
-                            loadData();
-                        }, 2000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Update Total QTY Error:', error);
-                    showMessage('❌ Error updating Total QTY: ' + error.message, 'error');
-                })
-                .updateTotalQtyFromQR();
-        }
 
-        // Check Total QTY in Spreadsheet
-        function checkTotalQtyInSpreadsheet() {
-            console.log('=== CHECKING TOTAL QTY IN SPREADSHEET ===');
-            showMessage('🔍 Checking Total QTY in spreadsheet...', 'info');
+            // Find current camera index
+            const currentIndex = cameras.findIndex(cam => cam.id === currentCameraId);
             
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Check Total QTY Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🔍 Total QTY Check Results:\n\n`;
-                        message += `📊 Total rows checked: ${response.results.length}\n`;
-                        message += `❌ Incorrect QTY (=1): ${response.incorrectCount}\n`;
-                        message += `✅ Correct QTY (≠1): ${response.correctCount}\n\n`;
-                        
-                        if (response.incorrectCount > 0) {
-                            message += `📋 Rows with incorrect QTY:\n`;
-                            response.results.forEach(row => {
-                                if (row.totalQty === 1) {
-                                    message += `  Row ${row.row}: JO=${row.joNumber}, QTY=${row.totalQty}, SN=${row.serialNumber}\n`;
-                                }
-                            });
-                            message += `\n💡 These rows need to be updated with correct QTY from QR codes`;
-                        } else {
-                            message += `✅ All Total QTY values are correct!`;
-                        }
-                        
-                        showMessage(message, response.incorrectCount > 0 ? 'error' : 'success');
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Check Total QTY Error:', error);
-                    showMessage('❌ Error checking Total QTY: ' + error.message, 'error');
-                })
-                .checkTotalQtyInSpreadsheet();
-        }
-
-        // Test User QR Sample
-        function testUserQRSample() {
-            console.log('=== TESTING USER QR SAMPLE ===');
-            showMessage('🧪 Testing user QR sample...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('User QR Test Response:', response);
-                    showMessage(response, response.includes('✅') ? 'success' : 'error');
-                })
-                .withFailureHandler(function(error) {
-                    console.error('User QR Test Error:', error);
-                    showMessage('❌ Error testing user QR: ' + error.message, 'error');
-                })
-                .testUserQRSample();
-        }
-
-        // Test Sequential Fix
-        function testSequentialFix() {
-            console.log('=== TESTING SEQUENTIAL FIX ===');
-            showMessage('🧪 Testing sequential fix...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Sequential Fix Test Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🧪 Sequential Fix Test Results:\n\n`;
-                        message += `📱 Test QR: ${response.testQR}\n`;
-                        message += `🔄 Counter After Reset: ${response.counterBefore}\n`;
-                        message += `🎯 First Scan Process: ${response.firstProcess}\n`;
-                        message += `🎯 Second Scan Process: ${response.secondProcess}\n`;
-                        message += `🎯 Third Scan Process: ${response.thirdProcess}\n\n`;
-                        
-                        if (response.firstProcess === 'MILLING 1') {
-                            message += `✅ FIRST SCAN CORRECT - Will go to MILLING 1\n`;
-                            message += `✅ Sequential scanning is working properly!`;
-                        } else {
-                            message += `❌ FIRST SCAN WRONG - Expected MILLING 1, got: ${response.firstProcess}\n`;
-                            message += `❌ Need to check PRODUCTION_PROCESSES array`;
-                        }
-                        
-                        message += `\n💡 Check console logs for detailed debugging info`;
-                        
-                        showMessage(message, response.firstProcess === 'MILLING 1' ? 'success' : 'error');
-                    } else {
-                        showMessage('❌ Test failed: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Sequential Fix Test Error:', error);
-                    showMessage('❌ Error testing sequential fix: ' + error.message, 'error');
-                })
-                .testSequentialFix();
-        }
-
-        // Reset All Counters
-        function resetAllCounters() {
-            console.log('=== RESETTING ALL COUNTERS ===');
-            
-            if (!confirm('⚠️ Apakah Anda yakin ingin reset semua scan counters? Ini akan memulai fresh start untuk semua QR codes.')) {
-                return;
-            }
-            
-            showMessage('🔄 Resetting all counters...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Reset Counters Response:', response);
-                    
-                    if (response.success) {
-                        showMessage(response.message, 'success');
-                        
-                        // Auto-refresh data after reset
-                        setTimeout(() => {
-                            loadData();
-                        }, 1000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Reset Counters Error:', error);
-                    showMessage('❌ Error resetting counters: ' + error.message, 'error');
-                })
-                .resetAllCounters();
-        }
-
-        // Debug Sequential Issue
-        function debugSequentialIssue() {
-            console.log('=== DEBUGGING SEQUENTIAL ISSUE ===');
-            
-            // Get QR from manual input
-            const qrInput = document.getElementById('manualQRInput').value.trim();
-            
-            if (!qrInput) {
-                showMessage('❌ Masukkan QR code di Manual QR Input terlebih dahulu', 'error');
-                return;
-            }
-            
-            showMessage('🔍 Debugging sequential issue...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Sequential Debug Response:', response);
-                    
-                    if (response.success) {
-                        let message = `🔍 Sequential Debug Results:\n\n`;
-                        message += `📱 QR Code: ${qrInput}\n`;
-                        message += `🏭 JO Number: ${response.joNumber}\n`;
-                        message += `🔖 Serial Number: ${response.serialNumber}\n`;
-                        message += `📊 Current Scan Count: ${response.currentCount}\n`;
-                        message += `📈 Next Scan Count: ${response.nextCount}\n`;
-                        message += `🎯 Expected Process: ${response.expectedProcess}\n`;
-                        message += `📋 Has Spreadsheet Data: ${response.hasData ? 'Yes' : 'No'}\n\n`;
-                        message += `💡 Check console logs for detailed debugging info`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('❌ Debug failed: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Sequential Debug Error:', error);
-                    showMessage('❌ Error debugging sequential: ' + error.message, 'error');
-                })
-                .debugSequentialIssue(qrInput);
-        }
-
-        // Test Total QTY Fix
-        function testTotalQtyFix() {
-            console.log('=== TESTING TOTAL QTY FIX ===');
-            showMessage('Testing Total QTY fix...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Total QTY Fix Test Response:', response);
-                    showMessage('✅ ' + response, 'success');
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Total QTY Fix Test Error:', error);
-                    showMessage('❌ Error testing Total QTY fix: ' + error.message, 'error');
-                })
-                .testTotalQtyFix();
-        }
-
-        // Simple refresh function that calls loadData
-        function refreshData() {
-            console.log('=== REFRESH DATA CALLED ===');
-            loadData();
-        }
-
-        // Debug Data Loading Issues
-        function debugDataLoading() {
-            console.log('=== DEBUG DATA LOADING ===');
-            showMessage('Debugging data loading...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('=== DEBUG DATA LOADING RESULT ===');
-                    console.log('Response:', response);
-                    
-                    if (response && response.success) {
-                        let message = `🔍 Data Loading Debug Results:\n\n`;
-                        message += `📊 Spreadsheet Access: ${response.spreadsheetAccess ? '✅ Success' : '❌ Failed'}\n`;
-                        message += `📋 Sheet Found: ${response.sheetFound ? '✅ Yes' : '❌ No'}\n`;
-                        message += `📏 Total Rows: ${response.totalRows || 'Unknown'}\n`;
-                        message += `📄 Data Rows: ${response.dataRows || 'Unknown'}\n`;
-                        message += `🔗 JSON Parse: ${response.jsonParse ? '✅ Success' : '❌ Failed'}\n`;
-                        message += `📤 Response Type: ${response.responseType || 'Unknown'}\n\n`;
-                        
-                        if (response.sampleData) {
-                            message += `📋 Sample Data (first row):\n`;
-                            message += `${JSON.stringify(response.sampleData, null, 2)}\n\n`;
-                        }
-                        
-                        if (response.error) {
-                            message += `❌ Error: ${response.error}\n\n`;
-                        }
-                        
-                        message += `🔍 Check Apps Script logs for detailed information`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('❌ Debug failed: ' + (response ? response.message : 'Unknown error'), 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Debug data loading error:', error);
-                    showMessage('❌ Debug error: ' + error.message, 'error');
-                })
-                .debugDataLoading();
-        }
-
-        // Debug Input Issues
-        function debugInputIssues() {
-            console.log('=== DEBUG INPUT ISSUES ===');
-            showMessage('Debugging input issues...', 'info');
-            
-            const manualInput = document.getElementById('manualQRInput').value;
-            console.log('Manual QR Input value:', manualInput);
-            console.log('Manual QR Input length:', manualInput.length);
-            
-            let message = `🔍 Input Debug Results:\n\n`;
-            message += `📝 Manual Input Value: "${manualInput}"\n`;
-            message += `📏 Input Length: ${manualInput.length}\n`;
-            message += `🔤 Input Type: ${typeof manualInput}\n`;
-            message += `📦 Is Empty: ${manualInput.trim() === '' ? 'Yes' : 'No'}\n\n`;
-            
-            if (manualInput.trim() === '') {
-                message += `❌ Input is empty! Please enter QR/Barcode data.\n\n`;
-                message += `📋 Expected Format:\n`;
-                message += `• QR: JO Number|Product Code|Product Name|QTY|Serial Number\n`;
-                message += `• Barcode: JO Number|Product Code|Product Name|QTY|Serial Number\n`;
-                message += `• Simple: JO Number\n\n`;
-                message += `💡 Try entering: "TCV/JO/23-0868|BENT-2LA|Bent 2 Seater|5|1"`;
+            // Find opposite camera
+            let nextCamera = null;
+            if (currentIndex === 0) {
+                // Switch to back camera
+                nextCamera = cameras.find(device => 
+                    device.label.toLowerCase().includes('back') || 
+                    device.label.toLowerCase().includes('environment')
+                );
             } else {
-                message += `✅ Input has data\n\n`;
-                message += `🧪 Testing input processing...\n`;
+                // Switch to front camera
+                nextCamera = cameras.find(device => 
+                    device.label.toLowerCase().includes('front') || 
+                    device.label.toLowerCase().includes('user')
+                );
+            }
+
+            // If opposite camera not found, use next camera
+            if (!nextCamera) {
+                const nextIndex = (currentIndex + 1) % cameras.length;
+                nextCamera = cameras[nextIndex];
+            }
+
+            // Stop current scanner and start with new camera
+            if (html5QrCode && nextCamera) {
+                html5QrCode.stop().then(() => {
+                    currentCameraId = nextCamera.id;
+                    console.log('Switching to camera:', nextCamera);
+                    
+                    // Restart with new camera
+                    setTimeout(() => {
+                        startCameraScan();
+                    }, 500);
+                }).catch((err) => {
+                    console.error('Failed to stop for camera switch:', err);
+                    updateScannerStatus('❌ Gagal mengganti kamera.', 'error');
+                });
+            }
+        }
+
+        // Handle successful scan
+        function onScanSuccess(decodedText) {
+            console.log('Scan successful:', decodedText);
+            lastScanResult = decodedText;
+            
+            // Stop scanner
+            stopCameraScan();
+            
+            // Show result
+            document.getElementById('resultContent').textContent = decodedText;
+            document.getElementById('resultSection').style.display = 'block';
+            updateScannerStatus('✅ Scan berhasil! Mengirim ke Dashboard...', 'success');
+            
+            // Auto-send to dashboard after 1 second
+            setTimeout(() => {
+                sendToAppsScript();
+            }, 1000);
+        }
+
+        // Process manual input
+        function processManualInput() {
+            const manualValue = document.getElementById('manualInput').value.trim();
+            if (manualValue) {
+                onScanSuccess(manualValue);
+                document.getElementById('manualInput').value = '';
+            } else {
+                updateScannerStatus('⚠️ Masukkan QR/Barcode terlebih dahulu', 'warning');
+            }
+        }
+
+        // Reset scanner
+        function resetScanner() {
+            console.log('=== RESETTING SCANNER ===');
+            
+            // Clear result display
+            document.getElementById('resultContent').textContent = '';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('manualInput').value = '';
+            
+            updateScannerStatus('🔄 Scanner di-reset. Siap untuk scan baru.', 'info');
+            
+            // Restart scanner after a short delay
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
+        }
+
+        // Clear manual input
+        function clearManualInput() {
+            document.getElementById('manualInput').value = '';
+        }
+
+        // Copy result to clipboard
+        function copyResult() {
+            if (lastScanResult) {
+                navigator.clipboard.writeText(lastScanResult).then(() => {
+                    updateScannerStatus('📋 Hasil disalin ke clipboard!', 'success');
+                }).catch(err => {
+                    updateScannerStatus('❌ Gagal menyalin hasil', 'error');
+                });
+            } else {
+                updateScannerStatus('⚠️ Tidak ada hasil untuk disalin', 'warning');
+            }
+        }
+
+        // Send result back to Dashboard via postMessage or Apps Script GET
+        function sendToAppsScript() {
+            console.log('=== sendToAppsScript called ===');
+            console.log('lastScanResult:', lastScanResult);
+            
+            if (!lastScanResult) {
+                updateScannerStatus('⚠️ Tidak ada hasil untuk dikirim', 'warning');
+                return;
+            }
+            
+            const processId = getUrlParameter('processId') || 'ext_' + Date.now();
+            const mode = getUrlParameter('mode') || 'redirect';
+            console.log('Process ID:', processId);
+            console.log('Mode:', mode);
+            
+            // Get returnUrl from URL parameters - DEBUGGING
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return') || 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
+            console.log('Return URL:', returnUrl);
+            console.log('Return URL type:', typeof returnUrl);
+            console.log('Return URL length:', returnUrl ? returnUrl.length : 'null');
+            
+            // Try postMessage first (if opener is available)
+            try {
+                console.log('Checking window.opener:', window.opener);
+                console.log('window.opener.closed:', window.opener ? window.opener.closed : 'N/A');
                 
-                // Test the input
-                google.script.run
-                    .withSuccessHandler(function(response) {
-                        console.log('Input test response:', response);
-                        if (response && response.success) {
-                            message += `✅ Input processing successful!\n`;
-                            message += `🏷️ Detected as: ${response.scanType || 'Unknown'}\n`;
-                            message += `🆔 JO Number: ${response.joNumber || 'Unknown'}\n`;
-                            message += `📦 Product: ${response.productName || 'Unknown'}\n`;
-                        } else {
-                            message += `❌ Input processing failed: ${response ? response.message : 'Unknown error'}`;
-                        }
-                        showMessage(message, response && response.success ? 'success' : 'error');
-                    })
-                    .withFailureHandler(function(error) {
-                        console.error('Input test error:', error);
-                        message += `❌ Input test error: ${error.message}`;
-                        showMessage(message, 'error');
-                    })
-                    .processQRWithPureCounter(manualInput);
-                
-                return; // Exit early to wait for async response
-            }
-            
-            showMessage(message, 'info');
-        }
-
-        function deleteOrder(transactionId) {
-            if (!confirm('Apakah Anda yakin ingin menghapus order ini?')) {
-                return;
-            }
-            
-            console.log('=== DELETING ORDER ===');
-            console.log('Transaction ID:', transactionId);
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('=== DELETE ORDER RESPONSE ===');
-                    console.log('Response:', response);
+                if (window.opener && !window.opener.closed) {
+                    const messageData = {
+                        type: 'QR_SCAN_RESULT',
+                        qrResult: lastScanResult,
+                        processId: processId,
+                        timestamp: new Date().toISOString(),
+                        source: 'external_scanner'
+                    };
                     
-                    if (response && response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        
-                        // AUTO-REFRESH DATA after successful delete
-                        setTimeout(() => {
-                            console.log('Auto-refreshing data after delete...');
-                            loadData();
-                        }, 500);
-                    } else {
-                        showMessage('❌ ' + (response ? response.message : 'Unknown error'), 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('=== DELETE ORDER ERROR ===');
-                    console.error('Error:', error);
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .deleteOrder(transactionId);
-        }
-
-        function cleanUpDuplicates() {
-            if (!confirm('Apakah Anda yakin ingin membersihkan semua data duplikat?')) {
-                return;
-            }
-            
-            showMessage('Membersihkan data duplikat...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        refreshData();
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .cleanUpDuplicates();
-        }
-
-        function forceCleanDuplicates() {
-            if (!confirm('⚡ FORCE CLEAN - Ini akan menghapus SEMUA duplikat dan menyisakan hanya entry terbaru. Lanjutkan?')) {
-                return;
-            }
-            
-            showMessage('⚡ Force cleaning duplicates...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .forceCleanDuplicates();
-        }
-
-        function testBarcodeFormats() {
-            console.log('=== TESTING BARCODE FORMATS ===');
-            showMessage('Testing barcode formats...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('=== BARCODE FORMAT TEST RESULT ===');
-                    console.log('Response:', response);
+                    console.log('📤 SENDING POSTMESSAGE:', messageData);
+                    window.opener.postMessage(messageData, '*');
                     
-                    if (response && response.success) {
-                        let message = `📊 Barcode Format Test Results:\n\n`;
-                        message += `✅ Total Tests: ${response.totalTests}\n`;
-                        message += `✅ Successful: ${response.successCount}\n`;
-                        message += `❌ Failed: ${response.failureCount}\n`;
-                        message += `📈 Success Rate: ${((response.successCount / response.totalTests) * 100).toFixed(1)}%\n\n`;
-                        message += `📋 Supported Formats:\n`;
-                        message += `• Pipe delimiter: JO|Product|Name|Qty|SN\n`;
-                        message += `• Dash delimiter: JO-Product-Name-Qty-SN\n`;
-                        message += `• Comma delimiter: JO,Product,Name,Qty,SN\n`;
-                        message += `• Simple JO Number only\n`;
-                        message += `• With spaces around delimiters\n\n`;
-                        message += `🔍 Check Apps Script logs for detailed test results`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('❌ Barcode format test failed: ' + (response ? response.message : 'Unknown error'), 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('=== BARCODE FORMAT TEST ERROR ===');
-                    console.error('Error:', error);
-                    showMessage('❌ Error testing barcode formats: ' + error.message, 'error');
-                })
-                .testBarcodeFormats();
-        }
-
-        // Debug Counter Function
-        function showDebugCounter() {
-            const joNumber = prompt('Masukkan JO Number untuk debug:');
-            const serialNumber = prompt('Masukkan Serial Number untuk debug:');
-            
-            if (!joNumber || !serialNumber) {
-                showMessage('❌ JO Number dan Serial Number harus diisi', 'error');
-                return;
-            }
-            
-            console.log('=== DEBUG COUNTER ===');
-            console.log('JO Number:', joNumber);
-            console.log('Serial Number:', serialNumber);
-            showMessage('🔍 Debugging counter...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('=== DEBUG COUNTER RESULT ===');
-                    console.log('Response:', response);
+                    console.log('✅ Sent result via postMessage');
+                    updateScannerStatus('✅ Hasil dikirim ke Dashboard via postMessage', 'success');
                     
-                    if (response && response.success) {
-                        let message = `🔍 Debug Counter Results:\n\n`;
-                        message += `🆔 JO Number: ${joNumber}\n`;
-                        message += `🔢 Serial Number: ${serialNumber}\n`;
-                        message += `📊 Current Count: ${response.currentCount}\n`;
-                        message += `📈 Scan Count: ${response.scanCount}\n`;
-                        message += `📋 Has Spreadsheet Data: ${response.hasSpreadsheetData ? 'Yes' : 'No'}\n\n`;
-                        
-                        if (response.properties && Object.keys(response.properties).length > 0) {
-                            message += `🗂️ Stored Properties:\n`;
-                            for (let key in response.properties) {
-                                message += `• ${key}: ${response.properties[key]}\n`;
-                            }
-                        } else {
-                            message += `🗂️ No stored properties found\n`;
-                        }
-                        
-                        message += `\n🔍 Check Apps Script logs for detailed information`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('❌ Debug counter failed: ' + (response ? response.message : 'Unknown error'), 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    console.error('=== DEBUG COUNTER ERROR ===');
-                    console.error('Error:', error);
-                    showMessage('❌ Error debugging counter: ' + error.message, 'error');
-                })
-                .debugScanCounter(joNumber, serialNumber);
-        }
-
-        function initializeSystem() {
-            if (!confirm('Initialize system akan menghapus semua data. Lanjutkan?')) {
-                return;
+                    // Close after a short delay
+                    setTimeout(() => {
+                        window.close();
+                    }, 1500);
+                    return;
+                } else {
+                    console.log('❌ Window opener not available or closed, trying Apps Script GET...');
+                }
+            } catch (error) {
+                console.error('❌ postMessage failed, trying Apps Script GET:', error);
             }
             
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        refreshData();
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .initializeSystem();
-        }
-
-        function addSampleData() {
-            const sampleQR = 'TCV/JO/21-0174|RST-AT|Raster Accent Table|10|SN001';
-            document.getElementById('manualQRInput').value = sampleQR;
-            processManualQR();
-        }
-
-        function testQRScanning() {
-            showMessage('Testing QR scanning...', 'info');
+            // Fallback: Send to Apps Script via URL redirect (bypass CORS)
+            updateScannerStatus('📤 Mengirim ke Apps Script dan kembali ke Dashboard...', 'info');
             
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    showMessage('✅ Test completed. Check logs for details.', 'success');
-                    refreshData();
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Test failed: ' + error.message, 'error');
-                })
-                .testScanLogic();
+            // Use URL redirect to bypass CORS
+            const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbwHLp6CFcNNSybJle982xGpCV5oXw6nvmd3R8W7Q1o/exec';
+            
+            // Build redirect URL with QR data
+            const params = new URLSearchParams({
+                qrResult: lastScanResult,
+                source: 'external_scanner',
+                processId: processId,
+                timestamp: new Date().toISOString(),
+                returnUrl: returnUrl, // Pass returnUrl for redirect back
+                redirectBack: 'true', // Enable redirect back to dashboard
+                scanSuccess: 'true' // Indicate successful scan
+            });
+            
+            const redirectUrl = appsScriptUrl + '?' + params.toString();
+            console.log('Redirect URL:', redirectUrl);
+            
+            // Show success message before redirect
+            updateScannerStatus('✅ Data diproses. Mengalihkan kembali ke Dashboard...', 'success');
+            
+            // IMMEDIATE redirect to Apps Script (no delay)
+            window.location.href = redirectUrl;
         }
 
-        function debugSequentialScanning() {
-            showMessage('🔬 Debugging sequential scanning step by step...', 'info');
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('QR Scanner External Page Loaded');
+            console.log('Current URL:', window.location.href);
+            console.log('URL Parameters:', window.location.search);
             
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `🔬 DEBUG SEQUENTIAL RESULT:\n`;
-                        message += `✅ ${response.message}\n`;
-                        message += `🏭 Last Process: ${response.lastProcess || 'None'}\n`;
-                        message += `➡️ Next Process: ${response.nextProcess}\n`;
-                        message += `📋 Scan Check: ${JSON.stringify(response.scanCheck)}\n`;
-                        message += `📊 Check logs for detailed step-by-step analysis`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('🔬 DEBUG FAILED: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Debug Error: ' + error.message, 'error');
-                })
-                .debugSequentialScanning();
-        }
-
-        function simpleSequentialTest() {
-            showMessage('🧪 Running simple sequential test...', 'info');
+            // Get URL parameters
+            const returnUrl = getUrlParameter('returnUrl') || getUrlParameter('return');
+            const title = getUrlParameter('title') || 'QR Scanner';
+            const processId = getUrlParameter('processId') || 'process_' + Date.now();
             
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `🧪 SIMPLE TEST RESULT:\n`;
-                        message += `✅ ${response.message}\n`;
-                        message += `📊 Before: ${JSON.stringify(response.before)}\n`;
-                        message += `🔄 Scan: ${JSON.stringify(response.scanResult)}\n`;
-                        message += `📊 After: ${JSON.stringify(response.after)}`;
-                        
-                        showMessage(message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage('🧪 TEST FAILED: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Test Error: ' + error.message, 'error');
-                })
-                .simpleSequentialTest();
-        }
-
-        function testCounterSequentialScanning() {
-            showMessage('🔢 Testing counter-based sequential scanning...', 'info');
+            console.log('Return URL:', returnUrl);
+            console.log('Title:', title);
+            console.log('Process ID:', processId);
             
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `🔢 COUNTER TEST RESULT:\n`;
-                        message += `✅ ${response.message}\n`;
-                        message += `🔄 Scan 1: ${JSON.stringify(response.scan1)}\n`;
-                        message += `🔄 Scan 2: ${JSON.stringify(response.scan2)}\n`;
-                        message += `🔄 Scan 3: ${JSON.stringify(response.scan3)}`;
-                        
-                        showMessage(message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage('🔢 COUNTER TEST FAILED: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Counter Test Error: ' + error.message, 'error');
-                })
-                .testCounterSequentialScanning();
-        }
-
-        function getAllScanCounters() {
-            showMessage('📊 Getting all scan counters...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `📊 ALL SCAN COUNTERS:\n`;
-                        for (const key in response.counters) {
-                            message += `${key}: ${response.counters[key]}\n`;
-                        }
-                        showMessage(message || 'No counters found', 'success');
-                    } else {
-                        showMessage('📊 FAILED: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .getAllScanCounters();
-        }
-
-        function forceNextProcess() {
-            const qrInput = document.getElementById('manualQRInput').value.trim();
-            
-            if (!qrInput) {
-                showMessage('Silakan masukkan QR Code terlebih dahulu', 'error');
-                return;
+            // Update page title
+            if (title) {
+                document.title = title;
             }
             
-            if (!confirm('⚡ FORCE NEXT - Ini akan memaksa QR ke proses berikutnya. Lanjutkan?')) {
-                return;
+            // Always show success message since we have parameters
+            if (returnUrl) {
+                updateScannerStatus('✅ Scanner siap. Hasil akan dikirim ke Dashboard.', 'success');
+            } else {
+                updateScannerStatus('⚠️ Scanner siap. Mode standalone (no return URL).', 'info');
             }
             
-            showMessage('⚡ Force scanning to next process...', 'info');
+            // Auto-focus manual input
+            document.getElementById('manualInput').focus();
             
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .forceScanToNextProcess(qrInput);
-        }
-
-        function forceToMilling2() {
-            const qrInput = document.getElementById('manualQRInput').value.trim();
-            
-            if (!qrInput) {
-                showMessage('Silakan masukkan QR Code terlebih dahulu', 'error');
-                return;
-            }
-            
-            if (!confirm('🏭 FORCE TO MILLING 2 - Ini akan memaksa QR langsung ke MILLING 2. Lanjutkan?')) {
-                return;
-            }
-            
-            showMessage('🏭 Force scanning to MILLING 2...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .forceScanToSpecificProcess(qrInput, 'MILLING 2');
-        }
-
-        function testCurrentState() {
-            showMessage('🔍 Testing current state...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `🔍 CURRENT STATE RESULT:\n`;
-                        message += `✅ ${response.message}\n`;
-                        message += `📊 Current Count: ${response.currentCount}\n`;
-                        message += `➡️ Expected Next: Scan #${response.expectedNextCount} → ${response.expectedProcess}\n`;
-                        message += `📋 Spreadsheet Info: ${JSON.stringify(response.spreadsheetInfo)}`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('🔍 STATE TEST FAILED: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ State Test Error: ' + error.message, 'error');
-                })
-                .testCurrentState();
-        }
-
-        function resetAndTestFromScratch() {
-            if (!confirm('🔄 RESET & TEST - Ini akan reset counter dan test dari awal. Lanjutkan?')) {
-                return;
-            }
-            
-            showMessage('🔄 Resetting and testing from scratch...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `🔄 RESET & TEST RESULT:\n`;
-                        message += `✅ ${response.message}\n`;
-                        message += `🗑️ Reset Result: ${JSON.stringify(response.resetResult)}\n`;
-                        message += `📊 Found Existing Data: ${response.foundExistingData}\n`;
-                        message += `🔄 Scan 1: ${JSON.stringify(response.scan1)}\n`;
-                        message += `🔄 Scan 2: ${JSON.stringify(response.scan2)}\n`;
-                        message += `🔄 Scan 3: ${JSON.stringify(response.scan3)}`;
-                        
-                        showMessage(message, 'success');
-                        setTimeout(() => refreshData(), 2000);
-                    } else {
-                        showMessage('🔄 RESET & TEST FAILED: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Reset & Test Error: ' + error.message, 'error');
-                })
-                .resetAndTestFromScratch();
-        }
-
-        function debugFirstScan() {
-            const qrInput = document.getElementById('manualQRInput').value.trim();
-            
-            if (!qrInput) {
-                showMessage('Silakan masukkan QR Code terlebih dahulu', 'error');
-                return;
-            }
-            
-            showMessage('🐛 Debugging first scan...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `🐛 FIRST SCAN DEBUG:\n`;
-                        message += `✅ ${response.message}\n`;
-                        message += `📊 Parsed QR: ${JSON.stringify(response.parsedQR)}\n`;
-                        message += `🔢 Current Count: ${response.currentCount}\n`;
-                        message += `➡️ Next Count: ${response.nextCount}\n`;
-                        message += `🏭 Process Name: ${response.processName}\n`;
-                        message += `📋 Check logs for detailed PRODUCTION_PROCESSES array`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('🐛 DEBUG FAILED: ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Debug Error: ' + error.message, 'error');
-                })
-                .debugFirstScan(qrInput);
-        }
-
-        function debugNextStep() {
-            const qrInput = document.getElementById('manualQRInput').value.trim();
-            
-            if (!qrInput) {
-                showMessage('Silakan masukkan QR Code terlebih dahulu', 'error');
-                return;
-            }
-            
-            showMessage('🐛 Debugging next step...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `🐛 DEBUG RESULT:\n`;
-                        message += `✅ ${response.debug}\n`;
-                        message += `📦 Product: ${response.parsedQR.productName}\n`;
-                        message += `🔖 JO Number: ${response.parsedQR.joNumber}\n`;
-                        message += `🏭 Current Process: ${response.currentProcess || 'None'}\n`;
-                        message += `➡️ Next Process: ${response.nextProcess}\n`;
-                        message += `📋 Check logs for detailed information`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('🐛 DEBUG FAILED: ' + response.debug, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Debug Error: ' + error.message, 'error');
-                })
-                .debugNextStep(qrInput);
-        }
-
-        function checkNextStep() {
-            const qrInput = document.getElementById('manualQRInput').value.trim();
-            
-            if (!qrInput) {
-                showMessage('Silakan masukkan QR Code terlebih dahulu', 'error');
-                return;
-            }
-            
-            showMessage('Mengecek next step...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        let message = `📍 ${response.message}\n`;
-                        message += `📦 Product: ${response.productName}\n`;
-                        message += `🔖 JO Number: ${response.joNumber}\n`;
-                        message += `🏭 Current Process: ${response.currentProcess || 'None'}\n`;
-                        message += `➡️ Next Process: ${response.nextProcess}`;
-                        
-                        showMessage(message, 'success');
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .getNextProcessForQR(qrInput);
-        }
-
-        function testAutoSequentialScanning() {
-            console.log('=== TESTING AUTO SEQUENTIAL SCANNING ===');
-            showMessage('🔄 Testing auto sequential QR scanning...', 'info');
-            
-            // Test basic connection first
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    console.log('Basic connection test successful');
-                    showMessage('✅ Basic connection successful', 'success');
-                    
-                    // Now try the actual function
-                    google.script.run
-                        .withSuccessHandler(function(response) {
-                            console.log('Auto Sequential Test Response:', response);
-                            if (response && response.success) {
-                                showMessage('✅ ' + response.message, 'success');
-                            } else {
-                                showMessage('⚠️ ' + (response ? response.message : 'Unknown error'), 'info');
-                            }
-                            
-                            // Refresh dashboard after test
-                            setTimeout(() => {
-                                refreshData();
-                            }, 2000);
-                        })
-                        .withFailureHandler(function(error) {
-                            console.error('Auto Sequential Test Error:', error);
-                            showMessage('❌ Sequential test error: ' + error.message, 'error');
-                        })
-                        .testAutoSequentialScanning();
-                })
-                .withFailureHandler(function(error) {
-                    console.error('Basic connection error:', error);
-                    showMessage('❌ Connection error: ' + error.message, 'error');
-                })
-                .testSimpleConnection();
-        }
-
-        function backupData() {
-            showMessage('Creating backup...', 'info');
-            
-            google.script.run
-                .withSuccessHandler(function(response) {
-                    if (response.success) {
-                        showMessage('✅ ' + response.message, 'success');
-                    } else {
-                        showMessage('❌ ' + response.message, 'error');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    showMessage('❌ Error: ' + error.message, 'error');
-                })
-                .backupData();
-        }
+            // Auto-start camera scanner
+            setTimeout(() => {
+                startCameraScan();
+            }, 1000);
+        });
     </script>
 </body>
 </html>
