@@ -114,15 +114,12 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
-            color: white;
+            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
             box-shadow: 0 4px 15px rgba(74, 74, 74, 0.3);
         }
 
         .btn-primary:hover {
             background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 74, 74, 0.4);
         }
 
         .btn-info {
@@ -379,7 +376,7 @@
                     console.log('Camera permission granted');
                     updateScannerStatus('✅ Izin kamera diberikan. Memulai scanner...', 'success');
                     
-                    // Stop stream immediately
+                    // Stop the stream immediately
                     stream.getTracks().forEach(track => track.stop());
                     
                     // Start scanner
@@ -408,19 +405,24 @@
             // Find current camera index
             const currentIndex = cameras.findIndex(cam => cam.id === currentCameraId);
             
-            // Find opposite camera
-            let nextCamera = null;
-            if (currentIndex === 0) {
-                // Switch to back camera
-                nextCamera = cameras.find(device => 
-                    device.label.toLowerCase().includes('back') || 
-                    device.label.toLowerCase().includes('environment')
-                );
-            } else {
+            // Try to find opposite camera type
+            let nextCamera;
+            const isBackCamera = cameras[currentIndex].label.toLowerCase().includes('back') || 
+                                cameras[currentIndex].label.toLowerCase().includes('environment') ||
+                                cameras[currentIndex].label.toLowerCase().includes('rear');
+            
+            if (isBackCamera) {
                 // Switch to front camera
                 nextCamera = cameras.find(device => 
                     device.label.toLowerCase().includes('front') || 
                     device.label.toLowerCase().includes('user')
+                );
+            } else {
+                // Switch to back camera
+                nextCamera = cameras.find(device => 
+                    device.label.toLowerCase().includes('back') || 
+                    device.label.toLowerCase().includes('environment') ||
+                    device.label.toLowerCase().includes('rear')
                 );
             }
 
